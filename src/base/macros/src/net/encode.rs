@@ -1,0 +1,273 @@
+use crate::helpers::{get_derive_attributes, StructInfo};
+use crate::net::packets::get_packet_details_from_attributes;
+use crate::static_loading::packets::PacketBoundiness;
+use proc_macro::TokenStream;
+use quote::quote;
+use syn::{parse_macro_input, DeriveInput, Fields};
+
+// Generate packet ID encoding snippets
+fn generate_packet_id_snippets(
+    packet_id: Option<u8>,
+) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+    let sync_snippet = if let Some(id) = packet_id {
+        quote! {
+            <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode(&#id.into(), writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+        }
+    } else {
+        quote! {}
+    };
+
+    let async_snippet = if let Some(id) = packet_id {
+        quote! {
+            <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode_async(&#id.into(), writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+        }
+    } else {
+        quote! {}
+    };
+
+    (sync_snippet, async_snippet)
+}
+
+// Generate field encoding expressions for structs
+fn generate_field_encoders(fields: &syn::Fields) -> proc_macro2::TokenStream {
+    let encode_fields = fields.iter().map(|field| {
+        let field_name = field.ident.as_ref().unwrap();
+        let field_ty = &field.ty;
+        quote! {
+            <#field_ty as ionic_codec::encode::NetEncode>::encode(&self.#field_name, writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+        }
+    });
+    quote! { #(#encode_fields)* }
+}
+
+fn generate_async_field_encoders(fields: &syn::Fields) -> proc_macro2::TokenStream {
+    let encode_fields = fields.iter().map(|field| {
+        let field_name = field.ident.as_ref().unwrap();
+        let field_ty = &field.ty;
+        quote! {
+            <#field_ty as ionic_codec::encode::NetEncode>::encode_async(&self.#field_name, writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+        }
+    });
+    quote! { #(#encode_fields)* }
+}
+
+// Generate enum variant encoding using static dispatch
+fn generate_enum_encoders(
+    data: &syn::DataEnum,
+) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+    let variants = data.variants.iter().map(|variant| {
+        let variant_ident = &variant.ident;
+
+        match &variant.fields {
+            Fields::Named(fields) => {
+                let field_idents: Vec<_> = fields.named.iter()
+                    .map(|f| f.ident.as_ref().unwrap())
+                    .collect();
+                let field_tys: Vec<_> = fields.named.iter()
+                    .map(|f| &f.ty)
+                    .collect();
+
+                (quote! {
+                    Self::#variant_ident { #(#field_idents),* } => {
+                        #(
+                            <#field_tys as ionic_codec::encode::NetEncode>::encode(#field_idents, writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                        )*
+                    }
+                },
+                 quote! {
+                    Self::#variant_ident { #(#field_idents),* } => {
+                        #(
+                            <#field_tys as ionic_codec::encode::NetEncode>::encode_async(#field_idents, writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                        )*
+                    }
+                })
+            }
+            Fields::Unnamed(fields) => {
+                let field_names: Vec<_> = (0..fields.unnamed.len())
+                    .map(|i| syn::Ident::new(&format!("field{i}"), proc_macro2::Span::call_site()))
+                    .collect();
+                let field_tys: Vec<_> = fields.unnamed.iter()
+                    .map(|f| &f.ty)
+                    .collect();
+
+                (quote! {
+                    Self::#variant_ident(#(#field_names),*) => {
+                        #(
+                            <#field_tys as ionic_codec::encode::NetEncode>::encode(#field_names, writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                        )*
+                    }
+                },
+                 quote! {
+                    Self::#variant_ident(#(#field_names),*) => {
+                        #(
+                            <#field_tys as ionic_codec::encode::NetEncode>::encode_async(#field_names, writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                        )*
+                    }
+                })
+            }
+            Fields::Unit => (
+                quote! {
+                    Self::#variant_ident => {}
+                },
+                quote! {
+                    Self::#variant_ident => {}
+                }
+            ),
+        }
+    }).unzip::<_, _, Vec<_>, Vec<_>>();
+
+    let (sync_variants, async_variants) = variants;
+
+    (
+        quote! {
+            match self {
+                #(#sync_variants)*
+            }
+        },
+        quote! {
+            match self {
+                #(#async_variants)*
+            }
+        },
+    )
+}
+
+pub(crate) fn derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let packet_attr = get_derive_attributes(&input, "packet");
+    let (packet_id_snippet, async_packet_id_snippet) = generate_packet_id_snippets(
+        get_packet_details_from_attributes(packet_attr.as_slice(), PacketBoundiness::Clientbound)
+            .unzip()
+            .1,
+    );
+
+    let (sync_impl, async_impl) = match &input.data {
+        syn::Data::Struct(data) => {
+            let field_encoders = generate_field_encoders(&data.fields);
+            let async_field_encoders = generate_async_field_encoders(&data.fields);
+
+            (
+                quote! {
+                    fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                        match opts {
+                            ionic_codec::encode::NetEncodeOpts::None => {
+                                #packet_id_snippet
+                                #field_encoders
+                            }
+                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                                let actual_writer = writer;
+                                let mut writer = Vec::new();
+                                let mut writer = &mut writer;
+
+                                #packet_id_snippet
+                                #field_encoders
+
+                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
+                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                                actual_writer.write_all(writer)?;
+                            }
+                            e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
+                        }
+                        Ok(())
+                    }
+                },
+                quote! {
+                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                        match opts {
+                            ionic_codec::encode::NetEncodeOpts::None => {
+                                #async_packet_id_snippet
+                                #async_field_encoders
+                            }
+                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                                let actual_writer = writer;
+                                let mut writer = Vec::new();
+                                let mut writer = &mut writer;
+
+                                #async_packet_id_snippet
+                                #field_encoders
+
+                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
+                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode_async(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                                <W as tokio::io::AsyncWriteExt>::write_all(actual_writer, writer).await?;
+                            }
+                            e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
+                        }
+                        Ok(())
+                    }
+                },
+            )
+        }
+        syn::Data::Enum(data) => {
+            let (sync_enum_encoder, async_enum_encoder) = generate_enum_encoders(data);
+
+            (
+                quote! {
+                    fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                        match opts {
+                            ionic_codec::encode::NetEncodeOpts::None => {
+                                #packet_id_snippet
+                                #sync_enum_encoder
+                            }
+                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                                let actual_writer = writer;
+                                let mut writer = Vec::new();
+                                let mut writer = &mut writer;
+
+                                #packet_id_snippet
+                                #sync_enum_encoder
+
+                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
+                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                                actual_writer.write_all(writer)?;
+                            }
+                            e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
+                        }
+                        Ok(())
+                    }
+                },
+                quote! {
+                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                        match opts {
+                            ionic_codec::encode::NetEncodeOpts::None => {
+                                #async_packet_id_snippet
+                                #async_enum_encoder
+                            }
+                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                                let actual_writer = writer;
+                                let mut writer = Vec::new();
+                                let mut writer = &mut writer;
+
+                                #async_packet_id_snippet
+                                #sync_enum_encoder
+
+                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
+                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode_async(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                                <W as tokio::io::AsyncWriteExt>::write_all(actual_writer, writer).await?;
+                            }
+                            e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
+                        }
+                        Ok(())
+                    }
+                },
+            )
+        }
+        _ => unimplemented!("NetEncode can only be derived for structs and enums"),
+    };
+
+    let StructInfo {
+        struct_name,
+        impl_generics,
+        ty_generics,
+        where_clause,
+        lifetime: _lifetime,
+        ..
+    } = crate::helpers::extract_struct_info(&input, None);
+
+    TokenStream::from(quote! {
+        impl #impl_generics ionic_codec::encode::NetEncode for #struct_name #ty_generics #where_clause {
+            #sync_impl
+            #async_impl
+        }
+    })
+}

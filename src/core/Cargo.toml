@@ -1,0 +1,25 @@
+[package]
+name = "ionic-core"
+description = "This crate defines all the primitives, traits and logics used in FerrumC codebase."
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror = { workspace = true }
+bevy_ecs = { workspace = true }
+bevy_math = { workspace = true }
+typename = { workspace = true }
+ionic-text = { workspace = true }
+ionic-codec = { workspace = true }
+uuid = { workspace = true }
+crossbeam-queue = { workspace = true }
+bitcode = { workspace = true }
+bitcode_derive = { workspace = true }
+lazy_static = { workspace = true }
+deepsize = { workspace = true }
+ahash = { workspace = true }
+tracing = { workspace = true }
+ionic-nbt = { workspace = true }
+ionic-macros = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

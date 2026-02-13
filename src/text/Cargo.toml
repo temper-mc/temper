@@ -1,0 +1,20 @@
+[package]
+name = "ionic-text"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ionic-codec = { workspace = true }
+ionic-nbt = { workspace = true }
+ionic-macros = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+paste = { workspace = true }
+uuid = { workspace = true }
+
+[dev-dependencies]
+valence_text = "=0.2.0-alpha.1"
+
+[lints]
+workspace = true

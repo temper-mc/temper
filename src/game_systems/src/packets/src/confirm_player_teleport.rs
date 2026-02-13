@@ -1,0 +1,15 @@
+use bevy_ecs::prelude::{Query, Res};
+use ionic_components::player::teleport_tracker::TeleportTracker;
+use ionic_protocol::ConfirmPlayerTeleportReceiver;
+
+pub fn handle(
+    receiver: Res<ConfirmPlayerTeleportReceiver>,
+    mut query: Query<&mut TeleportTracker>,
+) {
+    for (_, eid) in receiver.0.try_iter() {
+        let Ok(mut tracker) = query.get_mut(eid) else {
+            continue;
+        };
+        tracker.waiting_for_confirm = false;
+    }
+}

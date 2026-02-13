@@ -4,7 +4,7 @@ import re
 incoming_template = """
 use crate::packets::IncomingPacket;
 
-use ferrumc_macros::{packet, NetDecode};
+use ionic_macros::{packet, NetDecode};
 use ferrumc_state::ServerState;
 use std::sync::Arc;
 
@@ -25,7 +25,7 @@ pub fn handle(
 ) {}"""
 
 outgoing_template = """
-use ferrumc_macros::{packet, NetEncode};\
+use ionic_macros::{packet, NetEncode};\
 
 #[derive(NetEncode)]
 #[packet(packet_id = "++id++", state="play")]

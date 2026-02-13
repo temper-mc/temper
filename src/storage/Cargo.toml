@@ -1,0 +1,25 @@
+[package]
+name = "ionic-storage"
+description = "Implements storage capabilities of FerrumC for world persistence and on-disk resource parsing."
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror = { workspace = true }
+tracing = { workspace = true }
+ionic-config = { workspace = true }
+heed = { workspace = true }
+page_size = { workspace = true }
+parking_lot = { workspace = true }
+
+
+[dev-dependencies]
+criterion = { workspace = true }
+tempfile = { workspace = true }
+wyhash = { workspace = true }
+rand = { workspace = true }
+
+[[bench]]
+name = "storage_bench"
+harness = false
+path = "src/benches/storage.rs"

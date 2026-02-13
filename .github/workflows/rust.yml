@@ -41,7 +41,7 @@ jobs:
     name: Build and Upload Artifacts
     if: github.ref == 'refs/heads/master'
     runs-on: ${{ matrix.os }}
-    needs: [formatting_and_security, test]
+    needs: [ formatting_and_security, test ]
     strategy:
       matrix:
         include:
@@ -68,8 +68,8 @@ jobs:
       - name: Upload executable
         uses: actions/upload-artifact@v4
         with:
-          name: ferrumc-${{ matrix.os }}
-          path: target/${{ matrix.target }}/release/ferrumc*
+          name: ionic-${{ matrix.os }}
+          path: target/${{ matrix.target }}/release/ionic*
 
   test:
     name: Run Tests

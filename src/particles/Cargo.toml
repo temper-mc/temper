@@ -1,0 +1,16 @@
+[package]
+name = "ionic-particles"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+ionic-world = { workspace = true }
+ionic-codec = { workspace = true }
+ionic-core = { workspace = true }
+ionic-inventories = { workspace = true }
+ionic-macros = { workspace = true }
+tokio = { workspace = true }
+ionic-components = { workspace = true }
+
+[lints]
+workspace = true

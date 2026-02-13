@@ -1,0 +1,30 @@
+[package]
+name = "ionic-nbt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+thiserror = { workspace = true }
+ionic-codec = { workspace = true }
+tokio = { workspace = true }
+ionic-general-purpose = { workspace = true }
+uuid = { workspace = true }
+
+[lints]
+workspace = true
+
+#================= Benches ==============#
+[dev-dependencies]
+criterion = { workspace = true }
+ionic-macros = { workspace = true }
+fastnbt = { version = "2.6.0" }
+simdnbt = { version = "0.9.0" }
+crab_nbt = { version = "0.2.11" }
+hematite-nbt = { version = "0.5.2" }
+maplit = "1.0.2"
+
+[[bench]]
+name = "ionic-nbt"
+path = "benches/ionic-nbt.rs"
+harness = false

@@ -1,0 +1,50 @@
+use bevy_ecs::prelude::{MessageWriter, Query, Res};
+
+use ionic_components::player::grounded::OnGround;
+use ionic_components::player::position::Position;
+use ionic_components::player::teleport_tracker::TeleportTracker;
+use ionic_messages::chunk_calc::ChunkCalc;
+use ionic_messages::packet_messages::Movement;
+use ionic_protocol::SetPlayerPositionPacketReceiver;
+use tracing::trace;
+
+pub fn handle(
+    receiver: Res<SetPlayerPositionPacketReceiver>,
+    mut query: Query<(&mut Position, &mut OnGround, &TeleportTracker)>,
+    mut movement_messages: MessageWriter<Movement>,
+    mut chunk_calc_messages: MessageWriter<ChunkCalc>,
+) {
+    for (event, eid) in receiver.0.try_iter() {
+        if let Ok((mut pos, mut ground, tracker)) = query.get_mut(eid) {
+            if tracker.waiting_for_confirm {
+                // Ignore position updates while waiting for teleport confirmation
+                continue;
+            }
+            let new_pos = Position::new(event.x, event.feet_y, event.z);
+
+            // Check if chunk changed
+            let old_chunk = (pos.x as i32 >> 4, pos.z as i32 >> 4);
+            let new_chunk = (new_pos.x as i32 >> 4, new_pos.z as i32 >> 4);
+            if old_chunk != new_chunk {
+                chunk_calc_messages.write(ChunkCalc(eid));
+            }
+
+            // Build movement message with delta BEFORE updating component
+            let movement = Movement::new(eid)
+                .position_delta_from(&pos, &new_pos)
+                .on_ground(event.on_ground);
+
+            // Update components
+            *pos = new_pos;
+            *ground = OnGround(event.on_ground);
+
+            // Send movement message for broadcasting
+            movement_messages.write(movement);
+
+            trace!(
+                "Updated position for player {}: ({}, {}, {})",
+                eid, event.x, event.feet_y, event.z
+            );
+        }
+    }
+}

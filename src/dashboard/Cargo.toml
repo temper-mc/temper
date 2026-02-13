@@ -1,0 +1,27 @@
+[package]
+name = "ionic-dashboard"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+tracing = { workspace = true }
+axum = { workspace = true }
+tokio = { workspace = true }
+sysinfo = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+include_dir = { workspace = true }
+mime_guess = { workspace = true }
+dir-size = { workspace = true }
+
+# ionic local crates
+ionic-state = { workspace = true }
+ionic-general-purpose = { workspace = true }
+ionic-config = { workspace = true }
+
+[build-dependencies]
+reqwest = { workspace = true }
+
+anyhow = { workspace = true }
+zip = { version = "7.2.0", default-features = false, features = ["deflate"] }

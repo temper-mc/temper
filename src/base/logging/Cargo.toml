@@ -1,0 +1,24 @@
+[package]
+name = "ionic-logging"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+ionic-profiling = { workspace = true }
+ionic-general-purpose = { workspace = true }
+thiserror = { workspace = true }
+tracing-tracy = { workspace = true, optional = true }
+tracy-client = { workspace = true, optional = true }
+tui-logger = { workspace = true }
+ratatui = { workspace = true }
+unicode-width = { workspace = true }
+log = { workspace = true }
+ratatui-core = { workspace = true }
+regex = { workspace = true }
+
+[features]
+# Enable the tracy profiler client
+tracy = ["tracing-tracy", "tracy-client"]

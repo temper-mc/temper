@@ -14,38 +14,50 @@ resolver = "2"
 
 #================= Members =================#
 members = [
+    "src/adapters/anvil",
+    "src/adapters/nbt",
+    "src/app",
+    "src/base/macros",
+    "src/base/general_purpose",
+    "src/base/logging",
+    "src/base/profiling",
+    "src/base/threadpool",
     "src/bin",
-    "src/lib/adapters/anvil",
-    "src/lib/adapters/nbt",
-    "src/lib/commands",
-    "src/lib/default_commands",
-    "src/lib/core",
-    "src/lib/core/state",
-    "src/lib/derive_macros",
-    "src/lib/net",
-    "src/lib/net/crates/codec",
-    "src/lib/net/crates/encryption",
-    "src/lib/plugins",
-    "src/lib/storage",
-    "src/lib/text",
-    "src/lib/utils",
-    "src/lib/utils/general_purpose",
-    "src/lib/utils/logging",
-    "src/lib/utils/profiling",
-    "src/lib/world",
-    "src/lib/world_gen",
-    "src/lib/utils/threadpool",
-    "src/lib/inventories",
-    "src/lib/registry",
-    "src/lib/scheduler",
-    "src/lib/components",
-    "src/lib/messages",
-    "src/lib/data",
-    "src/lib/entities",
-    "src/lib/physics",
-    "src/lib/performance",
-    "src/lib/dashboard",
-    "src/lib/particles",
+    "src/commands",
+    "src/components",
+    "src/core",
+    "src/dashboard",
+    "src/data",
+    "src/default_commands",
+    "src/entities",
+    "src/game_systems",
+    "src/game_systems/src/background",
+    "src/game_systems/src/mobs",
+    "src/game_systems/src/packets",
+    "src/game_systems/src/physics",
+    "src/game_systems/src/player",
+    "src/game_systems/src/world",
+    "src/inventories",
+    "src/messages",
+    "src/net/codec",
+    "src/net/encryption",
+    "src/net/protocol",
+    "src/net/runtime",
+    "src/particles",
+    "src/performance",
+    "src/physics",
+    "src/plugins",
+    "src/registry",
+    "src/resources",
+    "src/scheduler",
+    "src/state",
+    "src/storage",
+    "src/text",
+    "src/utils",
+    "src/world",
+    "src/world/format",
+    "src/world/db",
+    "src/world/gen",
 ]
 
 [workspace.package]
@@ -101,38 +113,43 @@ debug = true
 #=============== Dependencies ==============#
 [workspace.dependencies]
 # Workspace members
-ferrumc-anvil = { path = "src/lib/adapters/anvil" }
-ferrumc-config = { path = "src/lib/config" }
-ferrumc-core = { path = "src/lib/core" }
-ferrumc-default-commands = { path = "src/lib/default_commands" }
-ferrumc-commands = { path = "src/lib/commands" }
-ferrumc-general-purpose = { path = "src/lib/utils/general_purpose" }
-ferrumc-logging = { path = "src/lib/utils/logging" }
-ferrumc-macros = { path = "src/lib/derive_macros" }
-ferrumc-nbt = { path = "src/lib/adapters/nbt" }
-ferrumc-net = { path = "src/lib/net" }
-ferrumc-performance = { path = "src/lib/performance" }
-ferrumc-net-codec = { path = "src/lib/net/crates/codec" }
-ferrumc-net-encryption = { path = "src/lib/net/crates/encryption" }
-ferrumc-plugins = { path = "src/lib/plugins" }
-ferrumc-profiling = { path = "src/lib/utils/profiling" }
-ferrumc-registry = { path = "src/lib/registry" }
-ferrumc-scheduler = { path = "src/lib/scheduler" }
-ferrumc-state = { path = "src/lib/core/state" }
-ferrumc-storage = { path = "src/lib/storage" }
-ferrumc-text = { path = "src/lib/text" }
-ferrumc-threadpool = { path = "src/lib/utils/threadpool" }
-ferrumc-utils = { path = "src/lib/utils" }
-ferrumc-world = { path = "src/lib/world" }
-ferrumc-world-gen = { path = "src/lib/world_gen" }
-ferrumc-inventories = { path = "src/lib/inventories" }
-ferrumc-data = { path = "src/lib/data" }
-ferrumc-components = { path = "src/lib/components" }
-ferrumc-dashboard = { path = "src/lib/dashboard" }
-ferrumc-messages = { path = "src/lib/messages" }
-ferrumc-entities = { path = "src/lib/entities" }
-ferrumc-physics = { path = "src/lib/physics" }
-ferrumc-particles = { path = "src/lib/particles" }
+ionic-app = { path = "src/app" }
+ionic-anvil = { path = "src/adapters/anvil" }
+ionic-config = { path = "src/config" }
+ionic-core = { path = "src/core" }
+ionic-default-commands = { path = "src/default_commands" }
+ionic-commands = { path = "src/commands" }
+ionic-general-purpose = { path = "src/base/general_purpose" }
+ionic-logging = { path = "src/base/logging" }
+ionic-macros = { path = "src/base/macros" }
+ionic-nbt = { path = "src/adapters/nbt" }
+ionic-net-runtime = { path = "src/net/runtime" }
+ionic-performance = { path = "src/performance" }
+ionic-codec = { path = "src/net/codec" }
+ionic-protocol = { path = "src/net/protocol" }
+ionic-encryption = { path = "src/net/encryption" }
+ionic-plugins = { path = "src/plugins" }
+ionic-profiling = { path = "src/base/profiling" }
+ionic-registry = { path = "src/registry" }
+ionic-scheduler = { path = "src/scheduler" }
+ionic-state = { path = "src/state" }
+ionic-storage = { path = "src/storage" }
+ionic-text = { path = "src/text" }
+ionic-threadpool = { path = "src/base/threadpool" }
+ionic-utils = { path = "src/utils" }
+ionic-world = { path = "src/world" }
+ionic-world-gen = { path = "src/world/gen" }
+ionic-world-format = { path = "src/world/format" }
+ionic-inventories = { path = "src/inventories" }
+ionic-data = { path = "src/data" }
+ionic-components = { path = "src/components" }
+ionic-dashboard = { path = "src/dashboard" }
+ionic-messages = { path = "src/messages" }
+ionic-entities = { path = "src/entities" }
+ionic-physics = { path = "src/physics" }
+ionic-particles = { path = "src/particles" }
+ionic-resources = { path = "src/resources" }
+ionic-game-systems = { path = "src/game_systems" }
 
 # Asynchronous
 tokio = { version = "1.49.0", features = [

@@ -1,0 +1,18 @@
+[package]
+name = "ionic-tests"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ionic-nbt = { workspace = true }
+ionic-macros = { workspace = true }
+ionic-codec = { workspace = true }
+ionic-config = { workspace = true }
+bevy_ecs = { workspace = true }
+ionic-core = { workspace = true }
+flate2 = { workspace = true }
+tokio = { workspace = true }
+maplit = { workspace = true }
+
+[lints]
+workspace = true

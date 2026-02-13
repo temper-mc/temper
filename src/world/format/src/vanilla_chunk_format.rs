@@ -1,0 +1,105 @@
+use bitcode::{Decode, Encode};
+use ionic_core::block_data::BlockData;
+use ionic_macros::NBTDeserialize;
+use ionic_macros::NBTSerialize;
+use macro_rules_attribute::{apply, attribute_alias};
+use serde_derive::{Deserialize, Serialize};
+
+attribute_alias! {
+    #[apply(ChunkDerives)] = #[derive(NBTSerialize, NBTDeserialize,
+    Debug,
+    Clone,
+    PartialEq,
+    Encode,
+    Serialize,
+    Decode,
+    Deserialize,
+    Eq,
+)];
+}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+#[nbt(is_root)]
+#[nbt(rename = "")]
+pub struct VanillaChunk {
+    pub dimension: Option<String>,
+    #[nbt(rename = "Status")]
+    pub status: String,
+    #[nbt(rename = "DataVersion")]
+    pub data_version: i32,
+    #[nbt(rename = "Heightmaps")]
+    pub heightmaps: Option<VanillaHeightmaps>,
+    #[nbt(rename = "isLightOn")]
+    pub is_light_on: Option<i8>,
+    #[nbt(rename = "InhabitedTime")]
+    pub inhabited_time: Option<i64>,
+    #[nbt(rename = "yPos")]
+    pub y_pos: i32,
+    #[nbt(rename = "xPos")]
+    pub x_pos: i32,
+    #[nbt(rename = "zPos")]
+    pub z_pos: i32,
+    pub(crate) structures: Option<Structures>,
+    #[nbt(rename = "LastUpdate")]
+    pub last_update: Option<i64>,
+    pub sections: Option<Vec<Section>>,
+}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+#[nbt(net_encode)]
+pub(crate) struct VanillaHeightmaps {
+    // #[nbt(rename = "MOTION_BLOCKING_NO_LEAVES")]
+    // pub motion_blocking_no_leaves: Option<Vec<i64>>,
+    #[nbt(rename = "MOTION_BLOCKING")]
+    pub motion_blocking: Option<Vec<i64>>,
+    // #[nbt(rename = "OCEAN_FLOOR")]
+    // pub ocean_floor: Option<Vec<i64>>,
+    #[nbt(rename = "WORLD_SURFACE")]
+    pub world_surface: Option<Vec<i64>>,
+}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+pub(crate) struct Structures {
+    pub starts: Starts,
+    #[nbt(rename = "References")]
+    pub references: References,
+}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+pub(crate) struct Starts {}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+pub(crate) struct References {}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+pub(crate) struct Section {
+    #[nbt(rename = "block_states")]
+    pub block_states: Option<BlockStates>,
+    pub biomes: Option<Biomes>,
+    #[nbt(rename = "Y")]
+    pub y: i8,
+    #[nbt(rename = "BlockLight")]
+    pub block_light: Option<Vec<i8>>,
+    #[nbt(rename = "SkyLight")]
+    pub sky_light: Option<Vec<i8>>,
+}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+pub(crate) struct BlockStates {
+    pub data: Option<Vec<i64>>,
+    pub palette: Option<Vec<BlockData>>,
+}
+
+#[apply(ChunkDerives)]
+#[derive(deepsize::DeepSizeOf)]
+pub(crate) struct Biomes {
+    pub data: Option<Vec<i64>>,
+    pub palette: Vec<String>,
+}

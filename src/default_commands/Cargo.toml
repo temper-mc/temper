@@ -1,0 +1,25 @@
+[package]
+name = "ionic-default-commands"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ionic-messages = { workspace = true }
+ionic-components = { workspace = true }
+ionic-commands = { workspace = true }
+ionic-macros = { workspace = true }
+ionic-text = { workspace = true }
+ionic-core = { workspace = true }
+ionic-net-runtime = { workspace = true }
+ionic-protocol = { workspace = true }
+ionic-performance = { workspace = true }
+ionic-codec = { workspace = true }
+lazy_static = { workspace = true }
+bimap = { workspace = true }
+ionic-nbt = { workspace = true }
+ionic-state = { workspace = true }
+ionic-resources = { workspace = true }
+
+ctor = { workspace = true }
+tracing = { workspace = true }
+bevy_ecs = { workspace = true }

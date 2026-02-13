@@ -1,0 +1,25 @@
+[package]
+name = "ionic-anvil"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+thiserror = { workspace = true }
+memmap2 = { workspace = true }
+yazi = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+rayon = { workspace = true }
+fastanvil = "0.31.0"
+criterion = { workspace = true }
+ionic-logging = { workspace = true }
+ionic-utils = { workspace = true }
+
+[lints]
+workspace = true
+
+[[bench]]
+name = "anvil"
+path = "benches/anvil.rs"
+harness = false
