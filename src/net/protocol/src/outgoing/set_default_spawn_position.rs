@@ -1,5 +1,5 @@
-use ionic_codec::net_types::network_position::NetworkPosition;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::network_position::NetworkPosition;
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "set_default_spawn_position", state = "play")]

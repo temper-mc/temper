@@ -1,8 +1,8 @@
 [package]
-name = "ionic-config"
+name = "temper-config"
 version = "0.1.0"
 edition = "2021"
-description = "FerrumC configuration utilities"
+description = "Temper configuration utilities"
 
 [dependencies]
 toml = { workspace = true }
@@ -11,7 +11,7 @@ serde = { workspace = true }
 serde_derive = { workspace = true }
 tracing = { workspace = true }
 base64 = { workspace = true }
-ionic-general-purpose = { workspace = true }
+temper-general-purpose = { workspace = true }
 lazy_static = { workspace = true }
 dashmap = { workspace = true }
 uuid = { workspace = true }

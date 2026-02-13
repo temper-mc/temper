@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::{Entity, Message};
-use ionic_components::player::gamemode::GameMode;
+use temper_components::player::gamemode::GameMode;
 
 /// Fired when a player's gamemode should be changed.
 /// This can be triggered by a command or a packet.

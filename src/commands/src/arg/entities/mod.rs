@@ -9,8 +9,8 @@ use crate::arg::{CommandArgument, ParserResult};
 use crate::{CommandContext, Suggestion};
 use ::uuid::Uuid;
 use bevy_ecs::prelude::Entity;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::player_identity::PlayerIdentity;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::player_identity::PlayerIdentity;
 
 /// Represents an entity argument in a command.
 /// It can be a player name, UUID, or special selectors like @e, @p, @r, @a.
@@ -18,9 +18,9 @@ use ionic_components::player::player_identity::PlayerIdentity;
 ///
 /// # Example
 /// ```ignore
-/// # use ionic_commands::arg::entities::EntityArgument;
-/// # use ionic_core::identity::entity_identity::EntityIdentity;
-/// # use ionic_core::identity::player_identity::PlayerIdentity;
+/// # use temper_commands::arg::entities::EntityArgument;
+/// # use temper_core::identity::entity_identity::EntityIdentity;
+/// # use temper_core::identity::player_identity::PlayerIdentity;
 /// # use bevy_ecs::prelude::World;
 ///
 /// fn my_command(query: Query<(Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>) {
@@ -70,19 +70,19 @@ impl CommandArgument for EntityArgument {
         let mut suggestions = vec![
             Suggestion {
                 content: "@e".to_string(),
-                tooltip: Some(ionic_nbt::NBT::new("Any Entity".into())),
+                tooltip: Some(temper_nbt::NBT::new("Any Entity".into())),
             },
             // Suggestion {
             //     content: "@p".to_string(),
-            //     tooltip: Some(ionic_nbt::NBT::new("Nearest Player".into())),
+            //     tooltip: Some(temper_nbt::NBT::new("Nearest Player".into())),
             // },
             Suggestion {
                 content: "@r".to_string(),
-                tooltip: Some(ionic_nbt::NBT::new("Random Player".into())),
+                tooltip: Some(temper_nbt::NBT::new("Random Player".into())),
             },
             Suggestion {
                 content: "@a".to_string(),
-                tooltip: Some(ionic_nbt::NBT::new("All Players".into())),
+                tooltip: Some(temper_nbt::NBT::new("All Players".into())),
             },
         ];
         let state = ctx.state.clone();
@@ -90,7 +90,7 @@ impl CommandArgument for EntityArgument {
             let (_, (uuid, name)) = kv.pair();
             suggestions.push(Suggestion {
                 content: name.clone(),
-                tooltip: Some(ionic_nbt::NBT::new(
+                tooltip: Some(temper_nbt::NBT::new(
                     Uuid::from_u128(*uuid)
                         .as_hyphenated()
                         .to_string()
@@ -133,9 +133,9 @@ mod tests {
     use super::*;
     use crate::{Command, CommandInput, Sender};
     use bevy_ecs::prelude::World;
-    use ionic_components::entity_identity::EntityIdentity;
-    use ionic_components::player::player_identity::PlayerIdentity;
-    use ionic_state::create_test_state;
+    use temper_components::entity_identity::EntityIdentity;
+    use temper_components::player::player_identity::PlayerIdentity;
+    use temper_state::create_test_state;
     use std::sync::Arc;
 
     #[test]

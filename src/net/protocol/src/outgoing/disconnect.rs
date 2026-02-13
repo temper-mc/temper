@@ -1,6 +1,6 @@
-use ionic_macros::{packet, NetEncode};
-use ionic_nbt::NBT;
-use ionic_text::{ComponentBuilder, TextComponent};
+use temper_macros::{packet, NetEncode};
+use temper_nbt::NBT;
+use temper_text::{ComponentBuilder, TextComponent};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "disconnect", state = "play")]
@@ -24,6 +24,6 @@ impl DisconnectPacket {
 
 impl Default for DisconnectPacket {
     fn default() -> Self {
-        Self::from_string("FERRUMC-DISCONNECTED".to_string())
+        Self::from_string("TEMPER-DISCONNECTED".to_string())
     }
 }

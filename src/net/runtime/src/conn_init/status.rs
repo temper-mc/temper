@@ -1,18 +1,18 @@
 use crate::conn_init::LoginResult;
 use crate::connection::StreamWriter;
-use ionic_codec::decode::{NetDecode, NetDecodeOpts};
-use ionic_config::favicon::get_favicon_base64;
-use ionic_config::server_config::get_global_config;
-use ionic_encryption::read::EncryptedReader;
-use ionic_macros::lookup_packet;
-use ionic_protocol::errors::NetError;
-use ionic_protocol::errors::PacketError;
-use ionic_protocol::incoming::packet_skeleton::PacketSkeleton;
-use ionic_protocol::incoming::ping::PingPacket;
-use ionic_protocol::incoming::status_request::StatusRequestPacket;
-use ionic_protocol::outgoing::ping_response::PongPacket;
-use ionic_protocol::outgoing::status_response::StatusResponse;
-use ionic_state::GlobalState;
+use temper_codec::decode::{NetDecode, NetDecodeOpts};
+use temper_config::favicon::get_favicon_base64;
+use temper_config::server_config::get_global_config;
+use temper_encryption::read::EncryptedReader;
+use temper_macros::lookup_packet;
+use temper_protocol::errors::NetError;
+use temper_protocol::errors::PacketError;
+use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
+use temper_protocol::incoming::ping::PingPacket;
+use temper_protocol::incoming::status_request::StatusRequestPacket;
+use temper_protocol::outgoing::ping_response::PongPacket;
+use temper_protocol::outgoing::status_response::StatusResponse;
+use temper_state::GlobalState;
 use rand::prelude::SliceRandom;
 use tokio::net::tcp::OwnedReadHalf;
 use tracing::warn;
@@ -45,7 +45,7 @@ pub(super) async fn status(
 
     // Read next incoming packet in "status" connection state
     let mut skel =
-        PacketSkeleton::new(&mut conn_read, false, ionic_protocol::ConnState::Status).await?;
+        PacketSkeleton::new(&mut conn_read, false, temper_protocol::ConnState::Status).await?;
 
     // Expected packet ID for a status request
     let expected_id = lookup_packet!("status", "serverbound", "status_request");
@@ -54,7 +54,7 @@ pub(super) async fn status(
         return Err(NetError::Packet(PacketError::UnexpectedPacket {
             expected: expected_id,
             received: skel.id,
-            state: ionic_protocol::ConnState::Status,
+            state: temper_protocol::ConnState::Status,
         }));
     }
 
@@ -74,7 +74,7 @@ pub(super) async fn status(
     // ---- Phase 3: Wait for Ping Request ----
 
     let mut skel =
-        PacketSkeleton::new(&mut conn_read, false, ionic_protocol::ConnState::Status).await?;
+        PacketSkeleton::new(&mut conn_read, false, temper_protocol::ConnState::Status).await?;
 
     let expected_id = lookup_packet!("status", "serverbound", "ping_request");
 
@@ -82,7 +82,7 @@ pub(super) async fn status(
         return Err(NetError::Packet(PacketError::UnexpectedPacket {
             expected: expected_id,
             received: skel.id,
-            state: ionic_protocol::ConnState::Status,
+            state: temper_protocol::ConnState::Status,
         }));
     }
 
@@ -197,7 +197,7 @@ fn get_server_status(state: &GlobalState) -> String {
     };
 
     // Randomly choose a MOTD line from the configured list
-    const DEFAULT_MOTD: &str = "A FerrumC Server";
+    const DEFAULT_MOTD: &str = "A temper Server";
     let motd: &str = config
         .motd
         .choose(&mut rand::thread_rng())

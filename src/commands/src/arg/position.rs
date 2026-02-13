@@ -2,7 +2,7 @@ use crate::arg::primitive::PrimitiveArgument;
 use crate::arg::utils::parser_error;
 use crate::arg::{CommandArgument, ParserResult};
 use crate::{CommandContext, Suggestion};
-use ionic_components::player::position::Position;
+use temper_components::player::position::Position;
 
 /// Represents a position argument in a command, which can be absolute or relative.
 /// For example: "100 64 -200" (absolute) or "~10 ~ ~-5" (relative).
@@ -13,8 +13,8 @@ use ionic_components::player::position::Position;
 ///
 /// # Example
 /// ```ignore
-/// use ionic_commands::arg::position::CommandPosition;
-/// use ionic_core::transform::position::Position;
+/// use temper_commands::arg::position::CommandPosition;
+/// use temper_core::transform::position::Position;
 ///
 /// let cmd_pos = CommandPosition::parse("~10 64 ~-5").unwrap;
 /// let base_position = Position::new(100.0, 64.0, 100.0);
@@ -133,7 +133,7 @@ impl CommandPosition {
 mod tests {
     use super::*;
     use crate::{Command, CommandInput, Sender};
-    use ionic_state::create_test_state;
+    use temper_state::create_test_state;
     use std::sync::Arc;
 
     #[test]

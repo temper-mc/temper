@@ -1,4 +1,4 @@
-use ionic_config::server_config::get_global_config;
+use temper_config::server_config::get_global_config;
 use rand::prelude::SliceRandom;
 use std::net::{Ipv4Addr, SocketAddrV4};
 use tokio::net::UdpSocket;

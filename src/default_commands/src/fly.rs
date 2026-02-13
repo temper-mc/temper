@@ -1,11 +1,11 @@
 use bevy_ecs::prelude::*;
-use ionic_commands::Sender;
-use ionic_components::player::abilities::PlayerAbilities;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_macros::command;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::player_abilities::PlayerAbilities as OutgoingPlayerAbilities;
-use ionic_text::TextComponentBuilder;
+use temper_commands::Sender;
+use temper_components::player::abilities::PlayerAbilities;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_macros::command;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::player_abilities::PlayerAbilities as OutgoingPlayerAbilities;
+use temper_text::TextComponentBuilder;
 use tracing::{error, info};
 
 /// Toggles the sender's flying abilities.

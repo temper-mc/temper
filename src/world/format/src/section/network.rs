@@ -3,9 +3,9 @@ use crate::section::direct::DirectSection;
 use crate::section::paletted::PalettedSection;
 use crate::section::uniform::UniformSection;
 use crate::section::{ChunkSection, ChunkSectionType, CHUNK_SECTION_LENGTH};
-use ionic_codec::net_types::net_array::NetworkArray;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::NetEncode;
+use temper_codec::net_types::net_array::NetworkArray;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::NetEncode;
 
 #[derive(NetEncode)]
 pub struct PalettedContainer<'section> {

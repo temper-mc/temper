@@ -5,12 +5,12 @@
 //! 2. Broadcast PlayerInfoRemovePacket to remove from tab list
 
 use bevy_ecs::prelude::{Entity, MessageReader, Query, Res};
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_messages::player_leave::PlayerLeft;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::player_info_remove::PlayerInfoRemovePacket;
-use ionic_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
-use ionic_state::GlobalStateResource;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_messages::player_leave::PlayerLeft;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::player_info_remove::PlayerInfoRemovePacket;
+use temper_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
+use temper_state::GlobalStateResource;
 use tracing::{error, trace};
 
 /// Listens for `PlayerLeft` events and broadcasts despawn packets to remaining players.

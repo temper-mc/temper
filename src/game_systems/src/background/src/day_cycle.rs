@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::{Commands, Entity, Query, ResMut};
-use ionic_components::player::time::LastSentTimeUpdate;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::update_time::UpdateTimePacket;
-use ionic_resources::time::WorldTime;
+use temper_components::player::time::LastSentTimeUpdate;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::update_time::UpdateTimePacket;
+use temper_resources::time::WorldTime;
 use tracing::warn;
 
 pub fn tick_daylight_cycle(

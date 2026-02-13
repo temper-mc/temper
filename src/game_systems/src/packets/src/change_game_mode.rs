@@ -1,9 +1,9 @@
 use bevy_ecs::prelude::*;
-use ionic_components::player::gamemode::GameMode;
+use temper_components::player::gamemode::GameMode;
 use tracing::warn;
 
-use ionic_messages::PlayerGameModeChanged;
-use ionic_protocol::ChangeGameModeReceiver;
+use temper_messages::PlayerGameModeChanged;
+use temper_protocol::ChangeGameModeReceiver;
 
 pub fn handle(
     events: Res<ChangeGameModeReceiver>,

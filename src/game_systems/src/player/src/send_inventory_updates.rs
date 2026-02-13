@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::{Query, Res};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_inventories::INVENTORY_UPDATES_QUEUE;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_state::GlobalStateResource;
+use temper_codec::net_types::var_int::VarInt;
+use temper_inventories::INVENTORY_UPDATES_QUEUE;
+use temper_net_runtime::connection::StreamWriter;
+use temper_state::GlobalStateResource;
 use tracing::{debug, error};
 
 pub fn handle_inventory_updates(state: Res<GlobalStateResource>, mut query: Query<&StreamWriter>) {
@@ -12,7 +12,7 @@ pub fn handle_inventory_updates(state: Res<GlobalStateResource>, mut query: Quer
                 if !writer.running.load(std::sync::atomic::Ordering::Relaxed) {
                     continue;
                 }
-                let packet = ionic_protocol::outgoing::set_container_slot::SetContainerSlot {
+                let packet = temper_protocol::outgoing::set_container_slot::SetContainerSlot {
                     window_id: VarInt::new(0),
                     state_id: VarInt::new(0),
                     slot_index: update.slot_index as i16,

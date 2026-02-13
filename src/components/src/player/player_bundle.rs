@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use bevy_ecs::prelude::Bundle;
-use ionic_inventories::{hotbar::Hotbar, inventory::Inventory};
+use temper_inventories::{hotbar::Hotbar, inventory::Inventory};
 use crate::player::chunk_receiver::ChunkReceiver;
 use crate::player::grounded::OnGround;
 use crate::player::player_identity::PlayerIdentity;

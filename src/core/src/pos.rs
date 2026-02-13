@@ -13,7 +13,7 @@ use bevy_math::Vec3Swizzles;
 use bevy_math::{DVec3, I16Vec3};
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use ionic_codec::net_types::network_position::NetworkPosition;
+use temper_codec::net_types::network_position::NetworkPosition;
 
 #[derive(Clone, Copy)]
 pub struct BlockPos {

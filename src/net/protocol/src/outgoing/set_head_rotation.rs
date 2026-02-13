@@ -1,6 +1,6 @@
-use ionic_codec::net_types::angle::NetAngle;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::angle::NetAngle;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetEncode};
 
 #[derive(Debug, NetEncode, Clone)]
 #[packet(packet_id = "rotate_head", state = "play")]

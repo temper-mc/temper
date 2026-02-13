@@ -2,18 +2,18 @@
 use std::io::{Cursor, Read};
 
 // Imports the NetEncode trait and options enum for encoding network packets
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
 // Imports Minecraft-style VarInt support (used for frame sizes and IDs)
-use ionic_codec::net_types::var_int::VarInt;
+use temper_codec::net_types::var_int::VarInt;
 
 // Error type for networking operations
-use ionic_protocol::errors::NetError;
+use temper_protocol::errors::NetError;
 
 // External compression lib (Zlib, Gzip, etc.) used to compress packet payloads
 use yazi::{compress, CompressionLevel, Format};
 
 // For error logging
-use ionic_protocol::errors::CompressionError::GenericCompressionError;
+use temper_protocol::errors::CompressionError::GenericCompressionError;
 use tracing::error;
 
 /// Compresses a network packet if compression is enabled and threshold is met.
@@ -80,13 +80,13 @@ pub fn compress_packet(
                 Format::Zlib,                // Minecraft uses Zlib format
                 CompressionLevel::BestSpeed, // Fastest compression option
             )
-            .map_err(|err| {
-                error!("Failed to compress packet: {:?}", err);
-                NetError::CompressionError(GenericCompressionError(format!(
-                    "Failed to compress packet: {:?}",
-                    err
-                )))
-            })?;
+                .map_err(|err| {
+                    error!("Failed to compress packet: {:?}", err);
+                    NetError::CompressionError(GenericCompressionError(format!(
+                        "Failed to compress packet: {:?}",
+                        err
+                    )))
+                })?;
 
             // Prepend the uncompressed size as a VarInt
             VarInt::new(uncompressed_frame.len() as i32)
@@ -116,13 +116,13 @@ pub fn compress_packet(
 #[cfg(test)]
 mod tests {
     use crate::compression::compress_packet;
-    use ionic_protocol::ConnState;
+    use temper_protocol::ConnState;
 
-    use ionic_codec::encode::errors::NetEncodeError;
-    use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-    use ionic_codec::net_types::var_int::VarInt;
-    use ionic_protocol::errors::PacketError;
-    use ionic_protocol::incoming::packet_skeleton::PacketSkeleton;
+    use temper_codec::encode::errors::NetEncodeError;
+    use temper_codec::encode::{NetEncode, NetEncodeOpts};
+    use temper_codec::net_types::var_int::VarInt;
+    use temper_protocol::errors::PacketError;
+    use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
     use std::io::Cursor;
 
     struct TestPacket {
@@ -203,7 +203,7 @@ mod tests {
             &NetEncodeOpts::WithLength,
             64,
         )
-        .unwrap();
+            .unwrap();
 
         let mut async_reader = Cursor::new(compressed);
 

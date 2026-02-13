@@ -1,14 +1,14 @@
 use std::sync::Arc;
 
 use bevy_ecs::prelude::*;
-use ionic_codec::net_types::{
+use temper_codec::net_types::{
     length_prefixed_vec::LengthPrefixedVec, prefixed_optional::PrefixedOptional, var_int::VarInt,
 };
-use ionic_commands::{Command, CommandContext, CommandInput, Sender, ROOT_COMMAND};
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::command_suggestions::{CommandSuggestionsPacket, Match};
-use ionic_protocol::CommandSuggestionRequestReceiver;
-use ionic_state::{GlobalState, GlobalStateResource};
+use temper_commands::{Command, CommandContext, CommandInput, Sender, ROOT_COMMAND};
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::command_suggestions::{CommandSuggestionsPacket, Match};
+use temper_protocol::CommandSuggestionRequestReceiver;
+use temper_state::{GlobalState, GlobalStateResource};
 use tracing::error;
 
 fn find_command(input: String) -> Option<Arc<Command>> {
@@ -17,11 +17,11 @@ fn find_command(input: String) -> Option<Arc<Command>> {
         input.remove(0);
     }
 
-    if let Some(command) = ionic_commands::infrastructure::get_command_by_name(&input) {
+    if let Some(command) = temper_commands::infrastructure::get_command_by_name(&input) {
         return Some(command);
     }
 
-    if let Some(command) = ionic_commands::infrastructure::find_command(&input) {
+    if let Some(command) = temper_commands::infrastructure::find_command(&input) {
         return Some(command);
     }
 
@@ -30,11 +30,11 @@ fn find_command(input: String) -> Option<Arc<Command>> {
         if let Some(pos) = input.rfind(char::is_whitespace) {
             input.truncate(pos);
 
-            if let Some(command) = ionic_commands::infrastructure::get_command_by_name(&input) {
+            if let Some(command) = temper_commands::infrastructure::get_command_by_name(&input) {
                 return Some(command);
             }
 
-            if let Some(command) = ionic_commands::infrastructure::find_command(&input) {
+            if let Some(command) = temper_commands::infrastructure::find_command(&input) {
                 return Some(command);
             }
         } else {

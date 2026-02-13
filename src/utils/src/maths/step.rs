@@ -13,7 +13,7 @@
 /// # Example
 ///
 /// ```
-/// # use crate::ionic_utils::maths::step::step_between;
+/// # use crate::temper_utils::maths::step::step_between;
 /// use bevy_math::Vec3A;
 /// let start = Vec3A::new(0.0, 0.0, 0.0);
 /// let end = Vec3A::new(1.0, 1.0, 1.0);

@@ -1,10 +1,10 @@
 use bevy_ecs::change_detection::Res;
 use bevy_ecs::message::MessageWriter;
-use ionic_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
-use ionic_commands::resolve::resolve;
-use ionic_commands::Sender;
-use ionic_resources::server_command_rx::ServerCommandReceiver;
-use ionic_state::GlobalStateResource;
+use temper_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
+use temper_commands::resolve::resolve;
+use temper_commands::Sender;
+use temper_resources::server_command_rx::ServerCommandReceiver;
+use temper_state::GlobalStateResource;
 use tracing::error;
 
 pub fn handle(

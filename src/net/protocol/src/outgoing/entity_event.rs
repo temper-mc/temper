@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetEncode};
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode, Copy, Clone)]
 #[packet(packet_id = "entity_event", state = "play")]

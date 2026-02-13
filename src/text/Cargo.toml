@@ -1,12 +1,12 @@
 [package]
-name = "ionic-text"
+name = "temper-text"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ionic-codec = { workspace = true }
-ionic-nbt = { workspace = true }
-ionic-macros = { workspace = true }
+temper-codec = { workspace = true }
+temper-nbt = { workspace = true }
+temper-macros = { workspace = true }
 tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

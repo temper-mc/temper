@@ -16,7 +16,7 @@ static ENTITY_ID_COUNTER: AtomicI32 = AtomicI32::new(1_000_000);
 /// # Examples
 ///
 /// ```ignore
-/// use ionic_core::identity::EntityIdentity;
+/// use temper_core::identity::EntityIdentity;
 ///
 /// let pig_identity = EntityIdentity::new();
 /// assert!(pig_identity.entity_id >= 1_000_000);

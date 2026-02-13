@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetEncode};
+use temper_macros::{packet, NetEncode};
 
 /// Server-to-Client packet to set the player's selected hotbar slot.
 #[derive(NetEncode, Copy, Clone)]

@@ -1,6 +1,6 @@
 use bevy_ecs::entity::Entity;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::player_identity::PlayerIdentity;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::player_identity::PlayerIdentity;
 
 pub(crate) fn resolve_any_player(
     iter: impl Iterator<Item=(Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,

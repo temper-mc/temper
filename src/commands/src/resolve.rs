@@ -1,7 +1,7 @@
 use crate::{infrastructure, Command, CommandContext, CommandInput, Sender};
 use bevy_ecs::error;
-use ionic_state::GlobalState;
-use ionic_text::{NamedColor, TextComponent, TextComponentBuilder};
+use temper_state::GlobalState;
+use temper_text::{NamedColor, TextComponent, TextComponentBuilder};
 use std::sync::Arc;
 
 pub fn resolve(

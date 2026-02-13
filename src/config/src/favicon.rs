@@ -1,5 +1,5 @@
 use base64::Engine;
-use ionic_general_purpose::paths::get_root_path;
+use temper_general_purpose::paths::get_root_path;
 use lazy_static::lazy_static;
 use std::fs::File;
 use std::io::Read;

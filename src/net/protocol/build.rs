@@ -4,7 +4,7 @@ use std::process::{Command, Stdio};
 fn main() -> std::io::Result<()> {
     // Get the version of the binary crate
     let mut child = Command::new("cargo")
-        .args(["pkgid", "--package", "ionic"])
+        .args(["pkgid", "--package", "temper"])
         .stdout(Stdio::piped())
         .spawn()?;
 
@@ -16,7 +16,7 @@ fn main() -> std::io::Result<()> {
     let version = version.split('@').collect::<Vec<&str>>()[1];
 
     // Set env vars used for the server brand string
-    println!("cargo:rustc-env=IONIC_VERSION={}", version);
+    println!("cargo:rustc-env=temper_VERSION={}", version);
     println!(
         "cargo:rustc-env=BUILD_TYPE={}",
         if std::env::var("PROFILE").unwrap() == "debug" {

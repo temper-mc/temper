@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::*;
-use ionic_components::player::player_identity::PlayerIdentity;
+use temper_components::player::player_identity::PlayerIdentity;
 
 #[derive(Message, Clone)]
 #[allow(unused)]

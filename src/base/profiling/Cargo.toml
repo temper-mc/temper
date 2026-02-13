@@ -1,5 +1,5 @@
 [package]
-name = "ionic-profiling"
+name = "temper-profiling"
 version = "0.1.0"
 edition = "2021"
 
@@ -12,9 +12,8 @@ tracing-subscriber = { workspace = true }
 tracing = { workspace = true }
 serde = { workspace = true }
 serde_derive = { workspace = true }
-log = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
-ionic-macros = { workspace = true }
+temper-macros = { workspace = true }
 serde_json = { workspace = true }

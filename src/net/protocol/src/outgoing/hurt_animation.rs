@@ -2,8 +2,8 @@
 //!
 //! Sent to clients to play the hurt animation on an entity.
 
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetEncode};
 
 /// Packet sent to play the hurt/damage animation on an entity.
 ///

@@ -1,15 +1,15 @@
 [package]
-name = "ionic-resources"
+name = "temper-resources"
 edition.workspace = true
 version.workspace = true
 
 [dependencies]
 bevy_ecs = { workspace = true }
-ionic-performance = { workspace = true }
-ionic-net-runtime = { workspace = true }
+temper-performance = { workspace = true }
+temper-net-runtime = { workspace = true }
 crossbeam-channel = { workspace = true }
-ionic-state = { workspace = true }
-ionic-config = { workspace = true }
+temper-state = { workspace = true }
+temper-config = { workspace = true }
 
 [lints]
 workspace = true

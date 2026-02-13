@@ -1,5 +1,5 @@
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "hello", state = "login")]

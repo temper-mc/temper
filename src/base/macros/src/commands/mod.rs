@@ -170,9 +170,9 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
                 match __ctx.arg::<#ty>(#name) {
                     Ok(a) => a,
                     Err(err) => {
-                        sender.send_message(ionic_text::TextComponentBuilder::new(format!("failed parsing {}: ", #name))
+                        sender.send_message(temper_text::TextComponentBuilder::new(format!("failed parsing {}: ", #name))
                             .extra(*err)
-                            .color(ionic_text::NamedColor::Red)
+                            .color(temper_text::NamedColor::Red)
                             .build(), false);
                         return;
                     }
@@ -198,11 +198,11 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
             let ty = format_ident!("{}", &arg.ty);
 
             quote! {
-                ionic_commands::arg::CommandArgumentNode {
+                temper_commands::arg::CommandArgumentNode {
                     name: #name.to_string(),
                     required: #required,
-                    primitive: <#ty as ionic_commands::arg::CommandArgument>::primitive(),
-                    suggester: <#ty as ionic_commands::arg::CommandArgument>::suggest,
+                    primitive: <#ty as temper_commands::arg::CommandArgument>::primitive(),
+                    suggester: <#ty as temper_commands::arg::CommandArgument>::suggest,
                 },
             }
         })
@@ -232,8 +232,8 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
         #[allow(non_snake_case)]
         #[allow(unused_variables)]
         #[doc(hidden)]
-        fn #system_name(mut messages: bevy_ecs::prelude::MessageMutator<ionic_commands::messages::ResolvedCommandDispatched>, #(#system_args)*) {
-            for ionic_commands::messages::ResolvedCommandDispatched { command: __command, ctx: __ctx, sender } in messages.read() {
+        fn #system_name(mut messages: bevy_ecs::prelude::MessageMutator<temper_commands::messages::ResolvedCommandDispatched>, #(#system_args)*) {
+            for temper_commands::messages::ResolvedCommandDispatched { command: __command, ctx: __ctx, sender } in messages.read() {
                 if __command.name == #command_name {
                     #call
                     return // this is due to ownership issues
@@ -244,9 +244,9 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
         #[ctor::ctor]
         #[doc(hidden)]
         fn #ctor_fn_name() {
-            ionic_commands::infrastructure::add_system(#system_name);
+            temper_commands::infrastructure::add_system(#system_name);
 
-            ionic_commands::infrastructure::register_command(std::sync::Arc::new(ionic_commands::Command {
+            temper_commands::infrastructure::register_command(std::sync::Arc::new(temper_commands::Command {
                 name: #command_name,
                 args: vec![#(#command_args)*],
             }));

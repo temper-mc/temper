@@ -1,11 +1,11 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_net_runtime::broadcast::broadcast_packet_except;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::incoming::player_command::PlayerCommandAction;
-use ionic_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
-use ionic_protocol::PlayerCommandPacketReceiver;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_net_runtime::broadcast::broadcast_packet_except;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::incoming::player_command::PlayerCommandAction;
+use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
+use temper_protocol::PlayerCommandPacketReceiver;
 use tracing::trace;
 
 /// Handles PlayerCommand packets (sprinting, leave bed, etc.)

@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::Message;
-use ionic_particles::ParticleType;
+use temper_particles::ParticleType;
 
 /// Represents a message to send particle data in the system.
 ///

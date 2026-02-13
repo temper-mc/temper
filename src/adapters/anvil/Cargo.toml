@@ -1,5 +1,5 @@
 [package]
-name = "ionic-anvil"
+name = "temper-anvil"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,8 +13,8 @@ tracing = { workspace = true }
 rayon = { workspace = true }
 fastanvil = "0.31.0"
 criterion = { workspace = true }
-ionic-logging = { workspace = true }
-ionic-utils = { workspace = true }
+temper-logging = { workspace = true }
+temper-utils = { workspace = true }
 
 [lints]
 workspace = true

@@ -1,4 +1,4 @@
-use ionic_macros::setup_packet_handling;
+use temper_macros::setup_packet_handling;
 use std::fmt::Display;
 
 use bevy_ecs::prelude::*;

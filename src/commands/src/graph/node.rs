@@ -3,8 +3,8 @@
 use std::fmt;
 
 use enum_ordinalize::Ordinalize;
-use ionic_codec::net_types::{length_prefixed_vec::LengthPrefixedVec, var_int::VarInt};
-use ionic_macros::NetEncode;
+use temper_codec::net_types::{length_prefixed_vec::LengthPrefixedVec, var_int::VarInt};
+use temper_macros::NetEncode;
 
 use crate::arg::primitive::{PrimitiveArgumentFlags, PrimitiveArgumentType};
 

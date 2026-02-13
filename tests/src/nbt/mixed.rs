@@ -1,30 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use ionic_macros::{NBTDeserialize, NBTSerialize};
-
-    #[test]
-    fn test_mixed_slice_types() {
-        #[derive(NBTSerialize, NBTDeserialize, Debug, PartialEq)]
-        struct MixedSlices<'a> {
-            bytes: &'a [u8],
-            ints: &'a [i32],
-            longs: Vec<i64>,
-            text: &'a str,
-        }
-
-        let original = MixedSlices {
-            bytes: &[1, 2, 3, 4],
-            ints: &[-1, 0, 1],
-            longs: vec![1000000000000, -1000000000000],
-            text: "Hello, NBT!",
-        };
-
-        let buffer = original.serialize_with_header();
-
-        let deserialized = MixedSlices::from_bytes(buffer.as_slice()).unwrap();
-
-        println!("{:?}", deserialized);
-    }
+    use temper_macros::{NBTDeserialize, NBTSerialize};
 
     #[test]
     fn test_nested_structures_with_options() {

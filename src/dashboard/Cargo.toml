@@ -1,5 +1,5 @@
 [package]
-name = "ionic-dashboard"
+name = "temper-dashboard"
 version = "0.1.0"
 edition = "2021"
 
@@ -15,10 +15,10 @@ include_dir = { workspace = true }
 mime_guess = { workspace = true }
 dir-size = { workspace = true }
 
-# ionic local crates
-ionic-state = { workspace = true }
-ionic-general-purpose = { workspace = true }
-ionic-config = { workspace = true }
+# temper local crates
+temper-state = { workspace = true }
+temper-general-purpose = { workspace = true }
+temper-config = { workspace = true }
 
 [build-dependencies]
 reqwest = { workspace = true }

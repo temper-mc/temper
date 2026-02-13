@@ -1,5 +1,5 @@
 [package]
-name = "ionic-macros"
+name = "temper-macros"
 version = "0.1.0"
 edition = "2021"
 
@@ -24,4 +24,4 @@ bitcode = { workspace = true }
 simd-json = { workspace = true }
 
 [dev-dependencies]
-ionic-world = { workspace = true }
+temper-world = { workspace = true }

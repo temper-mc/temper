@@ -8,8 +8,8 @@
 //! This ensures `PlayerJoined` events only fire when the entity is queryable.
 
 use bevy_ecs::prelude::{Added, Commands, Entity, MessageWriter, Query};
-use ionic_components::player::pending_events::PendingPlayerJoin;
-use ionic_messages::player_join::PlayerJoined;
+use temper_components::player::pending_events::PendingPlayerJoin;
+use temper_messages::player_join::PlayerJoined;
 use tracing::trace;
 
 /// Fires `PlayerJoined` events for newly spawned player entities.

@@ -1,16 +1,16 @@
 use bevy_ecs::prelude::*;
 use std::time::{Duration, Instant};
 
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::abilities::PlayerAbilities;
-use ionic_components::player::gameplay_state::digging::PlayerDigging;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::pos::BlockPos;
-use ionic_data::blocks::types::Block;
-use ionic_messages::player_digging::*;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::{block_change_ack::BlockChangeAck, block_update::BlockUpdate};
-use ionic_state::GlobalStateResource;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::abilities::PlayerAbilities;
+use temper_components::player::gameplay_state::digging::PlayerDigging;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::pos::BlockPos;
+use temper_data::blocks::types::Block;
+use temper_messages::player_digging::*;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::{block_change_ack::BlockChangeAck, block_update::BlockUpdate};
+use temper_state::GlobalStateResource;
 use tracing::{debug, error, warn};
 
 // A query for just the components needed to acknowledge a dig packet
@@ -49,7 +49,7 @@ pub fn handle_start_digging(
         let block_state_id = chunk.get_block(pos.chunk_block_pos());
         // --- 2. Get Block Name ---
         let Some(block_name) =
-            ionic_registry::lookup_blockstate_name(&VarInt::from(block_state_id).0.to_string())
+            temper_registry::lookup_blockstate_name(&VarInt::from(block_state_id).0.to_string())
         else {
             warn!("Could not find block name for state {:?}", block_state_id);
             continue;
@@ -160,7 +160,7 @@ pub fn handle_finish_digging(
     state: Res<GlobalStateResource>,
     mut player_query: Query<DiggingPlayerQuery>,
     broadcast_query: Query<(Entity, &StreamWriter)>, // For broadcasting the break
-    mut block_break_writer: MessageWriter<ionic_messages::BlockBrokenEvent>,
+    mut block_break_writer: MessageWriter<temper_messages::BlockBrokenEvent>,
 ) {
     for event in events.read() {
         let Ok((_player_entity, writer, digging_opt)) = player_query.get_mut(event.player) else {
@@ -278,8 +278,8 @@ pub fn handle_finish_digging(
 fn break_block(
     state: &Res<GlobalStateResource>,
     broadcast_query: &Query<(Entity, &StreamWriter)>,
-    position: &ionic_codec::net_types::network_position::NetworkPosition,
-    block_break_writer: &mut MessageWriter<ionic_messages::BlockBrokenEvent>,
+    position: &temper_codec::net_types::network_position::NetworkPosition,
+    block_break_writer: &mut MessageWriter<temper_messages::BlockBrokenEvent>,
 ) {
     let pos: BlockPos = position.clone().into();
     let mut chunk = state
@@ -291,7 +291,7 @@ fn break_block(
 
     // Send block broken event for un-grounding system
     debug!("Sending BlockBrokenEvent for block at {:?}", pos.pos);
-    block_break_writer.write(ionic_messages::BlockBrokenEvent { position: pos });
+    block_break_writer.write(temper_messages::BlockBrokenEvent { position: pos });
 
     // Broadcast the block break to all players
     let block_update_packet = BlockUpdate {

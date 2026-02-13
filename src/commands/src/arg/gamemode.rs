@@ -4,7 +4,7 @@ use crate::{
 };
 
 use super::PrimitiveArgument;
-use ionic_components::player::gamemode::GameMode;
+use temper_components::player::gamemode::GameMode;
 
 // Implement the trait directly for the enum
 impl CommandArgument for GameMode {

@@ -1,8 +1,8 @@
-use ionic_components::player::client_information::ClientInformationComponent;
-use ionic_codec::decode::errors::NetDecodeError;
-use ionic_codec::decode::{NetDecode, NetDecodeOpts};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetDecode};
+use temper_components::player::client_information::ClientInformationComponent;
+use temper_codec::decode::errors::NetDecodeError;
+use temper_codec::decode::{NetDecode, NetDecodeOpts};
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetDecode};
 use std::fmt::Display;
 use std::io::Read;
 use tokio::io::AsyncRead;

@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::{Query, Res};
-use ionic_components::player::chunk_receiver::ChunkReceiver;
-use ionic_core::pos::ChunkPos;
-use ionic_state::GlobalStateResource;
+use temper_components::player::chunk_receiver::ChunkReceiver;
+use temper_core::pos::ChunkPos;
+use temper_state::GlobalStateResource;
 use std::collections::HashSet;
 use tracing::{error, trace};
 

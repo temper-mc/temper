@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::*;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_core::mq;
-use ionic_protocol::ChatMessagePacketReceiver;
-use ionic_text::TextComponent;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_core::mq;
+use temper_protocol::ChatMessagePacketReceiver;
+use temper_text::TextComponent;
 
 pub fn handle(receiver: Res<ChatMessagePacketReceiver>, query: Query<&PlayerIdentity>) {
     for (message, sender) in receiver.0.try_iter() {

@@ -1,4 +1,4 @@
-use ionic_storage::lmdb::LmdbBackend;
+use temper_storage::lmdb::LmdbBackend;
 use std::collections::HashSet;
 
 fn generate_random_data(size: usize) -> Vec<u8> {

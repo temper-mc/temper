@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::{Query, Res};
-use ionic_inventories::hotbar::Hotbar;
-use ionic_protocol::SetHeldItemReceiver;
-use ionic_state::GlobalStateResource;
+use temper_inventories::hotbar::Hotbar;
+use temper_protocol::SetHeldItemReceiver;
+use temper_state::GlobalStateResource;
 use tracing::{error, trace};
 
 pub fn handle(

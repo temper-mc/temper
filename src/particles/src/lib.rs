@@ -1,16 +1,16 @@
 mod net;
 
-use ionic_components::player::position::Position;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::color::Color;
-use ionic_inventories::slot::InventorySlot;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::Discriminant;
+use temper_components::player::position::Position;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::color::Color;
+use temper_inventories::slot::InventorySlot;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::Discriminant;
 
 #[derive(Clone, Discriminant)]
 /// Enum representing different types of particles in the game.
 ///
-/// To send to clients, use the `SendParticle` message from `ionic_messages::particle`.
+/// To send to clients, use the `SendParticle` message from `temper_messages::particle`.
 pub enum ParticleType {
     AngryVillager,
     Block {

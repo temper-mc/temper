@@ -1,15 +1,15 @@
 [package]
-name = "ionic-tests"
+name = "temper-tests"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ionic-nbt = { workspace = true }
-ionic-macros = { workspace = true }
-ionic-codec = { workspace = true }
-ionic-config = { workspace = true }
+temper-nbt = { workspace = true }
+temper-macros = { workspace = true }
+temper-codec = { workspace = true }
+temper-config = { workspace = true }
 bevy_ecs = { workspace = true }
-ionic-core = { workspace = true }
+temper-core = { workspace = true }
 flate2 = { workspace = true }
 tokio = { workspace = true }
 maplit = { workspace = true }

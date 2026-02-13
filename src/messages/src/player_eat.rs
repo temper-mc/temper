@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::{Entity, Message};
-use ionic_inventories::item::ItemID;
+use temper_inventories::item::ItemID;
 
 /// Fired when a player successfully eats an item.
 ///

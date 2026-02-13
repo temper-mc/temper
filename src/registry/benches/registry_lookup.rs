@@ -5,7 +5,7 @@ use std::hint::black_box;
 /// In our new compile-time setup, this is a no-op,
 /// but it's good practice to keep it.
 fn setup() {
-    ionic_registry::init();
+    temper_registry::init();
 }
 
 /// Benchmarks the `ITEM_NAME_TO_ID` map (from registries.json)
@@ -15,12 +15,12 @@ fn bench_item_lookup(c: &mut Criterion) {
     group.throughput(Throughput::Elements(1));
 
     group.bench_function("lookup_item_protocol_id (apple)", |b| {
-        b.iter(|| black_box(ionic_registry::lookup_item_protocol_id("minecraft:apple")))
+        b.iter(|| black_box(temper_registry::lookup_item_protocol_id("minecraft:apple")))
     });
 
     group.bench_function("lookup_item_protocol_id (cobblestone)", |b| {
         b.iter(|| {
-            black_box(ionic_registry::lookup_item_protocol_id(
+            black_box(temper_registry::lookup_item_protocol_id(
                 "minecraft:cobblestone",
             ))
         })
@@ -35,11 +35,11 @@ fn bench_blockstate_lookup(c: &mut Criterion) {
     group.throughput(Throughput::Elements(1));
 
     group.bench_function("lookup_blockstate_name (stone)", |b| {
-        b.iter(|| black_box(ionic_registry::lookup_blockstate_name("1")))
+        b.iter(|| black_box(temper_registry::lookup_blockstate_name("1")))
     });
 
     group.bench_function("lookup_blockstate_name (grass)", |b| {
-        b.iter(|| black_box(ionic_registry::lookup_blockstate_name("9")))
+        b.iter(|| black_box(temper_registry::lookup_blockstate_name("9")))
     });
     group.finish();
 }
@@ -53,7 +53,7 @@ fn bench_item_to_block_lookup(c: &mut Criterion) {
     group.bench_function("lookup_item_to_block_id_str (stone)", |b| {
         b.iter(|| {
             // Assuming item "1" (stone) maps to a block
-            black_box(ionic_registry::lookup_item_to_block_id_str("1"))
+            black_box(temper_registry::lookup_item_to_block_id_str("1"))
         })
     });
     group.finish();

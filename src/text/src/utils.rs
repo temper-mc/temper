@@ -1,5 +1,5 @@
 use crate::*;
-use ionic_macros::NBTSerialize;
+use temper_macros::NBTSerialize;
 use serde::{Deserialize, Serialize};
 
 #[macro_export]

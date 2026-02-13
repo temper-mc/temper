@@ -1,140 +1,72 @@
-<img style="width: 100%" src="https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/header.svg?raw=true" alt="FerrumC Header">
 <div align="center">
-    <img src="https://img.shields.io/github/license/ferrumc-rs/ferrumc?style=for-the-badge&color=red" alt="License">
-    <img src="https://img.shields.io/github/languages/code-size/ferrumc-rs/ferrumc?style=for-the-badge&color=red" alt="Code Size">
-    <img src="https://www.aschey.tech/tokei/github.com/ferrumc-rs/ferrumc?style=for-the-badge&color=red" alt="Lines of Code">
+    <img src="https://img.shields.io/github/license/temper-mc/temper?style=for-the-badge&color=red" alt="License">
+    <img src="https://img.shields.io/github/languages/code-size/temper-mc/temper?style=for-the-badge&color=red" alt="Code Size">
+    <img src="https://www.aschey.tech/tokei/github.com/temper-mc/temper?style=for-the-badge&color=red" alt="Lines of Code">
     <img src="https://img.shields.io/badge/language-Rust-orange?style=for-the-badge&color=red" alt="Language">
-    <a  href="https://discord.gg/qT5J8EMjwk">
-    <img alt="Discord" src="https://img.shields.io/discord/1277314213878173726?style=for-the-badge&logo=discord&logoColor=red&color=red&link=https%3A%2F%2Fdiscord.gg%2FqT5J8EMjwk">
+    <a  href="https://discord.gg/6QPZgUy4sA">
+    <img alt="Discord" src="https://img.shields.io/discord/1277314213878173726?style=for-the-badge&logo=discord&logoColor=red&color=red&link=https%3A%2F%2Fdiscord.gg%2F6QPZgUy4sA">
     </a>
 </div>
 
-## 📖 About
+## About
 
-FerrumC is a **1.21.8** Minecraft server implementation written from the ground up in Rust. Leveraging the power of the
-Rust programming language, it is completely multithreaded and offers high performance as well as amazing memory
-efficiency!
+Temper is a Minecraft server implementation written in Rust, with the goals of being extremely fast and memory
+efficient, while also being easy to use and set up. With a focus on community, extensibility and performance, we hope to
+create a server that can be used by everyone from casual players to large server owners.
 
-Visit **[ferrumc.com](https://www.ferrumc.com)** for more information. The official **[Docs](https://docs.ferrumc.com)**
-are currently under construction, but you can join our **[Discord server](https://discord.gg/qT5J8EMjwk)** for help or
-to discuss the project!
+Originally a fork of the FerrumC project, Temper aims to supersede its predecessor by providing a more polished and
+user-friendly experience, while still maintaining the same high standards for performance and efficiency. We are
+committed to building a strong community around Temper and welcome contributions from developers of all skill levels.
 
-<img src="https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/in_game.png?raw=true" alt="In-game screenshot">
+<img src="https://github.com/temper-mc/temper/blob/master/assets/README/in_game.png?raw=true" alt="In-game screenshot">
 
-## 🔗 Project Links
+## Project Links
 
-* **Official Website:** **[ferrumc.com](https://www.ferrumc.com)**
-* **Documentation:** **[docs.ferrumc.com](https://docs.ferrumc.com)**
-* **Discord Community:** **[Join our Discord](https://discord.gg/qT5J8EMjwk)**
-* **GitHub Repository:** **[ferrumc-rs/ferrumc](https://github.com/ferrumc-rs/ferrumc)**
+* **Official Website:** **[temper-mc.com](https://www.temper-mc.com)**
+* **Discord Community:** **[Join our Discord](https://discord.gg/6QPZgUy4sA)**
+* **GitHub Repository:** **[temper-mc/temper](https://github.com/temper-mc/temper)**
 
-## ✨ Key Features
+## Key Features and goals
 
-<ul>
-    <li>
-        <h4>🛈 Customizable server list</h4>
-        <img src="https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/server%20list.png?raw=true" alt="Server list">
-    </li>
-    <li>
-        <h4>🚄 Extremely fast </h4>
-        <img src="https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/mind%20boggling.gif?raw=true" alt="Mind boggling">
-    </li>
-    <li>
-        <h4>🖥️ Highly efficient memory usage</h4>
-        <img src="https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/mem_use.png?raw=true" alt="Low memory usage">
-    </li>
-    <li>
-        <h4>🗂️ Straightforward Configuration</h4>
-        <img src="https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/config.toml.png?raw=true" alt="Configuration">
-    </li>
-    <li>
-      <h4>🔄 Can import existing worlds from vanilla minecraft</h4>
-      <img src="https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/chunk_importing.gif?raw=true" alt="Configuration">
-    </li>
-    <li>
-      <h4>🌐 Compatible with vanilla Minecraft clients (Version 1.21.8)</h4>
-    </li>
-    <li>
-      <h4>📦 Fully multithreaded; Utilizes all available CPU cores, instead of a single "main" thread</h4>
-    </li>
-    <li>
-      <h4>📝 Custom made network, NBT and Anvil encoding systems to allow for minimal I/O lag</h4>
-    </li>
-    <li>
-        <h4>💾 Crazy fast K/V database </h4>
-        <i>32 render distance*</i>
-        <img src="https://github.com/ferrumc-rs/site/blob/main/public/images/chunk_loading.gif?raw=true" alt="Chunk Loading DEMO">
-    </li>
-    <li>
-        <h4>🎮 Bevy ECS for smart, lockless concurrency driven by a massive community</h4>
-    </li>
-</ul>
+- **High Performance**: Temper is built with performance in mind, utilizing Rust's powerful features and optimizations
+  to offer the best possible performance.
+- **Memory Efficiency**: Temper is designed to use as little memory as possible, making it suitable for servers of all
+  sizes.
+- **Ease of Use**: One major goal of Temper is to be easy to set up and use, even for those who may not be familiar with
+  server administration. We aim to make setup and administration as straightforward as possible, while still providing
+  the flexibility and power that advanced users need.
+- **Community Focus**: We want to build a strong community around Temper, and we welcome contributions from developers
+  of all skill levels. We believe that a strong community is essential for the success of a project like this, and we
+  are committed to fostering a welcoming and inclusive environment for all contributors.
+- **Quality and Stability**: We are committed to providing a high-quality and stable server implementation. We will
+  prioritize fixing bugs and improving stability over adding new features, and we will always strive to maintain a high
+  standard of quality in our codebase.
+- **Maintainable Codebase**: We want to maintain a clean and well-organized codebase that is easy to understand and
+  contribute to. We will follow best practices for code organization and documentation, and we will strive to make our
+  code as readable and maintainable as possible. We will also prioritize code reviews and testing to ensure that our
+  codebase remains healthy and maintainable over time.
 
-<h2>✅ Upcoming features</h2>
+## Getting Started
 
-<ul>
-   <li>
-      <h4>PvE mechanics, and entities.</h4>
-   </li>
-    <li>
-        <h4>Web based server dashboard</h4>
-   </li>
-    <li>
-        <h4>Optimizations</h4>
-   </li>
-    <li>
-        <h4>Plugin support (Rust via FFI currently, other languages will be considered later)</h4>
-    </li>
-</ul>
+### Installing a pre-compiled binary
 
-## Goals
-
-- **Performance**: FerrumC aims to be the fastest Minecraft server implementation available, with a focus on low latency
-  and high throughput.
-- **Memory Efficiency**: FerrumC is designed to use as little memory as possible while still providing a full-featured
-  server experience.
-- **Not just a faster replacement**: FerrumC is not intended to be a perfect match for the vanilla server. We aim to
-  improve on the original server in ways other than just performance. This includes things like setup and usage,
-  configurability, plugins and more. Simply speeding up the server feels like a waste of the opportunity to do something
-  new and exciting.
-- **Ease of Use**: While it will certainly possible to run FerrumC as the backend for highly complex servers such as
-  Hypixel through the use of plugins, the main intended audience is the average user who wants to run a server for their
-  friends
-  and family. We want to make it as easy as possible to set up and run a server, while still allowing the flexibility
-  and power that advanced users need.
-- **Not taking the easy route**: We aren't scared of a little unsafe Rust or some raw SIMD instructions. If we need
-  to take some risks to get the performance we want, or need to write our own versions of libraries to get the features
-  we need, we will do it. We already have custom-made Anvil and NBT libraries that use experimental APIs and some raw
-  assembly because the existing ones just weren't up to scratch.
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Rust compiler (latest nightly version)
-- Cargo (comes with Rust)
-
-## 📥 Installation
+While it is recommended to compile from source for the best performance and latest features, we understand that not
+everyone may be comfortable with that process. Therefore, we provide pre-compiled binaries for Windows, Linux, and macOS
+on our Github Actions.
+At a later date we hope to make this easier by providing downloads on the Releases page, but for now you can follow the
+instructions below to download the latest pre-compiled binary.
 
 [//]: # (#### Option 1: Download pre-compiled binary &#40;Maybe outdated!&#41;)
 
 [//]: # ()
 
-[//]: # (1. Go to the [Releases]&#40;https://github.com/ferrumc-rs/ferrumc/releases&#41; page)
+[//]: # (1. Go to the [Releases]&#40;https://github.com/temper-mc/temper/releases&#41; page)
 
 [//]: # (2. Download the latest version for your operating system)
 
 [//]: # (3. Extract the archive to your desired location)
 
-Unfortunately, the server is **not yet ready for production use**. We are still in the early
-stages of development and are working hard to add more features and fix bugs.
-For now, you can either **compile** the server from source or **download** from Github Actions.
-
-### [Option 1] Download from Github Actions
-
-![Where To Find](https://github.com/ferrumc-rs/ferrumc/blob/master/assets/README/download_prebuilt.gif?raw=true)
-
-1. Go to the [Actions](https://github.com/ferrumc-rs/ferrumc/actions) tab
+1. Go to the [Actions](https://github.com/temper-mc/temper/actions) tab
 2. Click on the latest build
 3. Scroll all the way down to the `Artifacts` section
 4. Download the artifact for your operating system (Windows, Linux, or macOS)
@@ -146,8 +78,8 @@ For now, you can either **compile** the server from source or **download** from 
 
 ```bash
 # Clone the repository
-git clone https://github.com/ferrumc-rs/ferrumc
-cd ferrumc
+git clone https://github.com/temper-mc/temper
+cd temper
 
 # Build the project
 cargo build --release
@@ -155,10 +87,10 @@ cargo build --release
 
 #### The binary will be in target/release/
 
-## 🖥️ Usage
+## Usage
 
 ```plaintext
-Usage: ferrumc.exe [OPTIONS] [COMMAND]
+Usage: temper.exe [OPTIONS] [COMMAND]
 
 Commands:
 setup   Sets up the config
@@ -171,30 +103,17 @@ Options:
 -h, --help       Print help
 ```
 
-1. Move the FerrumC binary (`ferrumc.exe` or `ferrumc` depending on the OS) to your desired server directory
+1. Move the Temper binary (`temper.exe` or `temper` depending on the OS) to your desired server directory
 2. Open a terminal in that directory
-3. (Optional) Generate a config file: `./ferrumc setup`
+3. (Optional) Generate a config file: `./temper setup`
     - Edit the generated `config.toml` file to customize your server settings
 4. Run the server:
-    - Windows: `.\ferrumc.exe`
-    - Linux/macOS: `./ferrumc`
-    - You can change logging level by using `--log=<level>`:
-        - e.g. `.\ferrumc.exe --log=info` for info level logging
-        - Possible values:
-            - `trace` (Extremely verbose)
-            - `debug` (Default, Slightly verbose, used for debugging)
-            - `info` (**Recommended**, useful information)
-            - `warn` (Only warnings)
-            - `error` (Only errors)
+    - Windows: `.\temper.exe`
+    - Linux/macOS: `./temper`
 
-### [Option 3] Use Docker
+## Development
 
-1. You need to build the image : `sudo docker build -t ferrumc:yourtag .`
-2. Then run it : `docker run --rm -it -p 25565:25565 ferrumc:yourtag`
-
-## 🛠️ Development
-
-We welcome contributions! If you'd like to contribute to FerrumC, please follow these steps:
+We welcome contributions! If you'd like to contribute to Temper, please follow these steps:
 
 1. Fork the repository
 2. Create a new branch for your feature
@@ -202,48 +121,35 @@ We welcome contributions! If you'd like to contribute to FerrumC, please follow 
 4. Write or update tests as necessary
 5. Submit a pull request
 
-*Please* join our [Discord server](https://discord.gg/qT5J8EMjwk) to get help or discuss the project!
-Also have a look at our [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
+The Discord server is where most of the development discussion happens, so feel free to join and ask any questions you
+may have or discuss your ideas with the community.
 
-### 🔍 Profiling with Tracy
-
-FerrumC supports [Tracy](https://github.com/wolfpld/tracy) for profiling. To use it:
-
-1. Install and run the Tracy profiler application
-2. Build and run with the tracy feature:
-   ```bash
-   cargo run --release --features tracy
-   ```
-
-## ❔ FAQ
+## FAQ
 
 ### How does this project differ from:
 
-- **Valence**: Valence is a framework for building your own custom server by pulling in different components of their
-  library. FerrumC aims to be a full replacement for the vanilla server. It's like the difference between buying the
-  ingredients to make a meal yourself or just buying a pre-made meal.
-- **Minestom**: Same as Valence, it's a framework to build your own server, which is different to what we are trying to
-  do.
-- **Paper/Spigot/Bukkit**: These are all great tools and have undoubtedly set the groundwork for projects like this to
-  exist, but ultimately they are still somewhat bound to the original server implementation. We aim to write the entire
-  server from the ground up, hopefully giving us a leg up.
-- **Pumpkin**: Pumpkin are a lot more focused on matching the vanilla server as close as possible, only improving the
-  performance.
-  We are trying to improve most aspects of the game, including ease of use, performance, memory usage and extensibility.
-  That being said, we are trying to achieve similar things, and it's not a competition, we are both aware of each
-  other's
-  progress and to be honest the Pumpkin team are doing really well. We won't tolerate any disrespect towards them as
-  they are also undertaking the same monumental task.
+- **Paper/Spigot/Bukkit**: These projects are the cornerstone of the Minecraft server ecosystem, and they have been
+  around for a long time. However, they are all written in Java and are based on the vanilla server codebase, which is
+  not very performant and has a lot of technical debt. We are taking a different approach by writing the server from
+  scratch in Rust, which allows us to take advantage of Rust's performance and safety features to create a much more
+  efficient and maintainable server implementation.
+- **Pumpkin**: Pumpkin's goal is to simply reimplement the vanilla server in Rust, but they are taking the approach of
+  just porting decompiled Java code to Rust. While easier to implement, this approach is not very maintainable and will
+  likely lead to a lot of technical debt and performance issues. We are taking a more holistic approach to the server
+  implementation, which lets the strengths of Rust shine through and allows us to make design decisions that are best
+  for the project rather than just porting a 17-year-old codebase.
+- **FerrumC**: FerrumC is our predecessor and the project that Temper was originally forked from. While we share the
+  same goals of performance and efficiency, Temper aims to shoot above and beyond what FerrumC was able to achieve by
+  focusing on open source values, community involvement, and a more polished and user-friendly experience. We are
+  committed to building a strong community around Temper and welcome contributions from developers of all skill levels,
+  while also maintaining a high standard of quality and stability in our codebase.
 
 ### Will we be implementing terrain generation?
 
-Yes! We currently have some very rudimentary terrain generation and vanilla terrain is currently being worked on.
-However,
-we will be implementing optimizations and cutting corners to improve performance. This could lead to the world not being
-*exactly* the same as vanilla and differences may not be fixed if they would lead to performance issues that we deem to
-outweigh the benefits of vanilla accuracy. That being said, we will try to make it as close to vanilla as possible
-without
-sacrificing performance.
+Yes! We do have a somewhat simplistic terrain generator implemented right now for demonstration purposes, but we do plan
+to implement a more robust and feature-rich terrain generator in the future. Whether that will end up being 1:1 with the
+vanilla generator or something custom is still up in the air, but we are open to suggestions and ideas from the
+community on how to best implement this.
 
 ### Will there be plugins? And how?
 
@@ -266,25 +172,34 @@ or mod is basic enough to work through a translation layer, it would be much bet
 performance
 and compatibility reasons.
 
-### What does 'FerrumC' mean?
+### Why did we fork from FerrumC?
 
-It's a play on words. Ferrum is the Latin word for iron and it ***rust***s. And MC (Minecraft) in the end.
-So it becomes Ferru*mc*. Get it? 😄
+We decided to carry on the grand tradition of forking a Minecraft server implementation over management disagreements.
+In all seriousness, we had some differences in vision and approach to the project, and we felt that it would be best to
+start fresh with a new repository and a new name. We are grateful for the work that was done on FerrumC, and we hope to
+build on that foundation while also taking the project in a new direction that we are excited about.
 
-## 📜 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
+FerrumC was licensed under the MIT License, but Temper has moved to the GNU General Public License v3.0 (GPL-3.0) to
+better align with our values of open source and community involvement. The GPL-3.0 is a copyleft license that requires
+any derivative works to also be licensed under the same terms, which we believe will help to ensure that Temper remains
+free and open for everyone to use and contribute to.
 
-## 🌟 Star History
+Due to this, commits to FerrumC and prior to 14/02/2026 are licensed under the MIT License, while commits to Temper and
+after 14/02/2026 are licensed under the GPL-3.0. This is not a dual license, rather a change in license that occurred at
+a specific point in time.
 
-<a href="https://star-history.com/#ferrumc-rs/ferrumc&Date">
+## Star History
+
+<a href="https://star-history.com/#temper-mc/temper&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ferrumc-rs/ferrumc&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ferrumc-rs/ferrumc&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=ferrumc-rs/ferrumc&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=temper-mc/temper&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=temper-mc/temper&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=temper-mc/temper&type=Date" />
  </picture>
 </a>
 
-## 📊 Stats
+## Stats
 
 ![Alt](https://repobeats.axiom.co/api/embed/9f014c2e6ded808ae2dff5de3428c65a834e4ac0.svg "Repobeats analytics image")

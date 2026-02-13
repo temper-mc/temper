@@ -1,5 +1,5 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use ionic_threadpool::ThreadPool;
+use temper_threadpool::ThreadPool;
 use std::time::Duration;
 
 fn bench(c: &mut Criterion) {

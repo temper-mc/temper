@@ -7,4 +7,4 @@ edition = "2024"
 clap = { workspace = true }
 tracing = { workspace = true }
 thiserror = { workspace = true }
-ionic-general-purpose = { workspace = true }
+temper-general-purpose = { workspace = true }

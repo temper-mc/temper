@@ -1,43 +1,28 @@
 [package]
-name = "ionic-world"
-description = "FerrumC specific world definition and implementation of a Minecraft World and related logic."
+name = "temper-world"
+description = "Temper specific world definition and implementation of a Minecraft World and related logic."
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-thiserror = { workspace = true }
-ionic-storage = { workspace = true }
-ionic-config = { workspace = true }
+temper-storage = { workspace = true }
+temper-config = { workspace = true }
 tracing = { workspace = true }
-ionic-codec = { workspace = true }
-serde = { workspace = true }
-serde_derive = { workspace = true }
-macro_rules_attribute = { workspace = true }
-bitcode_derive = { workspace = true }
 bitcode = { workspace = true }
-deepsize = { workspace = true }
-ionic-nbt = { workspace = true }
-ionic-macros = { workspace = true }
-ionic-anvil = { workspace = true }
+temper-macros = { workspace = true }
+temper-anvil = { workspace = true }
 rayon = { workspace = true }
-ionic-general-purpose = { workspace = true }
-lazy_static = { workspace = true }
-serde_json = { workspace = true }
+temper-general-purpose = { workspace = true }
 indicatif = { workspace = true }
 wyhash = { workspace = true }
-ahash = { workspace = true }
-yazi = { workspace = true }
-ionic-threadpool = { workspace = true }
-bevy_math = { workspace = true }
+temper-threadpool = { workspace = true }
 dashmap = { workspace = true }
 rand = { workspace = true }
-bytemuck = { workspace = true }
-tokio = { workspace = true }
 uuid = { workspace = true }
-ionic-world-format = { workspace = true }
+temper-world-format = { workspace = true }
 world-gen = { path = "./gen" }
 world-db = { path = "./db" }
-ionic-core = { workspace = true }
+temper-core = { workspace = true }
 
 
 

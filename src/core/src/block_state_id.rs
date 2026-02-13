@@ -2,7 +2,7 @@ use crate::block_data::BlockData;
 use ahash::RandomState;
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use ionic_codec::net_types::var_int::VarInt;
+use temper_codec::net_types::var_int::VarInt;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -46,7 +46,7 @@ lazy_static! {
 /// modify or read the block's name/properties directly.
 ///
 /// This should be used over `BlockData` in most cases, as it's much more efficient to store and pass around.
-/// You can also generate a block's id at runtime with the [ionic_macros::block!] macro.
+/// You can also generate a block's id at runtime with the [temper_macros::block!] macro.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode, DeepSizeOf)]
 pub struct BlockStateId(u32);
 

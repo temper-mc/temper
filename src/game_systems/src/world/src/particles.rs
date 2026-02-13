@@ -1,12 +1,12 @@
 use bevy_ecs::prelude::{MessageReader, Query};
-use ionic_components::player::position::Position;
-use ionic_messages::particle::SendParticle;
-use ionic_net::connection::StreamWriter;
+use temper_components::player::position::Position;
+use temper_messages::particle::SendParticle;
+use temper_net::connection::StreamWriter;
 
 pub fn handle(mut msgs: MessageReader<SendParticle>, query: Query<(&Position, &StreamWriter)>) {
     for message in msgs.read() {
         let double_pos = message.position.as_dvec3();
-        let packet = ionic_net::packets::outgoing::particle::Particle {
+        let packet = temper_net::packets::outgoing::particle::Particle {
             long_distance: false,
             always_visible: false,
             x: double_pos.x,

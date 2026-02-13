@@ -1,15 +1,15 @@
 #![expect(clippy::type_complexity)]
 use bevy_ecs::prelude::{Commands, Entity, Query};
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_commands::arg::entities::EntityArgument;
-use ionic_commands::Sender;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_macros::command;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
-use ionic_protocol::outgoing::system_message::SystemMessagePacket;
-use ionic_text::{Color, NamedColor, TextComponentBuilder};
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_commands::arg::entities::EntityArgument;
+use temper_commands::Sender;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_macros::command;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
+use temper_protocol::outgoing::system_message::SystemMessagePacket;
+use temper_text::{Color, NamedColor, TextComponentBuilder};
 
 #[command("kill")]
 fn kill_command(
@@ -29,7 +29,7 @@ fn kill_command(
 
     let mut removed_count = 0;
     let killed_message = SystemMessagePacket {
-        message: ionic_nbt::NBT::new(
+        message: temper_nbt::NBT::new(
             TextComponentBuilder::new("You have been killed. How sad :(")
                 .bold()
                 .color(Color::Named(NamedColor::Red))

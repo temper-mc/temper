@@ -1,9 +1,9 @@
 // https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Entity_metadata#Entity_Metadata_Format
 use crate::outgoing::entity_metadata::index_type::EntityMetadataIndexType;
 use crate::outgoing::entity_metadata::value::EntityMetadataValue;
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetEncode};
 use std::io::Write;
 
 /// Packet for sending entity metadata updates to clients
@@ -34,7 +34,7 @@ impl EntityMetadataPacket {
     /// ```
     pub fn new<T>(entity_id: VarInt, metadata: T) -> Self
     where
-        T: IntoIterator<Item = EntityMetadata>,
+        T: IntoIterator<Item=EntityMetadata>,
     {
         Self {
             entity_id,
@@ -128,7 +128,7 @@ pub mod constructors {
 
 mod index_type {
     use super::*;
-    use ionic_codec::encode::errors::NetEncodeError;
+    use temper_codec::encode::errors::NetEncodeError;
 
     /// Available metadata field types
     /// See: https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Entity_metadata#Entity_Metadata_Format
@@ -199,7 +199,7 @@ mod value {
 }
 
 mod entity_state {
-    use ionic_macros::NetEncode;
+    use temper_macros::NetEncode;
 
     /// Bit mask for various entity states
     #[derive(Debug, NetEncode, Clone)]
@@ -259,9 +259,9 @@ mod entity_state {
 }
 
 mod extra_data_types {
-    use ionic_codec::encode::errors::NetEncodeError;
-    use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-    use ionic_codec::net_types::var_int::VarInt;
+    use temper_codec::encode::errors::NetEncodeError;
+    use temper_codec::encode::{NetEncode, NetEncodeOpts};
+    use temper_codec::net_types::var_int::VarInt;
     use std::io::Write;
     // STANDING = 0, FALL_FLYING = 1, SLEEPING = 2, SWIMMING = 3, SPIN_ATTACK = 4, SNEAKING = 5, LONG_JUMPING = 6, DYING = 7, CROAKING = 8,
     // USING_TONGUE = 9, SITTING = 10, ROARING = 11, SNIFFING = 12, EMERGING = 13, DIGGING = 14, (1.21.3: SLIDING = 15, SHOOTING = 16,

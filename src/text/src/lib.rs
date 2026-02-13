@@ -1,4 +1,4 @@
-use ionic_macros::NBTSerialize;
+use temper_macros::NBTSerialize;
 use serde::{Deserialize, Serialize};
 
 #[cfg(test)]
@@ -25,7 +25,7 @@ pub struct TextComponent {
     /// The content field of this TextComponent.
     ///
     /// ```ignore
-    /// # use ionic_text::*;
+    /// # use temper_text::*;
     /// TextContent::Text { text: "text".to_string() };
     /// TextContent::Translate {
     ///     translate: "translation".to_string(),

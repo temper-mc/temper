@@ -1,9 +1,9 @@
 use bevy_ecs::prelude::{MessageWriter, Query, Res};
-use ionic_components::player::grounded::OnGround;
-use ionic_components::player::rotation::Rotation;
-use ionic_components::player::teleport_tracker::TeleportTracker;
-use ionic_messages::packet_messages::Movement;
-use ionic_protocol::SetPlayerRotationPacketReceiver;
+use temper_components::player::grounded::OnGround;
+use temper_components::player::rotation::Rotation;
+use temper_components::player::teleport_tracker::TeleportTracker;
+use temper_messages::packet_messages::Movement;
+use temper_protocol::SetPlayerRotationPacketReceiver;
 
 pub fn handle(
     receiver: Res<SetPlayerRotationPacketReceiver>,

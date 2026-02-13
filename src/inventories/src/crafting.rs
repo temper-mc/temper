@@ -3,10 +3,10 @@ use crate::inventory::Inventory;
 use crate::item::ItemID;
 use crate::slot::InventorySlot;
 use bevy_ecs::entity::Entity;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_data::items::Item;
-use ionic_data::recipes::{Recipe, RecipeType};
-use ionic_data::tags::TagData;
+use temper_codec::net_types::var_int::VarInt;
+use temper_data::items::Item;
+use temper_data::recipes::{Recipe, RecipeType};
+use temper_data::tags::TagData;
 use std::collections::HashMap;
 use tracing::error;
 

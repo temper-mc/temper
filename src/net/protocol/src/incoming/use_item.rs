@@ -3,8 +3,8 @@
 //! Sent when the player uses the item currently in their hand (right-click in air).
 //! This is used for eating food, throwing projectiles, etc.
 
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetDecode};
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetDecode};
 
 /// Which hand is being used for an action.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, NetDecode)]

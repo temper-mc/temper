@@ -1,6 +1,6 @@
 //! Command arguments.
 
-use ionic_text::TextComponent;
+use temper_text::TextComponent;
 use primitive::PrimitiveArgument;
 
 use crate::{Suggestion, ctx::CommandContext};
@@ -87,7 +87,7 @@ pub mod utils {
 
     use std::error::Error;
 
-    use ionic_text::{NamedColor, TextComponent, TextComponentBuilder};
+    use temper_text::{NamedColor, TextComponent, TextComponentBuilder};
 
     use crate::errors::CommandError;
 

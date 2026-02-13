@@ -20,7 +20,7 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                 }
                 Ok(())
             })
-            .unwrap();
+                .unwrap();
         }
         repr_t.map(|val| syn::parse_str::<syn::Ident>(&val).expect("Failed to parse repr type"))
     };
@@ -50,7 +50,7 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                 }
                 Ok(())
             })
-            .unwrap();
+                .unwrap();
         }
         (cast, cast_handler)
     };
@@ -108,16 +108,16 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
         };
 
         let expanded = quote! {
-            impl #impl_generics ionic_codec::decode::NetDecode
+            impl #impl_generics temper_codec::decode::NetDecode
                 for #enum_name #ty_generics
                 #where_clause
             {
                 fn decode<R: std::io::Read>(
                     reader: &mut R,
-                    opts: &ionic_codec::decode::NetDecodeOpts
-                ) ->Result<Self, ionic_codec::decode::errors::NetDecodeError> {
+                    opts: &temper_codec::decode::NetDecodeOpts
+                ) ->Result<Self, temper_codec::decode::errors::NetDecodeError> {
                     // Decode the initial numeric value
-                    let value = <#type_cast_ty as ionic_codec::decode::NetDecode>::decode(reader, opts)?;
+                    let value = <#type_cast_ty as temper_codec::decode::NetDecode>::decode(reader, opts)?;
                     // Possibly transform via the handler
                     let value = #cast_handler_expr;
                     // Cast to the repr type
@@ -126,16 +126,16 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                     // Match against the known variant discriminants
                     match (value as i32) {
                         #(#enum_arms)*
-                        _ => Err(ionic_codec::decode::errors::NetDecodeError::InvalidEnumVariant),
+                        _ => Err(temper_codec::decode::errors::NetDecodeError::InvalidEnumVariant),
                     }
                 }
 
                 async fn decode_async<R: tokio::io::AsyncRead + Unpin>(
                     reader: &mut R,
-                    opts: &ionic_codec::decode::NetDecodeOpts
-                ) ->Result<Self, ionic_codec::decode::errors::NetDecodeError> {
+                    opts: &temper_codec::decode::NetDecodeOpts
+                ) ->Result<Self, temper_codec::decode::errors::NetDecodeError> {
                     // Decode the initial numeric value
-                    let value = <#type_cast_ty as ionic_codec::decode::NetDecode>::decode_async(reader, opts).await?;
+                    let value = <#type_cast_ty as temper_codec::decode::NetDecode>::decode_async(reader, opts).await?;
                     // Possibly transform via the handler
                     let value = #cast_handler_expr;
                     // Cast to the repr type
@@ -144,7 +144,7 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                     // Match against the known variant discriminants
                     match (value as i32) {
                         #(#enum_arms)*
-                        _ => Err(ionic_codec::decode::errors::NetDecodeError::InvalidEnumVariant),
+                        _ => Err(temper_codec::decode::errors::NetDecodeError::InvalidEnumVariant),
                     }
                 }
             }
@@ -204,12 +204,12 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
 
                                 Ok(())
                             })
-                            .expect("Failed to parse optional_trigger expression");
+                                .expect("Failed to parse optional_trigger expression");
                         }
                     }
                     Ok(())
                 })
-                .unwrap();
+                    .unwrap();
             }
         }
 
@@ -221,7 +221,7 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
             decode_statements.push(quote! {
                 let #field_name = {
                     if #expr {
-                        Some(<#field_ty as ionic_codec::decode::NetDecode>::decode(reader, opts)?)
+                        Some(<#field_ty as temper_codec::decode::NetDecode>::decode(reader, opts)?)
                     } else {
                         None
                     }
@@ -232,7 +232,7 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
             async_decode_statements.push(quote! {
                 let #field_name = {
                     if #expr {
-                        Some(<#field_ty as ionic_codec::decode::NetDecode>::decode_async(reader, opts).await?)
+                        Some(<#field_ty as temper_codec::decode::NetDecode>::decode_async(reader, opts).await?)
                     } else {
                         None
                     }
@@ -258,11 +258,11 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
 
             // Normal (non-optional) field decode:
             decode_statements.push(quote! {
-                let #field_name = <#field_ty as ionic_codec::decode::NetDecode>::decode(reader, opts)?;
+                let #field_name = <#field_ty as temper_codec::decode::NetDecode>::decode(reader, opts)?;
             });
 
             async_decode_statements.push(quote! {
-                let #field_name = <#field_ty as ionic_codec::decode::NetDecode>::decode_async(reader, opts).await?;
+                let #field_name = <#field_ty as temper_codec::decode::NetDecode>::decode_async(reader, opts).await?;
             });
         }
 
@@ -277,14 +277,14 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl #impl_generics ionic_codec::decode::NetDecode
+        impl #impl_generics temper_codec::decode::NetDecode
             for #struct_name #ty_generics
             #where_clause
         {
             fn decode<R: std::io::Read>(
                 reader: &mut R,
-                opts: &ionic_codec::decode::NetDecodeOpts
-            ) ->Result<Self, ionic_codec::decode::errors::NetDecodeError> {
+                opts: &temper_codec::decode::NetDecodeOpts
+            ) ->Result<Self, temper_codec::decode::errors::NetDecodeError> {
                 #(#decode_statements)*
 
                 #build_struct
@@ -292,8 +292,8 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
 
             async fn decode_async<R: tokio::io::AsyncRead + Unpin>(
                 reader: &mut R,
-                opts: &ionic_codec::decode::NetDecodeOpts
-            ) ->Result<Self, ionic_codec::decode::errors::NetDecodeError> {
+                opts: &temper_codec::decode::NetDecodeOpts
+            ) ->Result<Self, temper_codec::decode::errors::NetDecodeError> {
                 #(#async_decode_statements)*
 
                 #build_struct

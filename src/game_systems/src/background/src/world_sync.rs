@@ -1,19 +1,19 @@
 #![expect(clippy::type_complexity)]
 use bevy_ecs::prelude::{Query, Res, ResMut};
-use ionic_components::active_effects::ActiveEffects;
-use ionic_components::health::Health;
-use ionic_components::player::abilities::PlayerAbilities;
-use ionic_components::player::experience::Experience;
-use ionic_components::player::gamemode::GameModeComponent;
-use ionic_components::player::gameplay_state::ender_chest::EnderChest;
-use ionic_components::player::hunger::Hunger;
-use ionic_components::player::offline_player_data::OfflinePlayerData;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_inventories::inventory::Inventory;
-use ionic_resources::world_sync_tracker::WorldSyncTracker;
-use ionic_state::GlobalStateResource;
+use temper_components::active_effects::ActiveEffects;
+use temper_components::health::Health;
+use temper_components::player::abilities::PlayerAbilities;
+use temper_components::player::experience::Experience;
+use temper_components::player::gamemode::GameModeComponent;
+use temper_components::player::gameplay_state::ender_chest::EnderChest;
+use temper_components::player::hunger::Hunger;
+use temper_components::player::offline_player_data::OfflinePlayerData;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_inventories::inventory::Inventory;
+use temper_resources::world_sync_tracker::WorldSyncTracker;
+use temper_state::GlobalStateResource;
 
 pub fn sync_world(
     player_query: Query<(

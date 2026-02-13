@@ -4,7 +4,7 @@ use std::sync::LazyLock;
 
 use bevy_ecs::entity::Entity;
 use crossbeam_queue::SegQueue;
-use ionic_text::TextComponent;
+use temper_text::TextComponent;
 
 #[doc(hidden)]
 #[derive(Clone)]

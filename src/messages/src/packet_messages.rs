@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::{Entity, Message};
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
 
 #[derive(Message, Debug)]
 pub struct Movement {

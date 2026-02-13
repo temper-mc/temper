@@ -1,18 +1,16 @@
 [package]
-name = "ionic-messages"
+name = "temper-messages"
 version = "0.1.0"
 edition = "2021"
-description = "Defines all Bevy ECS messages for FerrumC."
+description = "Defines all Bevy ECS messages for Temper."
 
 [dependencies]
 bevy_ecs = { workspace = true }
 bevy_math = { workspace = true }
 
-ionic-components = { workspace = true }
-ionic-core = { workspace = true }
-ionic-codec = { workspace = true }
-ionic-inventories = { workspace = true }
-ionic-entities = { workspace = true }
-ionic-particles = { workspace = true }
-ionic-world = { workspace = true }
-ionic-commands = { workspace = true }
+temper-components = { workspace = true }
+temper-core = { workspace = true }
+temper-codec = { workspace = true }
+temper-inventories = { workspace = true }
+temper-particles = { workspace = true }
+temper-commands = { workspace = true }

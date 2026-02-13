@@ -4,13 +4,13 @@
 //! NOT via PlayerCommand (which was used in older protocol versions).
 
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::sneak::SneakState;
-use ionic_net_runtime::broadcast::broadcast_packet_except;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
-use ionic_protocol::PlayerInputReceiver;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::sneak::SneakState;
+use temper_net_runtime::broadcast::broadcast_packet_except;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
+use temper_protocol::PlayerInputReceiver;
 use tracing::{debug, warn};
 
 /// PlayerInput flags (1.21.x protocol)

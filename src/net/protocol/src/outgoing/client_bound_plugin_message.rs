@@ -1,7 +1,7 @@
-use ionic_codec::encode::NetEncode;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::encode::NetEncode;
+use temper_macros::{packet, NetEncode};
 
-const SERVER_VERSION: &str = concat!("Ionic v", env!("IONIC_VERSION"), env!("BUILD_TYPE"));
+const SERVER_VERSION: &str = concat!("TEMPER v", env!("TEMPER_VERSION"), env!("BUILD_TYPE"));
 
 type BrandChannelData = String;
 

@@ -1,6 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use fastanvil::Region;
-use ionic_anvil::load_anvil_file;
+use temper_anvil::load_anvil_file;
 use rayon::prelude::*;
 use std::fs::File;
 use std::hint::black_box;
@@ -9,7 +9,7 @@ use std::path::PathBuf;
 fn criterion_benchmark(c: &mut Criterion) {
     let mut read_all_group = c.benchmark_group("Read All");
 
-    read_all_group.bench_function("FerrumC Rayon", |b| {
+    read_all_group.bench_function("temper Rayon", |b| {
         b.iter(|| {
             let file_path = PathBuf::from("../../../../.etc/r.0.0.mca");
             let loaded_file = load_anvil_file(file_path).unwrap();
@@ -22,7 +22,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         });
     });
 
-    read_all_group.bench_function("FerrumC", |b| {
+    read_all_group.bench_function("temper", |b| {
         b.iter(|| {
             let file_path = PathBuf::from("../../../../.etc/r.0.0.mca");
             let loaded_file = load_anvil_file(file_path).unwrap();
@@ -51,7 +51,7 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let mut read_one_group = c.benchmark_group("Read One");
 
-    read_one_group.bench_function("FerrumC", |b| {
+    read_one_group.bench_function("temper", |b| {
         b.iter(|| {
             let file_path = PathBuf::from("../../../../.etc/r.0.0.mca");
             let loaded_file = load_anvil_file(file_path).unwrap();

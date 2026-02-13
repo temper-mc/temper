@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::Res;
-use ionic_commands::Sender;
-use ionic_macros::command;
-use ionic_state::GlobalStateResource;
+use temper_commands::Sender;
+use temper_macros::command;
+use temper_state::GlobalStateResource;
 use std::sync::atomic::Ordering::Relaxed;
 use tracing::info;
 

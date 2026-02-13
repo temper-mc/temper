@@ -1,16 +1,16 @@
 #![expect(clippy::type_complexity)]
 use bevy_ecs::entity::Entity;
 use bevy_ecs::prelude::{MessageWriter, Query};
-use ionic_commands::arg::entities::EntityArgument;
-use ionic_commands::arg::position::CommandPosition;
-use ionic_commands::Sender;
-use ionic_commands::Sender::Player;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_macros::command;
-use ionic_messages::teleport_player::TeleportPlayer;
+use temper_commands::arg::entities::EntityArgument;
+use temper_commands::arg::position::CommandPosition;
+use temper_commands::Sender;
+use temper_commands::Sender::Player;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_macros::command;
+use temper_messages::teleport_player::TeleportPlayer;
 
 #[command("tp pos")]
 fn tp_command(

@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::*;
-use ionic_core::mq;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::system_message::SystemMessagePacket;
-use ionic_state::GlobalStateResource;
+use temper_core::mq;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::system_message::SystemMessagePacket;
+use temper_state::GlobalStateResource;
 use tracing::{error, info};
 
 fn send(

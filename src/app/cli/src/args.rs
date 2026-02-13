@@ -1,12 +1,12 @@
 //! CLI argument definitions and parsing.
 //!
-//! This module contains all the argument structures used by the FerrumC CLI,
+//! This module contains all the argument structures used by the Temper CLI,
 //! powered by the `clap` crate.
 
 use clap::{ArgGroup, Parser, Subcommand, ValueEnum};
 use tracing::Level;
 
-/// Main CLI arguments for FerrumC.
+/// Main CLI arguments for Temper.
 #[derive(Parser)]
 pub struct CLIArgs {
     /// The subcommand to execute

@@ -1,11 +1,11 @@
 use bevy_ecs::prelude::{Query, Res, ResMut};
-use ionic_commands::arg::primitive::int::Integer;
-use ionic_commands::arg::primitive::string::SingleWord;
-use ionic_commands::Sender;
-use ionic_components::player::time::LastSentTimeUpdate;
-use ionic_macros::command;
-use ionic_resources::time::WorldTime;
-use ionic_text::TextComponent;
+use temper_commands::arg::primitive::int::Integer;
+use temper_commands::arg::primitive::string::SingleWord;
+use temper_commands::Sender;
+use temper_components::player::time::LastSentTimeUpdate;
+use temper_macros::command;
+use temper_resources::time::WorldTime;
+use temper_text::TextComponent;
 
 #[command("time set")]
 fn time_set(

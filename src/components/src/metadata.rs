@@ -1,17 +1,17 @@
 use bevy_ecs::prelude::Component;
-use ionic_data::generated::entities::EntityType as VanillaEntityType;
+use temper_data::generated::entities::EntityType as VanillaEntityType;
 
-/// Static entity metadata from ionic-data.
+/// Static entity metadata from temper-data.
 ///
 /// This component stores a reference to immutable vanilla data
-/// defined in ionic-data. These data come directly from
+/// defined in temper-data. These data come directly from
 /// Minecraft data files and never change during runtime.
 ///
 /// # Examples
 ///
 /// ```ignore
-/// use ionic_entities::components::EntityMetadata;
-/// use ionic_data::generated::entities::EntityType as VanillaEntityType;
+/// use temper_entities::components::EntityMetadata;
+/// use temper_data::generated::entities::EntityType as VanillaEntityType;
 ///
 /// let metadata = EntityMetadata::from_vanilla(&VanillaEntityType::PIG);
 /// assert_eq!(metadata.protocol_id(), 95);
@@ -21,7 +21,7 @@ use ionic_data::generated::entities::EntityType as VanillaEntityType;
 #[derive(Component, Clone, Copy)]
 pub struct EntityMetadata {
     /// Static reference to vanilla data for this entity.
-    /// This reference points to a constant defined in ionic-data
+    /// This reference points to a constant defined in temper-data
     /// and is valid for the entire program duration.
     vanilla_data: &'static VanillaEntityType,
 }
@@ -36,7 +36,7 @@ impl EntityMetadata {
     /// # Examples
     ///
     /// ```ignore
-    /// use ionic_data::generated::entities::EntityType as VanillaEntityType;
+    /// use temper_data::generated::entities::EntityType as VanillaEntityType;
     ///
     /// let pig_metadata = EntityMetadata::from_vanilla(&VanillaEntityType::PIG);
     /// ```

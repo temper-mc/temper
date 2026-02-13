@@ -1,10 +1,10 @@
 use crate::errors::WorldGenError;
 use crate::interp::{bilerp, dither_field, smoothstep};
 use crate::{BiomeGenerator, NoiseGenerator};
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::pos::{BlockPos, ChunkHeight, ChunkPos};
-use ionic_macros::block;
-use ionic_world_format::Chunk;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::pos::{BlockPos, ChunkHeight, ChunkPos};
+use temper_macros::block;
+use temper_world_format::Chunk;
 
 fn build_heightmap_interpolated(pos: ChunkPos, noise: &NoiseGenerator) -> [i32; 16 * 16] {
     const STEP_XZ: i32 = 4;

@@ -7,9 +7,9 @@ use crate::section::uniform::UniformSection;
 use crate::vanilla_chunk_format::Section;
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::pos::SectionBlockPos;
-use ionic_macros::block;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::pos::SectionBlockPos;
+use temper_macros::block;
 
 mod biome;
 mod direct;

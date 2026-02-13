@@ -1,4 +1,4 @@
-//! ionic_scheduler
+//! temper_scheduler
 //!
 //! A small timed scheduler for Bevy `Schedule`s with tokio-like missed-tick
 //! behavior options. Designed to work with the existing game loop style used

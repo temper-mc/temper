@@ -18,17 +18,17 @@ RUN cargo chef cook --release --recipe-path recipe.json
 # Build app
 COPY . .
 RUN cargo build --release
-RUN strip target/release/ionic
+RUN strip target/release/temper
 
 # Minimal runtime
 FROM alpine:3.20
 WORKDIR /app
-RUN addgroup -S ionic && adduser -S ionic -G ionic
-COPY --from=builder /app/target/release/ionic /app/
-RUN chown -R ionic:ionic /app
+RUN addgroup -S temper && adduser -S temper -G temper
+COPY --from=builder /app/target/release/temper /app/
+RUN chown -R temper:temper /app
 
-USER ionic
+USER temper
 EXPOSE 25565
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
   CMD nc -z localhost 25565 || exit 1
-CMD ["./ionic"]
+CMD ["./temper"]

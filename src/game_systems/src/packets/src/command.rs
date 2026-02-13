@@ -1,13 +1,12 @@
 use bevy_ecs::prelude::*;
-use ionic_commands::{
-    messages::{CommandDispatched, ResolvedCommandDispatched}, resolve, Command, CommandContext,
-    CommandInput,
+use temper_commands::{
+    messages::{CommandDispatched, ResolvedCommandDispatched}, resolve,
     Sender,
 };
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_core::mq;
-use ionic_protocol::ChatCommandPacketReceiver;
-use ionic_state::GlobalStateResource;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_core::mq;
+use temper_protocol::ChatCommandPacketReceiver;
+use temper_state::GlobalStateResource;
 use tracing::info;
 
 pub fn handle(

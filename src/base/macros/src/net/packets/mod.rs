@@ -84,7 +84,7 @@ pub fn setup_packet_handling(input: TokenStream) -> TokenStream {
 
     let mut match_arms = Vec::new();
 
-    let start = std::time::Instant::now();
+    let _start = std::time::Instant::now();
 
     let entries = std::fs::read_dir(dir_path).expect("read_dir call failed");
 
@@ -121,11 +121,11 @@ pub fn setup_packet_handling(input: TokenStream) -> TokenStream {
                 &item_struct.attrs,
                 PacketBoundiness::Serverbound,
             )
-            .expect(
-                "parse_packet_attribute failed\
+                .expect(
+                    "parse_packet_attribute failed\
                 \nPlease provide the packet_id and state fields in the #[packet(...)] attribute.\
                 \nExample: #[packet(packet_id = \"example_packet\", state = \"handshake\")]",
-            );
+                );
 
             if state == "play" {
                 let struct_name = item_struct.ident;
@@ -149,7 +149,7 @@ pub fn setup_packet_handling(input: TokenStream) -> TokenStream {
                 match_arms.push(quote! {
                         (#packet_id) => {
                             // let packet= #struct_path::net_decode(cursor)?;
-                            let packet = <#struct_path as ionic_codec::decode::NetDecode>::decode(cursor, &ionic_codec::decode::NetDecodeOpts::None)?;
+                            let packet = <#struct_path as temper_codec::decode::NetDecode>::decode(cursor, &temper_codec::decode::NetDecodeOpts::None)?;
                             packet_sender.#field_name.send((packet, entity)).expect("Failed to send packet");
                             Ok(())
                         },
@@ -157,8 +157,6 @@ pub fn setup_packet_handling(input: TokenStream) -> TokenStream {
             }
         }
     }
-
-    let elapsed = start.elapsed();
 
     let mut sender_mega_struct_fields = vec![];
     let mut send_recv_pairs = vec![];
@@ -247,7 +245,7 @@ fn parse_packet_id(state: &str, value: String, bound_to: PacketBoundiness) -> sy
 ///
 /// e.g.
 /// ```ignore
-/// use ionic_macros::NetDecode;
+/// use temper_macros::NetDecode;
 ///
 /// #[derive(NetDecode)]
 /// #[packet(packet_id = 0x05, state = "play")]
@@ -258,7 +256,7 @@ fn parse_packet_id(state: &str, value: String, bound_to: PacketBoundiness) -> sy
 /// ```
 ///
 /// ```ignore
-/// use ionic_macros::{packet, NetEncode};
+/// use temper_macros::{packet, NetEncode};
 ///
 /// #[derive(NetEncode)]
 /// #[packet(packet_id = 0x05)]

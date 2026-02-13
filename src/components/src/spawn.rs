@@ -1,6 +1,6 @@
 use crate::metadata::EntityMetadata;
 use bevy_ecs::prelude::Component;
-use ionic_data::generated::entities::{
+use temper_data::generated::entities::{
     EntityType as VanillaEntityType, HeightMap, MobCategory, SpawnLocation, SpawnRestriction,
 };
 
@@ -12,8 +12,8 @@ use ionic_data::generated::entities::{
 /// # Examples
 ///
 /// ```ignore
-/// use ionic_entities::components::{EntityMetadata, SpawnProperties};
-/// use ionic_data::generated::entities::EntityType as VanillaEntityType;
+/// use temper_entities::components::{EntityMetadata, SpawnProperties};
+/// use temper_data::generated::entities::EntityType as VanillaEntityType;
 ///
 /// let metadata = EntityMetadata::from_vanilla(&VanillaEntityType::PIG);
 /// let spawn = SpawnProperties::from_metadata(&metadata);
@@ -44,7 +44,7 @@ pub struct SpawnProperties {
     pub spawn_restriction: SpawnRestriction,
 }
 
-// Manual Clone implementation because ionic-data types don't implement Clone
+// Manual Clone implementation because temper-data types don't implement Clone
 impl Clone for SpawnProperties {
     fn clone(&self) -> Self {
         Self {
@@ -127,7 +127,7 @@ impl std::fmt::Debug for SpawnProperties {
     }
 }
 
-// Helper functions to clone enums from ionic-data
+// Helper functions to clone enums from temper-data
 // (Because they doesn't implement clone)
 
 fn clone_mob_category(category: &MobCategory) -> MobCategory {

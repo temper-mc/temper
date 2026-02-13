@@ -1,17 +1,17 @@
 #![expect(clippy::type_complexity)]
 use bevy_ecs::prelude::{MessageReader, Query};
-use ionic_codec::net_types::angle::NetAngle;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::grounded::OnGround;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_components::player::velocity::Velocity;
-use ionic_entities::LastSyncedPosition;
-use ionic_messages::entity_update::SendEntityUpdate;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
-use ionic_protocol::outgoing::update_entity_position_and_rotation::UpdateEntityPositionAndRotationPacket;
+use temper_codec::net_types::angle::NetAngle;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::grounded::OnGround;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_components::player::velocity::Velocity;
+use temper_entities::LastSyncedPosition;
+use temper_messages::entity_update::SendEntityUpdate;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
+use temper_protocol::outgoing::update_entity_position_and_rotation::UpdateEntityPositionAndRotationPacket;
 use tracing::warn;
 
 pub fn handle(

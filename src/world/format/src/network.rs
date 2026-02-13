@@ -1,11 +1,11 @@
 use crate::heightmap::{Heightmaps, NetworkHeightmap};
 use crate::section::network::NetworkSection;
 use crate::Chunk;
-use ionic_codec::encode::errors::NetEncodeError;
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-use ionic_codec::net_types::byte_array::ByteArray;
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_macros::NetEncode;
+use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_codec::net_types::byte_array::ByteArray;
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_macros::NetEncode;
 use std::io::Cursor;
 
 #[derive(NetEncode)]

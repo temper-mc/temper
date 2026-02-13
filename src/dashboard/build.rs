@@ -47,7 +47,7 @@ fn main() -> Result<()> {
     let client = reqwest::blocking::Client::new();
     let download_result = client
         .get(DASHBOARD_URL)
-        .header("User-Agent", "ionic-build-script")
+        .header("User-Agent", "temper-build-script")
         .send();
 
     match download_result {

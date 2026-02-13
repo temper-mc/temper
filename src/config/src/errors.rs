@@ -26,5 +26,5 @@ pub enum ConfigError {
 
     /// Error when the root path cannot be found.
     #[error("Failed to get the root path.")]
-    RootPathError(#[from] ionic_general_purpose::paths::RootPathError),
+    RootPathError(#[from] temper_general_purpose::paths::RootPathError),
 }

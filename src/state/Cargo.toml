@@ -1,16 +1,12 @@
 [package]
-name = "ionic-state"
+name = "temper-state"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 bevy_ecs = { workspace = true }
-ionic-world = { workspace = true }
+temper-world = { workspace = true }
 dashmap = { workspace = true }
-ionic-threadpool = { workspace = true }
+temper-threadpool = { workspace = true }
 crossbeam-queue = { workspace = true }
-ionic-core = { workspace = true }
-uuid = { workspace = true }
-ionic-components = { workspace = true }
-ionic-inventories = { workspace = true }
 tempfile = { workspace = true }

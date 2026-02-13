@@ -1,7 +1,7 @@
-use ionic_nbt::NBT;
-use ionic_text::TextComponent;
-use ionic_codec::net_types::adhoc_id::AdHocID;
-use ionic_macros::{packet, NBTSerialize, NetEncode};
+use temper_nbt::NBT;
+use temper_text::TextComponent;
+use temper_codec::net_types::adhoc_id::AdHocID;
+use temper_macros::{packet, NBTSerialize, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "show_dialog", state = "play")]

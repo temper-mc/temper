@@ -57,7 +57,7 @@ impl BitSet {
 impl NetEncode for BitSet {
     fn encode<W: Write>(&self, writer: &mut W, opts: &NetEncodeOpts) -> Result<(), NetEncodeError> {
         VarInt::from(self.0.len()).encode(writer, opts)?;
-        writer.write_all(&ionic_general_purpose::simd::arrays::u64_slice_to_u8_be(
+        writer.write_all(&temper_general_purpose::simd::arrays::u64_slice_to_u8_be(
             &self.0,
         ))?;
         Ok(())
@@ -72,7 +72,7 @@ impl NetEncode for BitSet {
             .encode_async(writer, opts)
             .await?;
         writer
-            .write_all(&ionic_general_purpose::simd::arrays::u64_slice_to_u8_be(
+            .write_all(&temper_general_purpose::simd::arrays::u64_slice_to_u8_be(
                 &self.0,
             ))
             .await?;

@@ -1,8 +1,8 @@
 //! Command senders.
 
 use bevy_ecs::prelude::*;
-use ionic_core::mq;
-use ionic_text::TextComponent;
+use temper_core::mq;
+use temper_text::TextComponent;
 use tracing::info;
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

@@ -1,5 +1,5 @@
 [package]
-name = "ionic-codec"
+name = "temper-codec"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,6 @@ edition = "2021"
 thiserror = { workspace = true }
 tokio = { workspace = true }
 bitcode = { workspace = true }
-ionic-general-purpose = { workspace = true }
+temper-general-purpose = { workspace = true }
 deepsize = { workspace = true }
 

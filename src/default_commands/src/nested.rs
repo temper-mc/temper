@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::*;
-use ionic_commands::Sender;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_macros::command;
-use ionic_text::TextComponent;
+use temper_commands::Sender;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_macros::command;
+use temper_text::TextComponent;
 
 #[command("nested")]
 fn nested_command(#[sender] sender: Sender, query: Query<&PlayerIdentity>) {

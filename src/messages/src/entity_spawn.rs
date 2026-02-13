@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::{Entity, Message};
-use ionic_components::player::position::Position;
+use temper_components::player::position::Position;
 
 /// Type of entity to spawn
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]

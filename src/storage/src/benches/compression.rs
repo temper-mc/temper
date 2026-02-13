@@ -1,5 +1,5 @@
-use ionic_storage::compressors::{Compressor, CompressorType};
-use ionic_utils::root;
+use temper_storage::compressors::{Compressor, CompressorType};
+use temper_utils::root;
 use std::hint::black_box;
 
 fn zstd_compress(data: &[u8]) {

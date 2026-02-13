@@ -1,8 +1,8 @@
 use crate::shutdown_handler;
 use crossterm::event;
-use ionic_state::GlobalState;
 use ratatui::{DefaultTerminal, Frame};
 use std::sync::atomic::Ordering::Relaxed;
+use temper_state::GlobalState;
 
 use ratatui::layout::{Constraint, Direction, Layout};
 use ratatui::style::{Color, Style};
@@ -99,7 +99,7 @@ fn render(frame: &mut Frame, input: &Input, log_state: &TuiWidgetState) {
 
     // One outer box
     let outer = Block::default()
-        .title(" FerrumC (Press Ctrl+C to exit)  (PgUp/PgDn to scroll logs) ")
+        .title("Temper (Press Ctrl+C to exit)  (PgUp/PgDn to scroll logs) ")
         .borders(Borders::ALL);
 
     frame.render_widget(outer.clone(), area);
@@ -113,7 +113,7 @@ fn render(frame: &mut Frame, input: &Input, log_state: &TuiWidgetState) {
 
     // Logger (no extra borders)
     let log_widget = tui_logger::TuiLoggerWidget::default()
-        .formatter(Box::new(ionic_logging::tui_formatter::TuiTracingFormatter))
+        .formatter(Box::new(temper_logging::tui_formatter::TuiTracingFormatter))
         .output_target(false)
         .state(log_state);
 

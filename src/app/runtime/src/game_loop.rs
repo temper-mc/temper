@@ -9,26 +9,26 @@
 use crate::errors::BinaryError;
 use crate::tui;
 use bevy_ecs::prelude::World;
-use bevy_ecs::schedule::{ApplyDeferred, ExecutorKind, IntoScheduleConfigs, Schedule};
+use bevy_ecs::schedule::{ExecutorKind, Schedule};
 use crossbeam_channel::Sender;
-use ionic_commands::infrastructure::register_command_systems;
-use ionic_config::server_config::get_global_config;
-use ionic_game_systems::{
+use temper_commands::infrastructure::register_command_systems;
+use temper_config::server_config::get_global_config;
+use temper_game_systems::{
     chunk_unloader, keep_alive_system, register_background_systems, register_mob_systems,
     register_packet_handlers, register_physics_systems, register_player_systems,
     register_shutdown_systems, update_player_ping, world_sync, LanPinger,
 };
-use ionic_messages::register_messages;
-use ionic_net_runtime::connection::{handle_connection, NewConnection};
-use ionic_net_runtime::server::create_server_listener;
-use ionic_performance::tick::TickData;
-use ionic_performance::ServerPerformance;
-use ionic_protocol::{create_packet_senders, PacketSender};
-use ionic_resources::register_resources;
-use ionic_scheduler::MissedTickBehavior;
-use ionic_scheduler::{drain_registered_schedules, Scheduler, TimedSchedule};
-use ionic_state::{GlobalState, GlobalStateResource};
-use ionic_utils::formatting::format_duration;
+use temper_messages::register_messages;
+use temper_net_runtime::connection::{handle_connection, NewConnection};
+use temper_net_runtime::server::create_server_listener;
+use temper_performance::tick::TickData;
+use temper_performance::ServerPerformance;
+use temper_protocol::{create_packet_senders, PacketSender};
+use temper_resources::register_resources;
+use temper_scheduler::MissedTickBehavior;
+use temper_scheduler::{drain_registered_schedules, Scheduler, TimedSchedule};
+use temper_state::{GlobalState, GlobalStateResource};
+use temper_utils::formatting::format_duration;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tracing::{debug, error, info, info_span, trace, warn, Instrument};
@@ -77,7 +77,7 @@ pub fn start_game_loop(global_state: GlobalState, no_tui: bool) -> Result<(), Bi
     // =========================================================================
 
     // Initialize default server commands (e.g., /stop, /help, etc.)
-    ionic_default_commands::init();
+    temper_default_commands::init();
 
     // Wrap global state for ECS resource access
     let global_state_res = GlobalStateResource(global_state.clone());

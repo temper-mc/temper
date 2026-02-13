@@ -1,6 +1,6 @@
-use ionic_commands::graph::{node::CommandNode, CommandGraph};
-use ionic_codec::net_types::{length_prefixed_vec::LengthPrefixedVec, var_int::VarInt};
-use ionic_macros::{packet, NetEncode};
+use temper_commands::graph::{node::CommandNode, CommandGraph};
+use temper_codec::net_types::{length_prefixed_vec::LengthPrefixedVec, var_int::VarInt};
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode, Debug)]
 #[packet(packet_id = "commands", state = "play")]
@@ -23,7 +23,7 @@ impl CommandsPacket {
     /// This is the typical way to create this packet, as it includes all
     /// registered server commands for tab-completion and validation.
     pub fn from_global_graph() -> Self {
-        Self::new(ionic_commands::infrastructure::get_graph())
+        Self::new(temper_commands::infrastructure::get_graph())
     }
 }
 

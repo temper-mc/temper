@@ -224,7 +224,7 @@ impl Inventory {
 mod tests {
     use super::*;
     use crate::item::ItemID;
-    use ionic_codec::net_types::var_int::VarInt;
+    use temper_codec::net_types::var_int::VarInt;
 
     fn make_slot_with_id(id: i32) -> InventorySlot {
         InventorySlot {

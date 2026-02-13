@@ -1,23 +1,23 @@
 [package]
-name = "ionic-world-format"
+name = "temper-world-format"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 bitcode_derive = { workspace = true }
 bitcode = { workspace = true }
-ionic-codec = { workspace = true }
-ionic-macros = { workspace = true }
+temper-codec = { workspace = true }
+temper-macros = { workspace = true }
 deepsize = { workspace = true }
-ionic-core = { workspace = true }
+temper-core = { workspace = true }
 macro_rules_attribute = { workspace = true }
 serde_derive = { workspace = true }
-ionic-anvil = { workspace = true }
+temper-anvil = { workspace = true }
 thiserror = { workspace = true }
 yazi = { workspace = true }
-ionic-storage = { workspace = true }
-ionic-general-purpose = { workspace = true }
-ionic-nbt = { workspace = true }
+temper-storage = { workspace = true }
+temper-general-purpose = { workspace = true }
+temper-nbt = { workspace = true }
 serde = { workspace = true }
 bytemuck = { workspace = true }
 tokio = { workspace = true }

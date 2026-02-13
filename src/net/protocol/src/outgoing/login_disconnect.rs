@@ -1,5 +1,5 @@
-use ionic_macros::{packet, NetEncode};
-use ionic_text::TextComponent;
+use temper_macros::{packet, NetEncode};
+use temper_text::TextComponent;
 
 #[derive(NetEncode)]
 #[packet(packet_id = "login_disconnect", state = "login")]

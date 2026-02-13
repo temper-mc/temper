@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::Component;
 use bevy_math::bounding::Aabb3d;
-use ionic_data::generated::entities::EntityType as VanillaEntityType;
+use temper_data::generated::entities::EntityType as VanillaEntityType;
 use std::ops::{Deref, DerefMut};
 
 /// Entity bounding box (collision box).
@@ -31,12 +31,12 @@ impl BoundingBox {
     ///
     /// # Arguments
     ///
-    /// * `dimension` - Dimensions [width, height] from ionic-data
+    /// * `dimension` - Dimensions [width, height] from temper-data
     ///
     /// # Examples
     ///
     /// ```ignore
-    /// use ionic_data::generated::entities::EntityType as VanillaEntityType;
+    /// use temper_data::generated::entities::EntityType as VanillaEntityType;
     ///
     /// let bbox = BoundingBox::from_vanilla_dimension(VanillaEntityType::PIG.dimension);
     /// assert_eq!(bbox.half_width, 0.45); // 0.9 / 2
@@ -80,8 +80,8 @@ impl BoundingBox {
 /// # Examples
 ///
 /// ```ignore
-/// use ionic_entities::components::{EntityMetadata, PhysicalProperties};
-/// use ionic_data::generated::entities::EntityType as VanillaEntityType;
+/// use temper_entities::components::{EntityMetadata, PhysicalProperties};
+/// use temper_data::generated::entities::EntityType as VanillaEntityType;
 ///
 /// let metadata = EntityMetadata::from_vanilla(&VanillaEntityType::PIG);
 /// let physical = PhysicalProperties::from_metadata(&metadata);

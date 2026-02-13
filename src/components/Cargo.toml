@@ -1,19 +1,18 @@
 [package]
-name = "ionic-components"
+name = "temper-components"
 version = "0.1.0"
 edition = "2021"
-description = "FerrumC components"
+description = "Temper components"
 
 [dependencies]
 bevy_ecs = { workspace = true }
 tokio = { workspace = true }
 
-ionic-inventories = { workspace = true }
-ionic-core = { workspace = true }
-ionic-codec = { workspace = true }
-ionic-config = { workspace = true }
+temper-inventories = { workspace = true }
+temper-codec = { workspace = true }
+temper-config = { workspace = true }
 bitcode = { workspace = true }
 bitcode_derive = { workspace = true }
-ionic-data = { workspace = true }
+temper-data = { workspace = true }
 bevy_math = { workspace = true }
 uuid = { workspace = true }

@@ -22,7 +22,7 @@ pub(crate) fn decompress_zlib(data: &[u8]) -> Result<Vec<u8>, StorageError> {
 #[cfg(test)]
 mod test {
     use crate::compressors::{Compressor, CompressorType};
-    use ionic_utils::root;
+    use temper_utils::root;
 
     #[test]
     fn test_compress_decompress() {

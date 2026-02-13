@@ -1,7 +1,7 @@
 use bevy_ecs::system::{Query, Res};
-use ionic_inventories::defined_slots;
-use ionic_inventories::inventory::Inventory;
-use ionic_protocol::CloseContainerReceiver;
+use temper_inventories::defined_slots;
+use temper_inventories::inventory::Inventory;
+use temper_protocol::CloseContainerReceiver;
 use tracing::{debug, error};
 
 /// Called when a player closes a container.

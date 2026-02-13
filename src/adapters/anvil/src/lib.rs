@@ -37,7 +37,7 @@ pub fn get_chunk(x: u32, z: u32, file_path: PathBuf) -> Result<Option<Vec<u8>>, 
 /// use std::fs::File;
 /// use fastanvil::Region;
 /// use std::path::PathBuf;
-/// use ionic_anvil::load_anvil_file;
+/// use temper_anvil::load_anvil_file;
 ///
 /// let file_path = PathBuf::from("r.0.0.mca");
 ///
@@ -229,10 +229,10 @@ mod tests {
         let dir = std::env::current_dir()
             .unwrap()
             .ancestors()
-            .nth(4)
+            .nth(3)
             .unwrap()
             .to_path_buf();
-        dir.join("../../../../.etc").join(file_name)
+        dir.join("./.etc").join(file_name)
     }
 
     #[test]

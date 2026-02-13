@@ -11,7 +11,7 @@ fn generate_packet_id_snippets(
 ) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
     let sync_snippet = if let Some(id) = packet_id {
         quote! {
-            <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode(&#id.into(), writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+            <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode(&#id.into(), writer, &temper_codec::encode::NetEncodeOpts::None)?;
         }
     } else {
         quote! {}
@@ -19,7 +19,7 @@ fn generate_packet_id_snippets(
 
     let async_snippet = if let Some(id) = packet_id {
         quote! {
-            <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode_async(&#id.into(), writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+            <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode_async(&#id.into(), writer, &temper_codec::encode::NetEncodeOpts::None).await?;
         }
     } else {
         quote! {}
@@ -34,7 +34,7 @@ fn generate_field_encoders(fields: &syn::Fields) -> proc_macro2::TokenStream {
         let field_name = field.ident.as_ref().unwrap();
         let field_ty = &field.ty;
         quote! {
-            <#field_ty as ionic_codec::encode::NetEncode>::encode(&self.#field_name, writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+            <#field_ty as temper_codec::encode::NetEncode>::encode(&self.#field_name, writer, &temper_codec::encode::NetEncodeOpts::None)?;
         }
     });
     quote! { #(#encode_fields)* }
@@ -45,7 +45,7 @@ fn generate_async_field_encoders(fields: &syn::Fields) -> proc_macro2::TokenStre
         let field_name = field.ident.as_ref().unwrap();
         let field_ty = &field.ty;
         quote! {
-            <#field_ty as ionic_codec::encode::NetEncode>::encode_async(&self.#field_name, writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+            <#field_ty as temper_codec::encode::NetEncode>::encode_async(&self.#field_name, writer, &temper_codec::encode::NetEncodeOpts::None).await?;
         }
     });
     quote! { #(#encode_fields)* }
@@ -70,14 +70,14 @@ fn generate_enum_encoders(
                 (quote! {
                     Self::#variant_ident { #(#field_idents),* } => {
                         #(
-                            <#field_tys as ionic_codec::encode::NetEncode>::encode(#field_idents, writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                            <#field_tys as temper_codec::encode::NetEncode>::encode(#field_idents, writer, &temper_codec::encode::NetEncodeOpts::None)?;
                         )*
                     }
                 },
                  quote! {
                     Self::#variant_ident { #(#field_idents),* } => {
                         #(
-                            <#field_tys as ionic_codec::encode::NetEncode>::encode_async(#field_idents, writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                            <#field_tys as temper_codec::encode::NetEncode>::encode_async(#field_idents, writer, &temper_codec::encode::NetEncodeOpts::None).await?;
                         )*
                     }
                 })
@@ -93,14 +93,14 @@ fn generate_enum_encoders(
                 (quote! {
                     Self::#variant_ident(#(#field_names),*) => {
                         #(
-                            <#field_tys as ionic_codec::encode::NetEncode>::encode(#field_names, writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                            <#field_tys as temper_codec::encode::NetEncode>::encode(#field_names, writer, &temper_codec::encode::NetEncodeOpts::None)?;
                         )*
                     }
                 },
                  quote! {
                     Self::#variant_ident(#(#field_names),*) => {
                         #(
-                            <#field_tys as ionic_codec::encode::NetEncode>::encode_async(#field_names, writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                            <#field_tys as temper_codec::encode::NetEncode>::encode_async(#field_names, writer, &temper_codec::encode::NetEncodeOpts::None).await?;
                         )*
                     }
                 })
@@ -149,13 +149,13 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
 
             (
                 quote! {
-                    fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                    fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
                         match opts {
-                            ionic_codec::encode::NetEncodeOpts::None => {
+                            temper_codec::encode::NetEncodeOpts::None => {
                                 #packet_id_snippet
                                 #field_encoders
                             }
-                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                            temper_codec::encode::NetEncodeOpts::WithLength => {
                                 let actual_writer = writer;
                                 let mut writer = Vec::new();
                                 let mut writer = &mut writer;
@@ -163,8 +163,8 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                                 #packet_id_snippet
                                 #field_encoders
 
-                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
-                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                                let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
+                                <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None)?;
                                 actual_writer.write_all(writer)?;
                             }
                             e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
@@ -173,13 +173,13 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                     }
                 },
                 quote! {
-                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
                         match opts {
-                            ionic_codec::encode::NetEncodeOpts::None => {
+                            temper_codec::encode::NetEncodeOpts::None => {
                                 #async_packet_id_snippet
                                 #async_field_encoders
                             }
-                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                            temper_codec::encode::NetEncodeOpts::WithLength => {
                                 let actual_writer = writer;
                                 let mut writer = Vec::new();
                                 let mut writer = &mut writer;
@@ -187,8 +187,8 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                                 #async_packet_id_snippet
                                 #field_encoders
 
-                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
-                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode_async(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                                let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
+                                <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode_async(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None).await?;
                                 <W as tokio::io::AsyncWriteExt>::write_all(actual_writer, writer).await?;
                             }
                             e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
@@ -203,13 +203,13 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
 
             (
                 quote! {
-                    fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                    fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
                         match opts {
-                            ionic_codec::encode::NetEncodeOpts::None => {
+                            temper_codec::encode::NetEncodeOpts::None => {
                                 #packet_id_snippet
                                 #sync_enum_encoder
                             }
-                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                            temper_codec::encode::NetEncodeOpts::WithLength => {
                                 let actual_writer = writer;
                                 let mut writer = Vec::new();
                                 let mut writer = &mut writer;
@@ -217,8 +217,8 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                                 #packet_id_snippet
                                 #sync_enum_encoder
 
-                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
-                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None)?;
+                                let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
+                                <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None)?;
                                 actual_writer.write_all(writer)?;
                             }
                             e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
@@ -227,13 +227,13 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                     }
                 },
                 quote! {
-                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &ionic_codec::encode::NetEncodeOpts) -> Result<(),  ionic_codec::encode::errors::NetEncodeError> {
+                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
                         match opts {
-                            ionic_codec::encode::NetEncodeOpts::None => {
+                            temper_codec::encode::NetEncodeOpts::None => {
                                 #async_packet_id_snippet
                                 #async_enum_encoder
                             }
-                            ionic_codec::encode::NetEncodeOpts::WithLength => {
+                            temper_codec::encode::NetEncodeOpts::WithLength => {
                                 let actual_writer = writer;
                                 let mut writer = Vec::new();
                                 let mut writer = &mut writer;
@@ -241,8 +241,8 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                                 #async_packet_id_snippet
                                 #sync_enum_encoder
 
-                                let len: ionic_codec::net_types::var_int::VarInt = writer.len().into();
-                                <ionic_codec::net_types::var_int::VarInt as ionic_codec::encode::NetEncode>::encode_async(&len, actual_writer, &ionic_codec::encode::NetEncodeOpts::None).await?;
+                                let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
+                                <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode_async(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None).await?;
                                 <W as tokio::io::AsyncWriteExt>::write_all(actual_writer, writer).await?;
                             }
                             e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
@@ -265,7 +265,7 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
     } = crate::helpers::extract_struct_info(&input, None);
 
     TokenStream::from(quote! {
-        impl #impl_generics ionic_codec::encode::NetEncode for #struct_name #ty_generics #where_clause {
+        impl #impl_generics temper_codec::encode::NetEncode for #struct_name #ty_generics #where_clause {
             #sync_impl
             #async_impl
         }

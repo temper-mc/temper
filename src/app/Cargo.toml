@@ -1,5 +1,5 @@
 [package]
-name = "ionic-app"
+name = "temper-app"
 edition.workspace = true
 version.workspace = true
 

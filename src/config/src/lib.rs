@@ -1,4 +1,4 @@
-//! # FerrumC Configuration Utilities
+//! # Temper Configuration Utilities
 //!
 //! This crate provides utilities for reading and storing server configurations.
 //!

@@ -1,9 +1,9 @@
 use crate::player::abilities::PlayerAbilities;
 use bevy_ecs::prelude::Component;
 use bitcode_derive::{Decode, Encode};
-use ionic_config::server_config::get_global_config;
-use ionic_codec::encode::errors::NetEncodeError;
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_config::server_config::get_global_config;
+use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use std::io::Write;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Decode, Encode)]

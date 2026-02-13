@@ -1,6 +1,6 @@
-use ionic_inventories::slot::InventorySlot;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetEncode};
+use temper_inventories::slot::InventorySlot;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "set_player_inventory", state = "play")]

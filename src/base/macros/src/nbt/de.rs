@@ -84,16 +84,16 @@ pub fn derive(input: TokenStream) -> TokenStream {
         if optional {
             return quote! {
                 #field_name: element.get(#deserialize_name).map_or(Ok(None), |e| {
-                    <#field_ty as ::ionic_nbt::FromNbt #lifetime>::from_nbt(tapes, e)
+                    <#field_ty as ::temper_nbt::FromNbt #lifetime>::from_nbt(tapes, e)
                 })?,
             };
         }
 
         quote! {
-            #field_name: <#field_ty as ::ionic_nbt::FromNbt #lifetime>::from_nbt(
+            #field_name: <#field_ty as ::temper_nbt::FromNbt #lifetime>::from_nbt(
                 tapes,
                 element.get(#deserialize_name).ok_or({
-                    ::ionic_nbt::NBTError::ElementNotFound(#elem_name)
+                    ::temper_nbt::NBTError::ElementNotFound(#elem_name)
                 })?
             )?,
         }
@@ -106,11 +106,11 @@ pub fn derive(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl #impl_generics ::ionic_nbt::FromNbt #lifetime for #struct_name #ty_generics #where_clause {
+        impl #impl_generics ::temper_nbt::FromNbt #lifetime for #struct_name #ty_generics #where_clause {
             fn from_nbt(
-                tapes: &::ionic_nbt::NbtTape #lifetime,
-                element: &::ionic_nbt::NbtTapeElement #lifetime
-            ) -> ::ionic_nbt::Result<Self> {
+                tapes: &::temper_nbt::NbtTape #lifetime,
+                element: &::temper_nbt::NbtTapeElement #lifetime
+            ) -> ::temper_nbt::Result<Self> {
                 Ok(#struct_name {
                     #(#fields_init)*
                 })
@@ -118,13 +118,13 @@ pub fn derive(input: TokenStream) -> TokenStream {
         }
 
         impl #impl_generics #struct_name #ty_generics #where_clause {
-            pub fn from_bytes(bytes: &#lifetime_without_ident [u8]) -> ::ionic_nbt::Result<Self> {
-                let mut tape = ::ionic_nbt::NbtTape::new(bytes);
+            pub fn from_bytes(bytes: &#lifetime_without_ident [u8]) -> ::temper_nbt::Result<Self> {
+                let mut tape = ::temper_nbt::NbtTape::new(bytes);
                 tape.parse();
                 let root = tape.root.as_ref()
                     .map(|(_, b)| b)
-                    .ok_or(::ionic_nbt::NBTError::NoRootTag)?;
-                <#struct_name #ty_generics as ::ionic_nbt::FromNbt #lifetime>::from_nbt(&tape, root)
+                    .ok_or(::temper_nbt::NBTError::NoRootTag)?;
+                <#struct_name #ty_generics as ::temper_nbt::FromNbt #lifetime>::from_nbt(&tape, root)
             }
         }
     };

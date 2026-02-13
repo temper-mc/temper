@@ -1,13 +1,13 @@
 use bevy_ecs::prelude::{Has, Query, Res, With};
-use ionic_components::player::grounded::OnGround;
-use ionic_components::player::position::Position;
-use ionic_components::player::velocity::Velocity;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::pos::{ChunkBlockPos, ChunkPos};
-use ionic_entities::markers::{HasGravity, HasWaterDrag};
-use ionic_macros::match_block;
-use ionic_physics::GRAVITY_ACCELERATION;
-use ionic_state::GlobalStateResource;
+use temper_components::player::grounded::OnGround;
+use temper_components::player::position::Position;
+use temper_components::player::velocity::Velocity;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::pos::{ChunkBlockPos, ChunkPos};
+use temper_entities::markers::{HasGravity, HasWaterDrag};
+use temper_macros::match_block;
+use temper_physics::GRAVITY_ACCELERATION;
+use temper_state::GlobalStateResource;
 
 type EntityQuery<'w, 's> = Query<
     'w,
@@ -57,11 +57,11 @@ mod tests {
     use bevy_ecs::prelude::*;
     use bevy_math::DVec3;
     use bevy_math::Vec3A;
-    use ionic_components::player::grounded::OnGround;
-    use ionic_components::player::velocity::Velocity;
-    use ionic_entities::markers::HasGravity;
-    use ionic_macros::block;
-    use ionic_state::create_test_state;
+    use temper_components::player::grounded::OnGround;
+    use temper_components::player::velocity::Velocity;
+    use temper_entities::markers::HasGravity;
+    use temper_macros::block;
+    use temper_state::create_test_state;
 
     /// Creates a chunk with water blocks at the specified positions
     /// This helper function is used to set up test scenarios where entities are in water

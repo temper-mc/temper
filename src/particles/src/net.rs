@@ -1,8 +1,8 @@
 use crate::{ParticleType, VibrationSource};
-use ionic_codec::encode::errors::NetEncodeError;
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-use ionic_codec::net_types::network_position::NetworkPosition;
-use ionic_codec::net_types::var_int::VarInt;
+use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_codec::net_types::network_position::NetworkPosition;
+use temper_codec::net_types::var_int::VarInt;
 use std::io::Write;
 use ParticleType::*;
 

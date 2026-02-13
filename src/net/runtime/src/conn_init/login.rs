@@ -3,49 +3,49 @@ use crate::compression::compress_packet;
 use crate::conn_init::VarInt;
 use crate::conn_init::{LoginResult, NetDecodeOpts};
 use crate::connection::StreamWriter;
-use ionic_codec::decode::NetDecode;
-use ionic_codec::encode::NetEncodeOpts;
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_codec::net_types::prefixed_optional::PrefixedOptional;
-use ionic_config::server_config::{get_global_config, ServerConfig};
-use ionic_encryption::errors::NetEncryptionError;
-use ionic_encryption::get_encryption_keys;
-use ionic_encryption::read::EncryptedReader;
-use ionic_macros::lookup_packet;
-use ionic_protocol::incoming::packet_skeleton::PacketSkeleton;
-use ionic_protocol::outgoing::login_success::{LoginSuccessPacket, LoginSuccessProperties};
-use ionic_protocol::outgoing::set_default_spawn_position::DEFAULT_SPAWN_POSITION;
-use ionic_protocol::outgoing::{commands::CommandsPacket, registry_data::REGISTRY_PACKETS};
-use ionic_protocol::ConnState::*;
-use ionic_state::GlobalState;
+use temper_codec::decode::NetDecode;
+use temper_codec::encode::NetEncodeOpts;
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::prefixed_optional::PrefixedOptional;
+use temper_config::server_config::{get_global_config, ServerConfig};
+use temper_encryption::errors::NetEncryptionError;
+use temper_encryption::get_encryption_keys;
+use temper_encryption::read::EncryptedReader;
+use temper_macros::lookup_packet;
+use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
+use temper_protocol::outgoing::login_success::{LoginSuccessPacket, LoginSuccessProperties};
+use temper_protocol::outgoing::set_default_spawn_position::DEFAULT_SPAWN_POSITION;
+use temper_protocol::outgoing::{commands::CommandsPacket, registry_data::REGISTRY_PACKETS};
+use temper_protocol::ConnState::*;
+use temper_state::GlobalState;
 
-use ionic_components::player::offline_player_data::OfflinePlayerData;
-use ionic_components::player::player_identity::{PlayerIdentity, PlayerProperty};
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_core::pos::ChunkPos;
-use ionic_protocol::errors::{NetAuthenticationError, NetError, PacketError};
-use ionic_protocol::incoming::ack_finish_configuration::AckFinishConfigurationPacket;
-use ionic_protocol::incoming::client_information::ClientInformation;
-use ionic_protocol::incoming::confirm_player_teleport::ConfirmPlayerTeleport;
-use ionic_protocol::incoming::encryption_response::EncryptionResponse;
-use ionic_protocol::incoming::login_acknowledged::LoginAcknowledgedPacket;
-use ionic_protocol::incoming::login_start::LoginStartPacket;
-use ionic_protocol::incoming::server_bound_known_packs::ServerBoundKnownPacks;
-use ionic_protocol::incoming::set_player_position_and_rotation::SetPlayerPositionAndRotationPacket;
-use ionic_protocol::outgoing::client_bound_known_packs::ClientBoundKnownPacksPacket;
-use ionic_protocol::outgoing::client_bound_plugin_message::ClientBoundPluginMessagePacket;
-use ionic_protocol::outgoing::encryption_request::EncryptionRequest;
-use ionic_protocol::outgoing::entity_event::EntityStatus;
-use ionic_protocol::outgoing::finish_configuration::FinishConfigurationPacket;
-use ionic_protocol::outgoing::game_event::GameEventPacket;
-use ionic_protocol::outgoing::login_play::LoginPlayPacket;
-use ionic_protocol::outgoing::player_abilities::PlayerAbilities;
-use ionic_protocol::outgoing::player_info_update::PlayerInfoUpdatePacket;
-use ionic_protocol::outgoing::set_center_chunk::SetCenterChunk;
-use ionic_protocol::outgoing::set_compression::SetCompressionPacket;
-use ionic_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
-use ionic_protocol::ConnState;
+use temper_components::player::offline_player_data::OfflinePlayerData;
+use temper_components::player::player_identity::{PlayerIdentity, PlayerProperty};
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_core::pos::ChunkPos;
+use temper_protocol::errors::{NetAuthenticationError, NetError, PacketError};
+use temper_protocol::incoming::ack_finish_configuration::AckFinishConfigurationPacket;
+use temper_protocol::incoming::client_information::ClientInformation;
+use temper_protocol::incoming::confirm_player_teleport::ConfirmPlayerTeleport;
+use temper_protocol::incoming::encryption_response::EncryptionResponse;
+use temper_protocol::incoming::login_acknowledged::LoginAcknowledgedPacket;
+use temper_protocol::incoming::login_start::LoginStartPacket;
+use temper_protocol::incoming::server_bound_known_packs::ServerBoundKnownPacks;
+use temper_protocol::incoming::set_player_position_and_rotation::SetPlayerPositionAndRotationPacket;
+use temper_protocol::outgoing::client_bound_known_packs::ClientBoundKnownPacksPacket;
+use temper_protocol::outgoing::client_bound_plugin_message::ClientBoundPluginMessagePacket;
+use temper_protocol::outgoing::encryption_request::EncryptionRequest;
+use temper_protocol::outgoing::entity_event::EntityStatus;
+use temper_protocol::outgoing::finish_configuration::FinishConfigurationPacket;
+use temper_protocol::outgoing::game_event::GameEventPacket;
+use temper_protocol::outgoing::login_play::LoginPlayPacket;
+use temper_protocol::outgoing::player_abilities::PlayerAbilities;
+use temper_protocol::outgoing::player_info_update::PlayerInfoUpdatePacket;
+use temper_protocol::outgoing::set_center_chunk::SetCenterChunk;
+use temper_protocol::outgoing::set_compression::SetCompressionPacket;
+use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
+use temper_protocol::ConnState;
 use rand::RngCore;
 use tokio::net::tcp::OwnedReadHalf;
 use tracing::{debug, error, trace};
@@ -477,7 +477,7 @@ fn send_initial_chunks(
                     let z = (pos.z as i32 >> 4) + rad_z;
                     let chunk = state.world.get_or_generate_chunk(ChunkPos::new(x, z), "overworld").expect("Failed to load or generate chunk");
                     let chunk_data =
-                        ionic_protocol::outgoing::chunk_and_light_data::ChunkAndLightData::from_chunk(
+                        temper_protocol::outgoing::chunk_and_light_data::ChunkAndLightData::from_chunk(
                             ChunkPos::new(x, z),
                             &chunk,
                         )?;
@@ -509,7 +509,7 @@ fn send_command_graph(conn_write: &StreamWriter) -> Result<(), NetError> {
     conn_write.send_packet(CommandsPacket::from_global_graph())?;
     trace!(
         "sending command graph {:#?}",
-        ionic_commands::infrastructure::get_graph()
+        temper_commands::infrastructure::get_graph()
     );
     Ok(())
 }
@@ -552,7 +552,7 @@ pub(super) async fn login(
         &player_properties,
         compressed,
     )
-    .await?;
+        .await?;
 
     // Phase 2: Configuration
     let client_info = receive_client_information(conn_read, compressed).await?;

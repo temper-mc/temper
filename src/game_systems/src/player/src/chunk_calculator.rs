@@ -1,11 +1,11 @@
 use bevy_ecs::prelude::{MessageReader, Query};
 use bevy_math::IVec2;
-use ionic_components::player::chunk_receiver::ChunkReceiver;
-use ionic_components::player::client_information::ClientInformationComponent;
-use ionic_components::player::position::Position;
-use ionic_config::server_config::get_global_config;
-use ionic_core::pos::ChunkPos;
-use ionic_messages::chunk_calc::ChunkCalc;
+use temper_components::player::chunk_receiver::ChunkReceiver;
+use temper_components::player::client_information::ClientInformationComponent;
+use temper_components::player::position::Position;
+use temper_config::server_config::get_global_config;
+use temper_core::pos::ChunkPos;
+use temper_messages::chunk_calc::ChunkCalc;
 use tracing::warn;
 
 pub fn handle(
@@ -53,10 +53,9 @@ pub fn handle(
         for loaded_chunk in chunk_receiver.loaded.clone() {
             let vec = IVec2::new(loaded_chunk.0, loaded_chunk.1);
             let dx = IVec2::new(player_chunk.x(), player_chunk.z()).chebyshev_distance(vec);
-            if dx > radius as u32 {
-                if let Some(pos) = chunk_receiver.loaded.take(&loaded_chunk) {
-                    chunk_receiver.unloading.push_back(pos);
-                }
+            if dx > radius as u32
+                && let Some(pos) = chunk_receiver.loaded.take(&loaded_chunk) {
+                chunk_receiver.unloading.push_back(pos);
             }
         }
     }

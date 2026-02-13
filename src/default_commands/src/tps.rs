@@ -1,10 +1,10 @@
 use std::time::Duration;
 
 use bevy_ecs::system::ResMut;
-use ionic_commands::Sender;
-use ionic_macros::command;
-use ionic_performance::{memory::MemoryUnit, ServerPerformance};
-use ionic_text::{NamedColor, TextComponent, TextComponentBuilder};
+use temper_commands::Sender;
+use temper_macros::command;
+use temper_performance::{memory::MemoryUnit, ServerPerformance};
+use temper_text::{NamedColor, TextComponent, TextComponentBuilder};
 
 #[command("tps")]
 fn tps_command(#[sender] sender: Sender, performance_res: ResMut<ServerPerformance>) {

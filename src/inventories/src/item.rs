@@ -1,10 +1,10 @@
 use bitcode_derive::{Decode, Encode};
-use ionic_core::block_state_id::BlockStateId;
-use ionic_codec::decode::errors::NetDecodeError;
-use ionic_codec::decode::{NetDecode, NetDecodeOpts};
-use ionic_codec::encode::errors::NetEncodeError;
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-use ionic_codec::net_types::var_int::VarInt;
+use temper_core::block_state_id::BlockStateId;
+use temper_codec::decode::errors::NetDecodeError;
+use temper_codec::decode::{NetDecode, NetDecodeOpts};
+use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_codec::net_types::var_int::VarInt;
 use std::fmt::Display;
 use std::io::{Read, Write};
 use tokio::io::{AsyncRead, AsyncWrite};
@@ -34,7 +34,7 @@ impl ItemID {
         let id_key = protocol_id.to_string();
 
         // 1. Call the new compile-time lookup
-        let block_name = ionic_registry::lookup_blockstate_name(&id_key)?;
+        let block_name = temper_registry::lookup_blockstate_name(&id_key)?;
 
         ItemID::from_name(block_name)
     }
@@ -47,12 +47,12 @@ impl ItemID {
             name.to_string()
         };
 
-        ionic_registry::lookup_item_protocol_id(&name).map(|id| Self(VarInt::new(id)))
+        temper_registry::lookup_item_protocol_id(&name).map(|id| Self(VarInt::new(id)))
     }
 
     /// Converts the `ItemID` to a name, e.g. "minecraft:stone" or "stone".
     pub fn to_name(&self) -> Option<String> {
-        ionic_registry::lookup_item_name(self.0.0).map(|s| s.to_string())
+        temper_registry::lookup_item_name(self.0.0).map(|s| s.to_string())
     }
 }
 

@@ -1,5 +1,5 @@
-use ionic_components::player::abilities::PlayerAbilities as PlayerAbilitiesComponent;
-use ionic_macros::{packet, NetEncode};
+use temper_components::player::abilities::PlayerAbilities as PlayerAbilitiesComponent;
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "player_abilities", state = "play")]

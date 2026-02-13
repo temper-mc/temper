@@ -1,8 +1,8 @@
 use crate::errors::WorldError::{CompressionError, GenericIOError, PermissionError};
-use ionic_anvil::errors::AnvilError;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_general_purpose::data_packing::errors::DataPackingError;
-use ionic_storage::errors::StorageError;
+use temper_anvil::errors::AnvilError;
+use temper_core::block_state_id::BlockStateId;
+use temper_general_purpose::data_packing::errors::DataPackingError;
+use temper_storage::errors::StorageError;
 use std::io::ErrorKind;
 use thiserror::Error;
 use yazi::Error;
@@ -60,7 +60,7 @@ pub enum WorldError {
     #[error("Corrupted chunk data: got checksum {0}, expected checksum {1}")]
     CorruptedChunkData(u32, u32),
     #[error("NBT data error: {0}")]
-    NBTError(#[from] ionic_nbt::errors::NBTError),
+    NBTError(#[from] temper_nbt::errors::NBTError),
 }
 
 impl From<std::io::Error> for WorldError {

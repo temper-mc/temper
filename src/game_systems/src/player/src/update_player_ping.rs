@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::Query;
-use ionic_components::player::keepalive::KeepAliveTracker;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::player_info_update::PlayerInfoUpdatePacket;
+use temper_components::player::keepalive::KeepAliveTracker;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::player_info_update::PlayerInfoUpdatePacket;
 
 pub fn handle(query: Query<(&PlayerIdentity, &KeepAliveTracker)>, conns: Query<&StreamWriter>) {
     let packet = PlayerInfoUpdatePacket::update_players_ping(

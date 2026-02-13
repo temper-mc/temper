@@ -1,32 +1,32 @@
 [package]
-name = "ionic-protocol"
+name = "temper-protocol"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-ionic-codec = { workspace = true }
-ionic-macros = { workspace = true }
+temper-codec = { workspace = true }
+temper-macros = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
-ionic-components = { workspace = true }
+temper-components = { workspace = true }
 typename = { workspace = true }
 yazi = { workspace = true }
-ionic-config = { workspace = true }
+temper-config = { workspace = true }
 thiserror = { workspace = true }
-ionic-world-format = { workspace = true }
-ionic-core = { workspace = true }
+temper-world-format = { workspace = true }
+temper-core = { workspace = true }
 bevy_ecs = { workspace = true }
-ionic-nbt = { workspace = true }
-ionic-text = { workspace = true }
-ionic-inventories = { workspace = true }
+temper-nbt = { workspace = true }
+temper-text = { workspace = true }
+temper-inventories = { workspace = true }
 lazy_static = { workspace = true }
 bitcode = { workspace = true }
 base64 = { workspace = true }
-ionic-particles = { workspace = true }
+temper-particles = { workspace = true }
 crossbeam-channel = { workspace = true }
-ionic-commands = { workspace = true }
+temper-commands = { workspace = true }
 indexmap = { workspace = true }
-ionic-encryption = { path = "../encryption" }
+temper-encryption = { path = "../encryption" }
 
 [dev-dependencies]
 indexmap = { workspace = true }

@@ -5,27 +5,28 @@ edition = "2024"
 
 [dependencies]
 
-ionic-core = { workspace = true }
-ionic-inventories = { workspace = true }
-ionic-net-runtime = { workspace = true }
-ionic-plugins = { workspace = true }
-ionic-storage = { workspace = true }
-ionic-utils = { workspace = true }
-ionic-world = { workspace = true }
-ionic-world-format = { workspace = true }
-ionic-config = { workspace = true }
-ionic-state = { workspace = true }
-ionic-general-purpose = { workspace = true }
-ionic-threadpool = { workspace = true }
-ionic-commands = { workspace = true }
-ionic-scheduler = { workspace = true }
-ionic-performance = { workspace = true }
-ionic-protocol = { workspace = true }
-ionic-default-commands = { workspace = true }
-ionic-resources = { workspace = true }
-ionic-logging = { workspace = true }
-ionic-messages = { workspace = true }
-ionic-game-systems = { workspace = true }
+temper-core = { workspace = true }
+temper-inventories = { workspace = true }
+temper-net-runtime = { workspace = true }
+temper-plugins = { workspace = true }
+temper-storage = { workspace = true }
+temper-utils = { workspace = true }
+temper-world = { workspace = true }
+temper-world-format = { workspace = true }
+temper-config = { workspace = true }
+temper-state = { workspace = true }
+temper-general-purpose = { workspace = true }
+temper-threadpool = { workspace = true }
+temper-commands = { workspace = true }
+temper-scheduler = { workspace = true }
+temper-performance = { workspace = true }
+temper-protocol = { workspace = true }
+temper-default-commands = { workspace = true }
+temper-resources = { workspace = true }
+temper-logging = { workspace = true }
+temper-messages = { workspace = true }
+temper-game-systems = { workspace = true }
+temper-dashboard = { workspace = true, optional = true }
 
 ctrlc = { workspace = true }
 ratatui = { workspace = true }
@@ -37,3 +38,6 @@ tokio = { workspace = true }
 tui-input = { workspace = true }
 crossterm = { workspace = true }
 tui-logger = { workspace = true }
+
+[features]
+dashboard = ["dep:temper-dashboard"]

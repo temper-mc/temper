@@ -5,13 +5,12 @@ edition = "2024"
 
 [dependencies]
 bevy_ecs = { workspace = true }
-ionic-components = { workspace = true }
+temper-components = { workspace = true }
 bevy_math = { workspace = true }
-ionic-core = { workspace = true }
-ionic-state = { workspace = true }
-ionic-entities = { workspace = true }
-ionic-world = { workspace = true }
-ionic-macros = { workspace = true }
-ionic-messages = { workspace = true }
-ionic-physics = { workspace = true }
+temper-core = { workspace = true }
+temper-state = { workspace = true }
+temper-entities = { workspace = true }
+temper-macros = { workspace = true }
+temper-messages = { workspace = true }
+temper-physics = { workspace = true }
 tracing = { workspace = true }

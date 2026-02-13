@@ -1,7 +1,7 @@
 use crate::structs::{BlockState, Chunk, Palette};
 use criterion::{criterion_group, criterion_main, Criterion, Throughput};
 use fastnbt::Value;
-use ionic_macros::NBTDeserialize;
+use temper_macros::NBTDeserialize;
 use nbt as hematite_nbt;
 use std::hint::black_box;
 use std::io::Cursor;
@@ -45,7 +45,7 @@ mod structs {
         pub(crate) _name: &'a str,
     }
 }
-fn bench_ionic_nbt(data: &[u8]) {
+fn bench_temper_nbt(data: &[u8]) {
     let chunk = Chunk::from_bytes(data).unwrap();
     assert_eq!(chunk.x_pos, 0);
     assert_eq!(chunk.z_pos, 32);
@@ -129,16 +129,11 @@ fn hematite_nbt(data: &[u8]) {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    // let cursor = Cursor::new(include_bytes!("../../../../../.etc/benches/region/r.0.0.mca"));
-    // let file = std::fs::File::open(r#"D:\Minecraft\framework\ferrumc\ferrumc-2_0\ferrumc\.etc\benches\region\r.0.0.mca"#).unwrap();
-
     let data = include_bytes!("../../../../.etc/benches/chunk_0-0.nbt");
 
     let mut group = c.benchmark_group("Chunk Data NBT Parsing");
     group.throughput(Throughput::Bytes(data.len() as u64));
-    group.bench_function("FerrumC NBT", |b| {
-        b.iter(|| bench_ionic_nbt(black_box(data)))
-    });
+    group.bench_function("temper NBT", |b| b.iter(|| bench_temper_nbt(black_box(data))));
     group.bench_function("simdnbt borrow", |b| {
         b.iter(|| bench_simdnbt(black_box(data)))
     });

@@ -13,19 +13,19 @@
 //! - `SetHeadRotation` - Sent alongside any rotation update for head tracking
 
 use bevy_ecs::prelude::{Entity, MessageReader, Query};
-use ionic_codec::net_types::angle::NetAngle;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_macros::NetEncode;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
-use ionic_protocol::outgoing::set_head_rotation::SetHeadRotationPacket;
-use ionic_protocol::outgoing::update_entity_position::UpdateEntityPositionPacket;
-use ionic_protocol::outgoing::update_entity_position_and_rotation::UpdateEntityPositionAndRotationPacket;
-use ionic_protocol::outgoing::update_entity_rotation::UpdateEntityRotationPacket;
+use temper_codec::net_types::angle::NetAngle;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_macros::NetEncode;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
+use temper_protocol::outgoing::set_head_rotation::SetHeadRotationPacket;
+use temper_protocol::outgoing::update_entity_position::UpdateEntityPositionPacket;
+use temper_protocol::outgoing::update_entity_position_and_rotation::UpdateEntityPositionAndRotationPacket;
+use temper_protocol::outgoing::update_entity_rotation::UpdateEntityRotationPacket;
 
-use ionic_messages::packet_messages::Movement;
+use temper_messages::packet_messages::Movement;
 use tracing::error;
 
 /// Enum to hold all possible movement broadcast packets.
@@ -138,17 +138,15 @@ pub fn handle_player_move(
             }
 
             // Send the movement packet (position and/or rotation)
-            if let Some(ref packet) = movement_packet {
-                if let Err(err) = writer.send_packet_ref(packet) {
-                    error!("Failed to send movement packet: {:?}", err);
-                }
+            if let Some(ref packet) = movement_packet
+                && let Err(err) = writer.send_packet_ref(packet) {
+                error!("Failed to send movement packet: {:?}", err);
             }
 
             // Send head rotation packet if applicable
-            if let Some(ref packet) = head_rot_packet {
-                if let Err(err) = writer.send_packet_ref(packet) {
-                    error!("Failed to send head rotation packet: {:?}", err);
-                }
+            if let Some(ref packet) = head_rot_packet
+                && let Err(err) = writer.send_packet_ref(packet) {
+                error!("Failed to send head rotation packet: {:?}", err);
             }
         }
     }

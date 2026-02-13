@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::{Entity, MessageReader, Query};
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_core::mq;
-use ionic_messages::player_leave::PlayerLeft;
-use ionic_text::{Color, NamedColor, TextComponent};
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_core::mq;
+use temper_messages::player_leave::PlayerLeft;
+use temper_text::{Color, NamedColor, TextComponent};
 
 use tracing::trace; // We only need trace, mq will handle errors
 

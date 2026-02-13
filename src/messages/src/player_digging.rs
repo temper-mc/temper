@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::{Entity, Message};
-use ionic_codec::net_types::network_position::NetworkPosition;
-use ionic_codec::net_types::var_int::VarInt;
+use temper_codec::net_types::network_position::NetworkPosition;
+use temper_codec::net_types::var_int::VarInt;
 
 /// Fired when the client sends "start digging" (status 0).
 ///

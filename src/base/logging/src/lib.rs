@@ -1,8 +1,8 @@
 pub mod errors;
 pub mod tui_formatter;
 
-use ionic_general_purpose::paths::get_root_path;
-use ionic_profiling::ProfilerTracingLayer;
+use temper_general_purpose::paths::get_root_path;
+use temper_profiling::ProfilerTracingLayer;
 use log::LevelFilter::Debug;
 use tracing::Level;
 use tracing_appender::rolling::Rotation;
@@ -26,7 +26,7 @@ pub fn init_logging(trace_level: Level, no_tui: bool) {
 
     let file_appender = tracing_appender::rolling::Builder::new()
         .rotation(Rotation::DAILY)
-        .filename_prefix("ionic")
+        .filename_prefix("temper")
         .filename_suffix("log.txt")
         .build(get_root_path().join("logs"))
         .unwrap();

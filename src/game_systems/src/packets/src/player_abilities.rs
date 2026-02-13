@@ -1,12 +1,12 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_net_runtime::connection::StreamWriter;
+use temper_net_runtime::connection::StreamWriter;
 use tracing::{error, trace, warn};
 
-use ionic_protocol::PlayerAbilitiesReceiver;
+use temper_protocol::PlayerAbilitiesReceiver;
 
-use ionic_protocol::outgoing::player_abilities::PlayerAbilities as OutgoingPlayerAbilities;
+use temper_protocol::outgoing::player_abilities::PlayerAbilities as OutgoingPlayerAbilities;
 
-use ionic_components::player::abilities::PlayerAbilities;
+use temper_components::player::abilities::PlayerAbilities;
 
 /// Handles incoming PlayerAbilities packets (client telling us its flying status)
 pub fn handle(

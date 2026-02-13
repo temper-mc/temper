@@ -94,7 +94,7 @@ struct ClearResult {
 /// - I/O operations fail during confirmation
 /// - One or more clear operations fail
 pub fn handle_clear(args: ClearArgs) -> Result<(), CliError> {
-    let base_path = ionic_general_purpose::paths::get_root_path();
+    let base_path = temper_general_purpose::paths::get_root_path();
     let targets = collect_targets(&args);
 
     // Show what will be deleted

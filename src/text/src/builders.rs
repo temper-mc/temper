@@ -43,7 +43,7 @@ impl ComponentBuilder {
 /// A builder to build a TextComponent of type text.
 ///
 /// ```rust
-/// # use ionic_text::*;
+/// # use temper_text::*;
 /// _ = ComponentBuilder::text("Hello,")
 ///     .color(NamedColor::Red)
 ///     .space()

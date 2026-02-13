@@ -1,7 +1,7 @@
-use ionic_nbt::NBT;
-use ionic_text::TextComponent;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetEncode};
+use temper_nbt::NBT;
+use temper_text::TextComponent;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "open_screen", state = "play")]

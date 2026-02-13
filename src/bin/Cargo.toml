@@ -1,5 +1,5 @@
 [package]
-name = "ionic"
+name = "temper"
 description = "A high-performance Minecraft server implementation, crafted in Rust for unparalleled speed and efficiency."
 version = "0.1.0"
 edition = "2024"
@@ -8,31 +8,31 @@ edition = "2024"
 
 
 [dependencies]
-ionic-dashboard = { workspace = true, optional = true }
+temper-dashboard = { workspace = true, optional = true }
 dhat = { workspace = true, optional = true }
-ionic-config = { workspace = true }
-ionic-logging = { workspace = true }
+temper-config = { workspace = true }
+temper-logging = { workspace = true }
 tracy-client = { workspace = true, optional = true }
 clap = { workspace = true }
 
-ionic-app = { workspace = true }
+temper-app = { workspace = true }
 tracing = { workspace = true }
-ionic-registry = { workspace = true }
+temper-registry = { workspace = true }
 
 [features]
 dhat = ["dep:dhat"]
 dashboard = [
-    "dep:ionic-dashboard",
-    "ionic-config/dashboard"
+    "dep:temper-dashboard",
+    "temper-config/dashboard"
 ]
 default = [
     "dashboard"
 ]
-tracy = ["ionic-logging/tracy", "dep:tracy-client"]
+tracy = ["temper-logging/tracy", "dep:tracy-client"]
 
 [dev-dependencies]
 tempfile = { workspace = true }
 
 [[bin]]
-name = "ionic"
+name = "temper"
 path = "src/main.rs"

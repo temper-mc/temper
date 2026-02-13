@@ -11,9 +11,9 @@ use crate::heightmap::Heightmaps;
 use crate::section::{ChunkSection, AIR};
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::pos::{ChunkBlockPos, ChunkHeight};
-use ionic_macros::block;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::pos::{ChunkBlockPos, ChunkHeight};
+use temper_macros::block;
 use vanilla_chunk_format::VanillaChunk;
 
 #[derive(Clone, DeepSizeOf, Encode, Decode)]
@@ -187,8 +187,8 @@ impl TryFrom<&VanillaChunk> for Chunk {
 mod tests {
     use crate::BlockStateId;
     use crate::Chunk;
-    use ionic_core::pos::ChunkBlockPos;
-    use ionic_macros::block;
+    use temper_core::pos::ChunkBlockPos;
+    use temper_macros::block;
 
     #[test]
     fn test_read_write() {

@@ -1,6 +1,6 @@
 use crate::handshake::Handshake;
-use ionic_config::server_config::get_global_config;
-use ionic_state::GlobalState;
+use temper_config::server_config::get_global_config;
+use temper_state::GlobalState;
 use serde::Serialize;
 use std::path::PathBuf;
 use std::time::Duration;
@@ -60,7 +60,7 @@ pub async fn start_telemetry_loop(tx: Sender<DashboardEvent>, state: GlobalState
         };
 
         let config = get_global_config();
-        let mut world_path = ionic_general_purpose::paths::get_root_path()
+        let mut world_path = temper_general_purpose::paths::get_root_path()
             .join(PathBuf::from(&config.database.db_path));
         let storage_used = if world_path.exists() {
             world_path = world_path.canonicalize().unwrap_or(world_path);

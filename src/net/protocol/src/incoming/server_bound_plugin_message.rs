@@ -1,4 +1,4 @@
-use ionic_macros::packet;
+use temper_macros::packet;
 
 #[derive(Debug)]
 #[packet(packet_id = "custom_payload", state = "configuration")]

@@ -1,8 +1,8 @@
 use crate::ConnState;
-use ionic_codec::decode::errors::NetDecodeError;
-use ionic_codec::encode::errors::NetEncodeError;
-use ionic_config::server_config::get_global_config;
-use ionic_world_format::errors::WorldError;
+use temper_codec::decode::errors::NetDecodeError;
+use temper_codec::encode::errors::NetEncodeError;
+use temper_config::server_config::get_global_config;
+use temper_world_format::errors::WorldError;
 use std::error::Error;
 use std::sync::Arc;
 use thiserror::Error;
@@ -29,7 +29,7 @@ pub enum PacketError {
     },
 
     #[error("NetType error: {0}")]
-    NetTypeError(#[from] ionic_codec::net_types::NetTypesError),
+    NetTypeError(#[from] temper_codec::net_types::NetTypesError),
 
     #[error("Compression error: {0}")]
     CompressionError(#[from] CompressionError),
@@ -87,7 +87,7 @@ pub enum NetError {
     UTF8Error(#[from] std::string::FromUtf8Error),
 
     #[error("VarInt Error: {0}")]
-    TypesError(ionic_codec::net_types::NetTypesError),
+    TypesError(temper_codec::net_types::NetTypesError),
 
     #[error("ECS Error: {0}")]
     ECSError(bevy_ecs::error::BevyError),
@@ -117,7 +117,7 @@ pub enum NetError {
     Misc(String),
 
     #[error("Encryption error: {0}")]
-    EncryptionError(#[from] ionic_encryption::errors::NetEncryptionError),
+    EncryptionError(#[from] temper_encryption::errors::NetEncryptionError),
 }
 
 #[derive(Debug, Error)]
@@ -136,15 +136,14 @@ impl From<std::io::Error> for NetError {
     }
 }
 
-impl From<ionic_codec::net_types::NetTypesError> for NetError {
-    fn from(err: ionic_codec::net_types::NetTypesError) -> Self {
-        use ionic_codec::net_types::NetTypesError;
+impl From<temper_codec::net_types::NetTypesError> for NetError {
+    fn from(err: temper_codec::net_types::NetTypesError) -> Self {
+        use temper_codec::net_types::NetTypesError;
         use std::io::ErrorKind;
 
-        if let NetTypesError::Io(io_err) = &err {
-            if io_err.kind() == ErrorKind::UnexpectedEof {
-                return NetError::ConnectionDropped;
-            }
+        if let NetTypesError::Io(io_err) = &err
+            && io_err.kind() == ErrorKind::UnexpectedEof {
+            return NetError::ConnectionDropped;
         }
         NetError::TypesError(err)
     }

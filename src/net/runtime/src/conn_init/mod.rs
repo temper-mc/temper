@@ -4,19 +4,19 @@ mod status;
 use crate::conn_init::login::login;
 use crate::conn_init::status::status;
 use crate::connection::StreamWriter;
-use ionic_codec::decode::{NetDecode, NetDecodeOpts};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::client_information::ClientInformationComponent;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_encryption::read::EncryptedReader;
-use ionic_macros::lookup_packet;
-use ionic_protocol::errors::NetError;
-use ionic_protocol::errors::PacketError;
-use ionic_protocol::incoming::handshake::Handshake;
-use ionic_protocol::incoming::packet_skeleton::PacketSkeleton;
-use ionic_protocol::outgoing::login_disconnect::LoginDisconnectPacket;
-use ionic_state::GlobalState;
-use ionic_text::{ComponentBuilder, NamedColor, TextComponent};
+use temper_codec::decode::{NetDecode, NetDecodeOpts};
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::client_information::ClientInformationComponent;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_encryption::read::EncryptedReader;
+use temper_macros::lookup_packet;
+use temper_protocol::errors::NetError;
+use temper_protocol::errors::PacketError;
+use temper_protocol::incoming::handshake::Handshake;
+use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
+use temper_protocol::outgoing::login_disconnect::LoginDisconnectPacket;
+use temper_state::GlobalState;
+use temper_text::{ComponentBuilder, NamedColor, TextComponent};
 use std::sync::atomic::Ordering;
 use tokio::net::tcp::OwnedReadHalf;
 use tracing::{error, trace};
@@ -71,9 +71,9 @@ pub async fn handle_handshake(
     let mut skel = PacketSkeleton::new(
         &mut conn_read,
         conn_write.compress.load(Ordering::Relaxed),
-        ionic_protocol::ConnState::Handshake,
+        temper_protocol::ConnState::Handshake,
     )
-    .await?;
+        .await?;
 
     // Ensure the packet ID matches the expected handshake packet.
     let expected_id = lookup_packet!("handshake", "serverbound", "intention");
@@ -81,7 +81,7 @@ pub async fn handle_handshake(
         return Err(NetError::Packet(PacketError::UnexpectedPacket {
             expected: expected_id,
             received: skel.id,
-            state: ionic_protocol::ConnState::Handshake,
+            state: temper_protocol::ConnState::Handshake,
         }));
     }
 

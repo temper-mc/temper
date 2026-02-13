@@ -1,5 +1,5 @@
-use ionic_inventories::slot::InventorySlot;
-use ionic_macros::{packet, NetDecode};
+use temper_inventories::slot::InventorySlot;
+use temper_macros::{packet, NetDecode};
 
 #[derive(NetDecode)]
 #[packet(packet_id = "set_creative_mode_slot", state = "play")]

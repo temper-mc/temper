@@ -1,17 +1,17 @@
 use bevy_ecs::prelude::{Commands, Res};
-use ionic_components::player::chunk_receiver::ChunkReceiver;
-use ionic_components::player::grounded::OnGround;
-use ionic_components::player::keepalive::KeepAliveTracker;
-use ionic_components::player::teleport_tracker::TeleportTracker;
-use ionic_components::player::{
+use temper_components::player::chunk_receiver::ChunkReceiver;
+use temper_components::player::grounded::OnGround;
+use temper_components::player::keepalive::KeepAliveTracker;
+use temper_components::player::teleport_tracker::TeleportTracker;
+use temper_components::player::{
     gamemode::GameModeComponent, offline_player_data::OfflinePlayerData,
     pending_events::PendingPlayerJoin, player_bundle::PlayerBundle, sneak::SneakState,
     swimming::SwimmingState,
 };
-use ionic_inventories::hotbar::Hotbar;
-use ionic_net_runtime::connection::DisconnectHandle;
-use ionic_resources::new_conn::NewConnectionRecv;
-use ionic_state::GlobalStateResource;
+use temper_inventories::hotbar::Hotbar;
+use temper_net_runtime::connection::DisconnectHandle;
+use temper_resources::new_conn::NewConnectionRecv;
+use temper_state::GlobalStateResource;
 use std::time::Instant;
 use tracing::{error, info};
 

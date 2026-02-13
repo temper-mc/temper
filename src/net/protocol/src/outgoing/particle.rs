@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetEncode};
+use temper_macros::{packet, NetEncode};
 #[derive(NetEncode)]
 #[packet(packet_id = "level_particles", state = "play")]
 pub struct Particle {
@@ -12,5 +12,5 @@ pub struct Particle {
     pub offset_z: f32,
     pub max_speed: f32,
     pub count: i32,
-    pub particle_type: ionic_particles::ParticleType,
+    pub particle_type: temper_particles::ParticleType,
 }

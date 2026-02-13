@@ -1,16 +1,12 @@
 use crate::{MutChunk, RefChunk, World};
-use ionic_config::server_config::get_global_config;
-use ionic_core::pos::ChunkPos;
-use ionic_world_format::errors::WorldError;
-use ionic_world_format::errors::WorldError::CorruptedChunkData;
-use ionic_world_format::Chunk;
-use std::hash::Hasher;
-use tracing::{trace, warn};
+use temper_core::pos::ChunkPos;
+use temper_world_format::errors::WorldError;
+use temper_world_format::Chunk;
+use tracing::trace;
 use world_db::chunks::{
     chunk_exists_internal, delete_chunk_internal, load_chunk_batch_internal, load_chunk_internal,
     save_chunk_internal, sync_internal,
 };
-use yazi::CompressionLevel;
 
 impl World {
     /// Save a chunk to the storage backend

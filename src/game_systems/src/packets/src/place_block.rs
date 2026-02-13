@@ -1,22 +1,22 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_codec::net_types::network_position::NetworkPosition;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::bounds::CollisionBounds;
-use ionic_components::player::position::Position;
-use ionic_core::pos::BlockPos;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::block_change_ack::BlockChangeAck;
-use ionic_protocol::outgoing::block_update::BlockUpdate;
-use ionic_protocol::PlaceBlockReceiver;
-use ionic_state::GlobalStateResource;
+use temper_codec::net_types::network_position::NetworkPosition;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::bounds::CollisionBounds;
+use temper_components::player::position::Position;
+use temper_core::pos::BlockPos;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
+use temper_protocol::outgoing::block_update::BlockUpdate;
+use temper_protocol::PlaceBlockReceiver;
+use temper_state::GlobalStateResource;
 use tracing::{debug, error, trace};
 
-use ionic_config::server_config::get_global_config;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::mq;
-use ionic_inventories::hotbar::Hotbar;
-use ionic_inventories::inventory::Inventory;
-use ionic_text::{Color, NamedColor, TextComponentBuilder};
+use temper_config::server_config::get_global_config;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::mq;
+use temper_inventories::hotbar::Hotbar;
+use temper_inventories::inventory::Inventory;
+use temper_text::{Color, NamedColor, TextComponentBuilder};
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -78,9 +78,9 @@ pub fn handle(
                             TextComponentBuilder::new(
                                 "Build limit is 319! Cannot place block here.".to_string(),
                             )
-                            .color(Color::Named(NamedColor::Red))
-                            .bold()
-                            .build(),
+                                .color(Color::Named(NamedColor::Red))
+                                .bold()
+                                .build(),
                             true,
                             entity,
                         );
@@ -91,9 +91,9 @@ pub fn handle(
                             TextComponentBuilder::new(
                                 "Cannot place block below Y=-64.".to_string(),
                             )
-                            .color(Color::Named(NamedColor::Red))
-                            .bold()
-                            .build(),
+                                .color(Color::Named(NamedColor::Red))
+                                .bold()
+                                .build(),
                             true,
                             entity,
                         );
@@ -102,14 +102,14 @@ pub fn handle(
                     }
                     let offset_pos = pos
                         + match event.face.0 {
-                            0 => (0, -1, 0),
-                            1 => (0, 1, 0),
-                            2 => (0, 0, -1),
-                            3 => (0, 0, 1),
-                            4 => (-1, 0, 0),
-                            5 => (1, 0, 0),
-                            _ => (0, 0, 0),
-                        };
+                        0 => (0, -1, 0),
+                        1 => (0, 1, 0),
+                        2 => (0, 0, -1),
+                        3 => (0, 0, 1),
+                        4 => (-1, 0, 0),
+                        5 => (1, 0, 0),
+                        _ => (0, 0, 0),
+                    };
 
                     let mut chunk = state
                         .0
@@ -175,10 +175,8 @@ pub fn handle(
                         // Only send block update if the player is within the render distance of the block being updated
                         if (offset_chunk_x - chunk_x).abs() <= render_distance
                             && (offset_chunk_z - chunk_z).abs() <= render_distance
-                        {
-                            if let Err(err) = conn.send_packet_ref(&chunk_packet) {
-                                error!("Failed to send block update packet: {:?}", err);
-                            }
+                            && let Err(err) = conn.send_packet_ref(&chunk_packet) {
+                            error!("Failed to send block update packet: {:?}", err);
                         }
                     }
                 }

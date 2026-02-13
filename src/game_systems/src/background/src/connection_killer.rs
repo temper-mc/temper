@@ -1,9 +1,9 @@
 use bevy_ecs::prelude::{Commands, Entity, MessageWriter, Query, Res};
-use ionic_components::player::offline_player_data::OfflinePlayerData;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_components::{
+use temper_components::player::offline_player_data::OfflinePlayerData;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_components::{
     active_effects::ActiveEffects,
     health::Health,
     player::{
@@ -11,11 +11,11 @@ use ionic_components::{
         gameplay_state::ender_chest::EnderChest, hunger::Hunger,
     },
 };
-use ionic_inventories::inventory::Inventory;
-use ionic_messages::player_leave::PlayerLeft;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_state::GlobalStateResource;
-use ionic_text::TextComponent;
+use temper_inventories::inventory::Inventory;
+use temper_messages::player_leave::PlayerLeft;
+use temper_net_runtime::connection::StreamWriter;
+use temper_state::GlobalStateResource;
+use temper_text::TextComponent;
 use tracing::{debug, info, trace, warn};
 
 // This type alias defines all the components of a "full" player
@@ -54,20 +54,20 @@ pub fn connection_killer(
 
         // --- 1. Try to get the "full" player ---
         if let Ok((
-            _entity,
-            conn,
-            player_identity,
-            abilities,
-            gamemode,
-            pos,
-            rot,
-            inv,
-            health,
-            hunger,
-            exp,
-            echest,
-            effects,
-        )) = full_player_query.get(disconnecting_entity)
+                      _entity,
+                      conn,
+                      player_identity,
+                      abilities,
+                      gamemode,
+                      pos,
+                      rot,
+                      inv,
+                      health,
+                      hunger,
+                      exp,
+                      echest,
+                      effects,
+                  )) = full_player_query.get(disconnecting_entity)
         {
             // --- SUCCESS: This is a fully-joined player ---
             info!(
@@ -85,7 +85,7 @@ pub fn connection_killer(
                     player_identity.username
                 );
                 if let Err(e) =
-                    conn.send_packet_ref(&ionic_protocol::outgoing::disconnect::DisconnectPacket {
+                    conn.send_packet_ref(&temper_protocol::outgoing::disconnect::DisconnectPacket {
                         reason: TextComponent::from(reason.as_deref().unwrap_or("Disconnected"))
                             .into(),
                     })

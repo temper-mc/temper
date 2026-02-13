@@ -1,12 +1,12 @@
 use crate::errors::NetError;
 use bevy_ecs::prelude::{Entity, Query};
-use ionic_codec::net_types::angle::NetAngle;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_macros::{get_registry_entry, packet, NetEncode};
+use temper_codec::net_types::angle::NetAngle;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_macros::{get_registry_entry, packet, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "add_entity", state = "play")]

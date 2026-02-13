@@ -1,5 +1,5 @@
 use super::{NBTSerializable, NBTSerializeOptions};
-use ionic_general_purpose::simd::arrays;
+use temper_general_purpose::simd::arrays;
 use std::collections::HashMap;
 use std::io::Write;
 use tokio::io::{AsyncWrite, AsyncWriteExt};

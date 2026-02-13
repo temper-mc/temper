@@ -5,5 +5,5 @@ edition = "2024"
 
 [dependencies]
 bevy_ecs = { workspace = true }
-ionic-components = { workspace = true }
-ionic-entities = { workspace = true }
+temper-components = { workspace = true }
+temper-entities = { workspace = true }

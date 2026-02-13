@@ -3,11 +3,11 @@ use crate::errors::CompressionError::{
 };
 use crate::errors::PacketError;
 use crate::ConnState;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_config::server_config::get_global_config;
-use ionic_macros::lookup_packet;
 use std::fmt::Debug;
 use std::io::Cursor;
+use temper_codec::net_types::var_int::VarInt;
+use temper_config::server_config::get_global_config;
+use temper_macros::lookup_packet;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncReadExt;
 use tracing::{debug, error, trace};
@@ -66,8 +66,8 @@ impl PacketSkeleton {
         };
         match pak {
             Ok(p) => {
-                // Optional logging of every packet if `FERRUMC_LOG_PACKETS` env var is set
-                if option_env!("FERRUMC_LOG_PACKETS").is_some() {
+                // Optional logging of every packet if `temper_LOG_PACKETS` env var is set
+                if option_env!("TEMPER_LOG_PACKETS").is_some() {
                     trace!("Received packet: {:?}", p);
                 }
                 Ok(p)

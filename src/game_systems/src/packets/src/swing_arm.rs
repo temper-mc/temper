@@ -1,10 +1,10 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::entity_animation::EntityAnimationPacket;
-use ionic_protocol::SwingArmPacketReceiver;
-use ionic_state::GlobalStateResource;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::entity_animation::EntityAnimationPacket;
+use temper_protocol::SwingArmPacketReceiver;
+use temper_state::GlobalStateResource;
 use tracing::error;
 
 pub fn handle(

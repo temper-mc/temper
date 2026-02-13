@@ -2,12 +2,12 @@ use crate::systems::new_connections::NewConnectionRecv;
 use crate::tui::ServerCommandReceiver;
 use bevy_ecs::prelude::World;
 use crossbeam_channel::Receiver;
-use ionic_components::player::time::WorldTime;
-use ionic_config::server_config::get_global_config;
-use ionic_core::chunks::world_sync_tracker::WorldSyncTracker;
-use ionic_net::connection::NewConnection;
-use ionic_performance::ServerPerformance;
-use ionic_state::GlobalStateResource;
+use temper_components::player::time::WorldTime;
+use temper_config::server_config::get_global_config;
+use temper_core::chunks::world_sync_tracker::WorldSyncTracker;
+use temper_net::connection::NewConnection;
+use temper_performance::ServerPerformance;
+use temper_state::GlobalStateResource;
 
 pub fn register_resources(
     world: &mut World,

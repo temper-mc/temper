@@ -83,14 +83,14 @@ fn test_to_string() {
     assert_eq!(component.to_string(), Text::keybind("key.jump").to_string());
 }
 
-use ionic_nbt::NBTSerializeOptions;
-use ionic_nbt::{NBTSerializable, NBT};
-use ionic_codec::{
+use temper_nbt::NBTSerializeOptions;
+use temper_nbt::{NBTSerializable, NBT};
+use temper_codec::{
     decode::{NetDecode, NetDecodeOpts},
     encode::{NetEncode, NetEncodeOpts},
     net_types::var_int::VarInt,
 };
-use ionic_macros::{packet, NetEncode};
+use temper_macros::{packet, NetEncode};
 use std::fs::File;
 use std::io::{Cursor, Write};
 

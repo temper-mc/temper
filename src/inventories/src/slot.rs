@@ -1,10 +1,10 @@
 use crate::item::ItemID;
 use bitcode_derive::{Decode, Encode};
-use ionic_codec::decode::errors::NetDecodeError;
-use ionic_codec::decode::{NetDecode, NetDecodeOpts};
-use ionic_codec::encode::errors::NetEncodeError;
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-use ionic_codec::net_types::var_int::VarInt;
+use temper_codec::decode::errors::NetDecodeError;
+use temper_codec::decode::{NetDecode, NetDecodeOpts};
+use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_codec::net_types::var_int::VarInt;
 use std::fmt::Display;
 use std::io::{Read, Write};
 use tokio::io::{AsyncRead, AsyncWrite};
@@ -160,8 +160,8 @@ impl NetEncode for InventorySlot {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ionic_codec::encode::NetEncodeOpts;
-    use ionic_codec::net_types::var_int::VarInt;
+    use temper_codec::encode::NetEncodeOpts;
+    use temper_codec::net_types::var_int::VarInt;
     use std::io::Cursor;
 
     // This helper function runs the encode/decode cycle

@@ -3,7 +3,7 @@
 //! Contains the server configuration struct and its related functions.
 
 use figment::providers::Format;
-use ionic_general_purpose::paths::get_root_path;
+use temper_general_purpose::paths::get_root_path;
 use once_cell::sync::OnceCell;
 use serde_derive::{Deserialize, Serialize};
 

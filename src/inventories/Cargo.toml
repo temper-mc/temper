@@ -1,22 +1,21 @@
 [package]
-name = "ionic-inventories"
+name = "temper-inventories"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 
-ionic-codec = { workspace = true }
+temper-codec = { workspace = true }
 bevy_ecs = { workspace = true }
 tokio = { workspace = true }
 crossbeam-queue = { workspace = true }
 once_cell = { workspace = true }
 thiserror = { workspace = true }
-ionic-registry = { workspace = true }
-ionic-world = { workspace = true }
+temper-registry = { workspace = true }
 bitcode = { workspace = true }
 bitcode_derive = { workspace = true }
-ionic-data = { workspace = true }
-ionic-core = { workspace = true }
+temper-data = { workspace = true }
+temper-core = { workspace = true }
 tracing = { workspace = true }
 
 [lints]

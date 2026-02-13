@@ -1,5 +1,4 @@
 extern crate core;
-use std::fmt::Display;
 
 pub mod auth;
 pub mod broadcast;

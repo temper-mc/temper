@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::Component;
-use ionic_inventories::item::ItemID;
+use temper_inventories::item::ItemID;
 use std::collections::HashMap;
 use std::time::Instant;
 

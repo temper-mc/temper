@@ -1,5 +1,5 @@
 [package]
-name = "ionic-commands"
+name = "temper-commands"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,18 +8,18 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 dashmap = { workspace = true }
 tokio = { workspace = true }
-ionic-text = { workspace = true }
-ionic-core = { workspace = true }
+temper-text = { workspace = true }
+temper-core = { workspace = true }
 enum-ordinalize = { workspace = true }
-ionic-macros = { workspace = true }
+temper-macros = { workspace = true }
 bevy_ecs = { workspace = true }
-ionic-codec = { workspace = true }
+temper-codec = { workspace = true }
 regex = { workspace = true }
-ionic-components = { workspace = true }
-ionic-nbt = { workspace = true }
-ionic-state = { workspace = true }
+temper-components = { workspace = true }
+temper-nbt = { workspace = true }
+temper-state = { workspace = true }
 uuid = { workspace = true }
 rand = { workspace = true }
 
 [dev-dependencies] # Needed for the ServerState mock... :concern:
-ionic-world = { workspace = true }
+temper-world = { workspace = true }

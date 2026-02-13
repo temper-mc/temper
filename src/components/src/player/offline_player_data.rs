@@ -7,7 +7,7 @@ use crate::player::gameplay_state::ender_chest::EnderChest;
 use crate::player::hunger::Hunger;
 use bitcode_derive::{Decode, Encode};
 use crate::player::rotation::Rotation;
-use ionic_inventories::inventory::Inventory;
+use temper_inventories::inventory::Inventory;
 
 #[derive(Clone, Debug, Encode, Decode, Default)]
 pub struct OfflinePlayerData {

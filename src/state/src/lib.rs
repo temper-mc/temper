@@ -2,8 +2,8 @@ pub mod player_list;
 
 use crate::player_list::PlayerList;
 use bevy_ecs::prelude::Resource;
-use ionic_threadpool::ThreadPool;
-use ionic_world::World;
+use temper_threadpool::ThreadPool;
+use temper_world::World;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::Instant;

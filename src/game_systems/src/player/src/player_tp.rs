@@ -1,13 +1,13 @@
 use bevy_ecs::prelude::{Entity, MessageReader, MessageWriter, Query};
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::teleport_tracker::TeleportTracker;
-use ionic_messages::chunk_calc::ChunkCalc;
-use ionic_messages::entity_update::SendEntityUpdate;
-use ionic_messages::teleport_player::TeleportPlayer;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
-use ionic_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::teleport_tracker::TeleportTracker;
+use temper_messages::chunk_calc::ChunkCalc;
+use temper_messages::entity_update::SendEntityUpdate;
+use temper_messages::teleport_player::TeleportPlayer;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
+use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
 use tracing::error;
 
 pub fn teleport_player(

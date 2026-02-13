@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_components::player::chunk_receiver::ChunkReceiver;
-use ionic_protocol::ChunkBatchAckReceiver;
-use ionic_state::GlobalStateResource;
+use temper_components::player::chunk_receiver::ChunkReceiver;
+use temper_protocol::ChunkBatchAckReceiver;
+use temper_state::GlobalStateResource;
 use tracing::{error, warn};
 
 pub fn handle(

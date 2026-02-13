@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::*;
-use ionic_commands::Sender;
-use ionic_components::player::gamemode::GameMode;
-use ionic_macros::command;
-use ionic_messages::PlayerGameModeChanged;
+use temper_commands::Sender;
+use temper_components::player::gamemode::GameMode;
+use temper_macros::command;
+use temper_messages::PlayerGameModeChanged;
 
 /// Sets the sender's gamemode.
 #[command("gamemode")]

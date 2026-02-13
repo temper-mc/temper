@@ -1,11 +1,11 @@
 use crate::errors::NetError;
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_core::pos::ChunkPos;
-use ionic_macros::{packet, NetEncode};
-use ionic_world_format::light::network::NetworkLightData;
-use ionic_world_format::network::NetworkChunk;
-use ionic_world_format::Chunk;
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::var_int::VarInt;
+use temper_core::pos::ChunkPos;
+use temper_macros::{packet, NetEncode};
+use temper_world_format::light::network::NetworkLightData;
+use temper_world_format::network::NetworkChunk;
+use temper_world_format::Chunk;
 
 #[derive(NetEncode)]
 pub struct BlockEntity {

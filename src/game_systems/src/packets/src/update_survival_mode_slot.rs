@@ -1,10 +1,10 @@
 use bevy_ecs::prelude::{Query, Res};
-use ionic_inventories::crafting::update_player_crafting_grid;
-use ionic_inventories::defined_slots;
-use ionic_inventories::inventory::Inventory;
-use ionic_inventories::item::ItemID;
-use ionic_inventories::slot::InventorySlot;
-use ionic_protocol::ClickContainerReceiver;
+use temper_inventories::crafting::update_player_crafting_grid;
+use temper_inventories::defined_slots;
+use temper_inventories::inventory::Inventory;
+use temper_inventories::item::ItemID;
+use temper_inventories::slot::InventorySlot;
+use temper_protocol::ClickContainerReceiver;
 use tracing::error;
 
 pub fn handle(receiver: Res<ClickContainerReceiver>, mut inventories: Query<&mut Inventory>) {

@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::{Query, Res};
-use ionic_components::player::teleport_tracker::TeleportTracker;
-use ionic_protocol::ConfirmPlayerTeleportReceiver;
+use temper_components::player::teleport_tracker::TeleportTracker;
+use temper_protocol::ConfirmPlayerTeleportReceiver;
 
 pub fn handle(
     receiver: Res<ConfirmPlayerTeleportReceiver>,

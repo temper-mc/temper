@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::Component;
 use bevy_math::{DVec3, IVec2};
-use ionic_codec::net_types::network_position::NetworkPosition;
+use temper_codec::net_types::network_position::NetworkPosition;
 use std::ops::DerefMut;
 use std::{
     fmt::{Debug, Display, Formatter},
@@ -49,7 +49,7 @@ impl Position {
     /// # Examples
     ///
     /// ```ignore
-    /// use ionic_core::transform::{Position, Rotation};
+    /// use temper_core::transform::{Position, Rotation};
     ///
     /// let pos = Position::new(0.0, 64.0, 0.0);
     /// let rot = Rotation::new(0.0, 0.0); // Looking north

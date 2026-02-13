@@ -2,8 +2,8 @@
 //!
 //! Sent when a player disconnects to remove them from other players' tab lists.
 
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_macros::{packet, NetEncode};
 
 /// Packet to remove players from the tab list
 #[derive(NetEncode)]

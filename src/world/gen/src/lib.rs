@@ -5,8 +5,8 @@ mod interp;
 
 use crate::errors::WorldGenError;
 use crate::interp::smoothstep;
-use ionic_core::pos::ChunkPos;
-use ionic_world_format::Chunk;
+use temper_core::pos::ChunkPos;
+use temper_world_format::Chunk;
 use noise::{Fbm, MultiFractal, NoiseFn, Perlin, RidgedMulti};
 
 /// Trait for generating a biome
@@ -16,7 +16,7 @@ pub(crate) trait BiomeGenerator {
     fn _biome_id(&self) -> u8;
     fn _biome_name(&self) -> String;
     fn generate_chunk(&self, pos: ChunkPos, noise: &NoiseGenerator)
-    -> Result<Chunk, WorldGenError>;
+                      -> Result<Chunk, WorldGenError>;
 }
 
 #[derive(Clone)]
@@ -124,9 +124,9 @@ impl WorldGenerator {
 #[test]
 #[ignore]
 fn find_good_seed() {
-    use ionic_core::block_state_id::BlockStateId;
-    use ionic_core::pos::ChunkBlockPos;
-    use ionic_macros::match_block;
+    use temper_core::block_state_id::BlockStateId;
+    use temper_core::pos::ChunkBlockPos;
+    use temper_macros::match_block;
     let mut the_good_seed = 0u64;
     println!("Searching for good seed...");
     'seed: for seed in 0..10000000u64 {

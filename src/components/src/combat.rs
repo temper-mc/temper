@@ -1,14 +1,14 @@
 use crate::metadata::EntityMetadata;
 use bevy_ecs::prelude::Component;
-use ionic_data::generated::entities::EntityType as VanillaEntityType;
+use temper_data::generated::entities::EntityType as VanillaEntityType;
 
 /// Combat properties for an entity.
 ///
 /// # Examples
 ///
 /// ```ignore
-/// use ionic_entities::components::{EntityMetadata, CombatProperties};
-/// use ionic_data::generated::entities::EntityType as VanillaEntityType;
+/// use temper_entities::components::{EntityMetadata, CombatProperties};
+/// use temper_data::generated::entities::EntityType as VanillaEntityType;
 ///
 /// let metadata = EntityMetadata::from_vanilla(&VanillaEntityType::PIG);
 /// let mut combat = CombatProperties::from_metadata(&metadata);

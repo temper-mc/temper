@@ -1,4 +1,4 @@
-//! FerrumC's Command API.
+//! Temper's Command API.
 #![feature(duration_constructors)]
 #![feature(anonymous_lifetime_in_impl_trait)]
 
@@ -13,16 +13,16 @@ pub mod graph;
 pub mod infrastructure;
 mod input;
 pub mod messages;
-mod sender;
 pub mod resolve;
+mod sender;
 
 // Re-export under main module to avoid clutter.
 pub use ctx::*;
-use ionic_macros::NetEncode;
-use ionic_nbt::NBT;
-use ionic_text::TextComponent;
 pub use input::*;
 pub use sender::*;
+use temper_macros::NetEncode;
+use temper_nbt::NBT;
+use temper_text::TextComponent;
 
 /// An instance of a command.
 #[derive(Debug, Clone, PartialEq)]

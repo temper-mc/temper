@@ -18,7 +18,7 @@ pub(crate) fn decompress_zstd(data: &[u8]) -> Result<Vec<u8>, StorageError> {
 #[cfg(test)]
 mod tests {
     use crate::compressors::{Compressor, CompressorType};
-    use ionic_utils::root;
+    use temper_utils::root;
 
     #[test]
     fn test_compress_decompress() {

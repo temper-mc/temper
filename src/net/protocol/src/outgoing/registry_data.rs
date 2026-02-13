@@ -1,7 +1,7 @@
 use bitcode::{Decode, Encode};
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_codec::net_types::prefixed_optional::PrefixedOptional;
-use ionic_macros::{build_registry_packets, packet, NetEncode};
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::prefixed_optional::PrefixedOptional;
+use temper_macros::{build_registry_packets, packet, NetEncode};
 use lazy_static::lazy_static;
 
 #[derive(NetEncode)]
@@ -61,14 +61,14 @@ pub struct RegistryEntry {
 mod tests {
     use crate::outgoing::registry_data::RegistryEntry;
     use indexmap::IndexMap;
-    use ionic_codec::net_types::prefixed_optional::PrefixedOptional;
+    use temper_codec::net_types::prefixed_optional::PrefixedOptional;
     use serde_json::Value;
     use std::io::Write;
 
     #[test]
     #[ignore]
     fn generate_nbt() {
-        let json_file = include_bytes!("../../../../assets/data/registry_packets.json");
+        let json_file = include_bytes!("../../../../../assets/data/registry_packets.json");
         let val: IndexMap<String, IndexMap<String, Value>> =
             serde_json::from_slice(json_file).unwrap();
 

@@ -1,8 +1,8 @@
 #![feature(try_blocks)]
 
 use clap::Parser;
-use ionic_app::bin_cli::args::{CLIArgs, Command};
-use ionic_app::{bin_cli, bin_import, bin_runtime};
+use temper_app::bin_cli::args::{CLIArgs, Command};
+use temper_app::{bin_cli, bin_import, bin_runtime};
 use std::time::Instant;
 use tracing::{error, info};
 
@@ -22,14 +22,14 @@ fn main() {
     let start_time = Instant::now();
 
     let cli_args = CLIArgs::parse();
-    ionic_logging::init_logging(cli_args.log.into(), cli_args.no_tui);
+    temper_logging::init_logging(cli_args.log.into(), cli_args.no_tui);
 
-    ionic_registry::init();
+    temper_registry::init();
 
     match cli_args.command {
         Some(Command::Setup) => {
             info!("Starting setup...");
-            if let Err(e) = ionic_config::setup::setup() {
+            if let Err(e) = temper_config::setup::setup() {
                 error!("Could not set up the server: {}", e.to_string());
             } else {
                 info!("Server setup complete.");
@@ -49,7 +49,7 @@ fn main() {
 
         Some(Command::Run) | None => {
             info!("Starting server...");
-            if let Err(e) = ionic_config::setup::setup() {
+            if let Err(e) = temper_config::setup::setup() {
                 error!("Could not set up the server: {}", e.to_string());
             } else {
                 info!("Server setup complete.");

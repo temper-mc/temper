@@ -1,5 +1,5 @@
 use bitcode_derive::{Decode, Encode};
-use ionic_macros::{NBTDeserialize, NBTSerialize};
+use temper_macros::{NBTDeserialize, NBTSerialize};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt::Display;
@@ -8,7 +8,7 @@ use std::fmt::Display;
 ///
 /// This should be used sparingly, as it's much more efficient to use [BlockId] where possible.
 ///
-/// If you want to use it as a literal and the convert to a BlockId, use the [ionic_macros::block_data!] macro.
+/// If you want to use it as a literal and the convert to a BlockId, use the [temper_macros::block_data!] macro.
 #[derive(
     NBTSerialize,
     NBTDeserialize,

@@ -1,9 +1,9 @@
-use ionic_macros::{packet, NetEncode};
-use ionic_text::TextComponent;
+use temper_macros::{packet, NetEncode};
+use temper_text::TextComponent;
 
 #[derive(NetEncode, Debug, Clone)]
 #[packet(packet_id = "system_chat", state = "play")]
 pub struct SystemMessagePacket {
-    pub message: ionic_nbt::NBT<TextComponent>,
+    pub message: temper_nbt::NBT<TextComponent>,
     pub overlay: bool,
 }

@@ -1,7 +1,7 @@
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_codec::net_types::prefixed_optional::PrefixedOptional;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetDecode};
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::prefixed_optional::PrefixedOptional;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetDecode};
 
 #[derive(NetDecode)]
 #[packet(packet_id = "container_click", state = "play")]

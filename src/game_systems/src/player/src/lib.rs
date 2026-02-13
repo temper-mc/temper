@@ -22,6 +22,7 @@ pub fn register_player_systems(schedule: &mut bevy_ecs::schedule::Schedule) {
     schedule.add_systems(digging_system::handle_start_digging);
     schedule.add_systems(digging_system::handle_finish_digging);
     schedule.add_systems(digging_system::handle_start_digging);
+    schedule.add_systems(digging_system::handle_cancel_digging);
     schedule.add_systems(entity_spawn::handle_spawn_entity);
     schedule.add_systems(entity_spawn::spawn_command_processor);
     schedule.add_systems(gamemode_change::handle);

@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::{Entity, Message};
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode, Clone)]
 #[packet(packet_id = "animate", state = "play")]

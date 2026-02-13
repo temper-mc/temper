@@ -1,14 +1,14 @@
 use bevy_ecs::prelude::*;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_entities::bundles::*;
-use ionic_entities::components::EntityMetadata;
-use ionic_entities::markers::entity_types::*;
-use ionic_entities::markers::{HasCollisions, HasGravity, HasWaterDrag};
-use ionic_messages::{EntityType, SpawnEntityCommand, SpawnEntityEvent};
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::spawn_entity::SpawnEntityPacket;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_entities::bundles::*;
+use temper_entities::components::EntityMetadata;
+use temper_entities::markers::entity_types::*;
+use temper_entities::markers::{HasCollisions, HasGravity, HasWaterDrag};
+use temper_messages::{EntityType, SpawnEntityCommand, SpawnEntityEvent};
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::spawn_entity::SpawnEntityPacket;
 use tracing::{error, warn};
 
 /// Macro for spawning ground entities (gravity + collisions + water drag)

@@ -1,6 +1,6 @@
-use ionic_codec::decode::{NetDecode, NetDecodeOpts};
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
-use ionic_macros::NetEncode;
+use temper_codec::decode::{NetDecode, NetDecodeOpts};
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_macros::NetEncode;
 
 #[derive(NetEncode)]
 enum TestPacket {

@@ -1,8 +1,8 @@
 use bin_cli::args::ImportArgs;
-use ionic_config::server_config::get_global_config;
-use ionic_general_purpose::paths::get_root_path;
-use ionic_threadpool::ThreadPool;
-use ionic_world::World;
+use temper_config::server_config::get_global_config;
+use temper_general_purpose::paths::get_root_path;
+use temper_threadpool::ThreadPool;
+use temper_world::World;
 use tracing::{error, info};
 
 /// Handles importing a world from an external source.

@@ -1,10 +1,10 @@
 use bevy_ecs::prelude::Query;
-use ionic_commands::arg::primitive::string::GreedyString;
-use ionic_commands::Sender;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_core::mq;
-use ionic_macros::command;
-use ionic_net_runtime::connection::StreamWriter;
+use temper_commands::arg::primitive::string::GreedyString;
+use temper_commands::Sender;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_core::mq;
+use temper_macros::command;
+use temper_net_runtime::connection::StreamWriter;
 
 #[command("say")]
 fn say_command(

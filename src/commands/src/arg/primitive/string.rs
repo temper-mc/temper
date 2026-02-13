@@ -1,7 +1,7 @@
 use std::io::Write;
 
 use enum_ordinalize::Ordinalize;
-use ionic_codec::{
+use temper_codec::{
     encode::{errors::NetEncodeError, NetEncode, NetEncodeOpts},
     net_types::var_int::VarInt,
 };

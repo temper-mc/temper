@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetDecode};
+use temper_macros::{packet, NetDecode};
 
 #[derive(NetDecode, Debug)]
 #[packet(packet_id = "ping_request", state = "status")]

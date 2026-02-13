@@ -2,20 +2,20 @@ use crate::compression::compress_packet;
 use crate::conn_init::handle_handshake;
 use bevy_ecs::prelude::{Component, Entity};
 use crossbeam_channel::Sender;
-use ionic_codec::encode::NetEncode;
-use ionic_codec::encode::NetEncodeOpts;
-use ionic_components::player::client_information::ClientInformationComponent;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_encryption::read::EncryptedReader;
-use ionic_encryption::write::EncryptedWriter;
-use ionic_protocol::errors::CompressionError::GenericCompressionError;
-use ionic_protocol::errors::NetError::HandshakeTimeout;
-use ionic_protocol::errors::PacketError::InvalidPacket;
-use ionic_protocol::errors::{NetError, PacketError};
-use ionic_protocol::incoming::packet_skeleton::PacketSkeleton;
-use ionic_protocol::ConnState::Play;
-use ionic_protocol::{handle_packet, PacketSender};
-use ionic_state::ServerState;
+use temper_codec::encode::NetEncode;
+use temper_codec::encode::NetEncodeOpts;
+use temper_components::player::client_information::ClientInformationComponent;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_encryption::read::EncryptedReader;
+use temper_encryption::write::EncryptedWriter;
+use temper_protocol::errors::CompressionError::GenericCompressionError;
+use temper_protocol::errors::NetError::HandshakeTimeout;
+use temper_protocol::errors::PacketError::InvalidPacket;
+use temper_protocol::errors::{NetError, PacketError};
+use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
+use temper_protocol::ConnState::Play;
+use temper_protocol::{handle_packet, PacketSender};
+use temper_state::ServerState;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -160,13 +160,13 @@ impl StreamWriter {
             net_encode_opts,
             512,
         )
-        .map_err(|err| {
-            error!("Failed to compress packet: {:?}", err);
-            NetError::CompressionError(GenericCompressionError(format!(
-                "Failed to compress packet: {:?}",
-                err
-            )))
-        })?;
+            .map_err(|err| {
+                error!("Failed to compress packet: {:?}", err);
+                NetError::CompressionError(GenericCompressionError(format!(
+                    "Failed to compress packet: {:?}",
+                    err
+                )))
+            })?;
 
         self.sender
             .send(WriterCommand::SendPacket(raw_bytes))
@@ -187,13 +187,13 @@ impl StreamWriter {
             &NetEncodeOpts::WithLength,
             512,
         )
-        .map_err(|err| {
-            error!("Failed to compress packet: {:?}", err);
-            NetError::CompressionError(GenericCompressionError(format!(
-                "Failed to compress packet: {:?}",
-                err
-            )))
-        })?;
+            .map_err(|err| {
+                error!("Failed to compress packet: {:?}", err);
+                NetError::CompressionError(GenericCompressionError(format!(
+                    "Failed to compress packet: {:?}",
+                    err
+                )))
+            })?;
 
         Ok(raw_bytes)
     }
@@ -279,13 +279,13 @@ pub async fn handle_connection(
         state.clone(),
         entity_holder.clone(),
     )
-    .await;
+        .await;
 
     let handshake_result = timeout(
         MAX_HANDSHAKE_TIMEOUT,
         handle_handshake(&mut tcp_reader, &stream, state.clone()),
     )
-    .await;
+        .await;
 
     let login_result = match handshake_result {
         // Handshake completed within timeout
@@ -413,8 +413,8 @@ pub async fn handle_connection(
             &mut packet_skele.data,
             packet_sender.clone(),
         )
-        .instrument(debug_span!("eid", %entity))
-        .into_inner()
+            .instrument(debug_span!("eid", %entity))
+            .into_inner()
         {
             Ok(()) => {
                 trace!(

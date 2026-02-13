@@ -40,7 +40,7 @@ pub fn net_decode(input: TokenStream) -> TokenStream {
 
 // #=================== PACKETS ===================#
 /// You can get the packet_id from:
-/// <https://protocol.ferrumc.com>,
+/// <https://minecraft.wiki/w/Java_Edition_protocol/Packets?oldid=3170174>,
 /// In incoming packets (serverbound),
 /// You should use the 'resource' value referenced in the packet,
 /// e.g. "finish_configuration", which would result in the packet_id being automatically fetched.
@@ -103,11 +103,11 @@ pub fn build_registry_packets(input: TokenStream) -> TokenStream {
 /// A macro to lookup block state IDs at compile time.
 ///
 /// Feed in the block name as a string literal, and an optional set of properties as a map.
-/// It will output a [`ionic_world::block_state_id::BlockStateId`] struct with the correct ID for that block and properties.
+/// It will output a [`temper_world::block_state_id::BlockStateId`] struct with the correct ID for that block and properties.
 /// Usage:
-/// ```
-/// # use ionic_core::block_state_id::BlockStateId;
-/// # use ionic_macros::block;
+/// ```ignore
+/// # use temper_core::block_state_id::BlockStateId;
+/// # use temper_macros::block;
 /// let block_state_id = block!("stone");
 /// let another_block_state_id = block!("minecraft:grass_block", {snowy: true});
 /// assert_eq!(block_state_id, BlockStateId::new(1));
@@ -127,9 +127,9 @@ pub fn block(input: TokenStream) -> TokenStream {
 
 /// A macro to check if a block state ID matches a given block name at compile time.
 /// Usage:
-/// ```
-/// # use ionic_macros::{match_block, block};
-/// # use ionic_core::block_state_id::BlockStateId;
+/// ```ignore
+/// # use temper_macros::{match_block, block};
+/// # use temper_core::block_state_id::BlockStateId;
 /// let block_state_id = block!("stone");
 /// if match_block!("stone", block_state_id) {
 ///     // do something

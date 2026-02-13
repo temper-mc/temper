@@ -1,9 +1,9 @@
 use crate::light::LightStorage;
 use crate::Chunk;
-use ionic_codec::net_types::bitset::BitSet;
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::NetEncode;
+use temper_codec::net_types::bitset::BitSet;
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::NetEncode;
 use std::ops::Not;
 
 const FULL_SECTION_LIGHT: &[u8] = &[u8::MAX; 2048];

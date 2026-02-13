@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::Message;
-use ionic_core::pos::BlockPos;
+use temper_core::pos::BlockPos;
 
 /// Message sent when a block is broken in the world
 #[derive(Message)]

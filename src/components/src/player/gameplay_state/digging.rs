@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::Component;
-use ionic_codec::net_types::network_position::NetworkPosition;
+use temper_codec::net_types::network_position::NetworkPosition;
 use std::time::{Duration, Instant};
 
 /// An "action component" added to a player when they start digging.

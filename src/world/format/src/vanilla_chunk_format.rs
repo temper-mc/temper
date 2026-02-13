@@ -1,7 +1,7 @@
 use bitcode::{Decode, Encode};
-use ionic_core::block_data::BlockData;
-use ionic_macros::NBTDeserialize;
-use ionic_macros::NBTSerialize;
+use temper_core::block_data::BlockData;
+use temper_macros::NBTDeserialize;
+use temper_macros::NBTSerialize;
 use macro_rules_attribute::{apply, attribute_alias};
 use serde_derive::{Deserialize, Serialize};
 
@@ -49,7 +49,7 @@ pub struct VanillaChunk {
 #[apply(ChunkDerives)]
 #[derive(deepsize::DeepSizeOf)]
 #[nbt(net_encode)]
-pub(crate) struct VanillaHeightmaps {
+pub struct VanillaHeightmaps {
     // #[nbt(rename = "MOTION_BLOCKING_NO_LEAVES")]
     // pub motion_blocking_no_leaves: Option<Vec<i64>>,
     #[nbt(rename = "MOTION_BLOCKING")]
@@ -62,7 +62,7 @@ pub(crate) struct VanillaHeightmaps {
 
 #[apply(ChunkDerives)]
 #[derive(deepsize::DeepSizeOf)]
-pub(crate) struct Structures {
+pub struct Structures {
     pub starts: Starts,
     #[nbt(rename = "References")]
     pub references: References,
@@ -70,15 +70,15 @@ pub(crate) struct Structures {
 
 #[apply(ChunkDerives)]
 #[derive(deepsize::DeepSizeOf)]
-pub(crate) struct Starts {}
+pub struct Starts {}
 
 #[apply(ChunkDerives)]
 #[derive(deepsize::DeepSizeOf)]
-pub(crate) struct References {}
+pub struct References {}
 
 #[apply(ChunkDerives)]
 #[derive(deepsize::DeepSizeOf)]
-pub(crate) struct Section {
+pub struct Section {
     #[nbt(rename = "block_states")]
     pub block_states: Option<BlockStates>,
     pub biomes: Option<Biomes>,
@@ -92,14 +92,14 @@ pub(crate) struct Section {
 
 #[apply(ChunkDerives)]
 #[derive(deepsize::DeepSizeOf)]
-pub(crate) struct BlockStates {
+pub struct BlockStates {
     pub data: Option<Vec<i64>>,
     pub palette: Option<Vec<BlockData>>,
 }
 
 #[apply(ChunkDerives)]
 #[derive(deepsize::DeepSizeOf)]
-pub(crate) struct Biomes {
+pub struct Biomes {
     pub data: Option<Vec<i64>>,
     pub palette: Vec<String>,
 }

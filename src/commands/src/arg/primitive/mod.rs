@@ -13,11 +13,11 @@ use std::io::Write;
 use enum_ordinalize::Ordinalize;
 use float::FloatArgumentFlags;
 use int::IntArgumentFlags;
-use ionic_codec::{
+use temper_codec::{
     encode::{errors::NetEncodeError, NetEncode, NetEncodeOpts},
     net_types::var_int::VarInt,
 };
-use ionic_macros::NetEncode;
+use temper_macros::NetEncode;
 use long::LongArgumentFlags;
 use string::StringArgumentType;
 use tokio::io::AsyncWrite;

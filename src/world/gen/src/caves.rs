@@ -1,8 +1,8 @@
 use crate::interp::{smoothstep, trilerp};
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::pos::{ChunkBlockPos, ChunkPos};
-use ionic_macros::{block, match_block};
-use ionic_world_format::Chunk;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::pos::{ChunkBlockPos, ChunkPos};
+use temper_macros::{block, match_block};
+use temper_world_format::Chunk;
 
 pub(crate) fn generate_caves(
     chunk: &mut Chunk,

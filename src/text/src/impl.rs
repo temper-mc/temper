@@ -1,5 +1,5 @@
 use crate::*;
-use ionic_nbt::{NBTSerializable, NBTSerializeOptions};
+use temper_nbt::{NBTSerializable, NBTSerializeOptions};
 use paste::paste;
 use std::fmt;
 use std::ops::Add;

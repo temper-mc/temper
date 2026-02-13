@@ -3,7 +3,7 @@ use crate::section::uniform::UniformSection;
 use crate::section::{AIR, CHUNK_SECTION_LENGTH};
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use ionic_core::block_state_id::BlockStateId;
+use temper_core::block_state_id::BlockStateId;
 
 // Currently there are less block state ids than u16::MAX, so we can store ids as u16s to cut down on memory usage
 type CompactBlockStateId = u16;

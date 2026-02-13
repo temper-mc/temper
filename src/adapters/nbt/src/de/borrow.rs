@@ -1,8 +1,8 @@
 use crate::de::converter::FromNbt;
 use crate::{NBTSerializable, NBTSerializeOptions};
-use ionic_general_purpose::simd::arrays;
-use ionic_codec::encode::errors::NetEncodeError;
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_general_purpose::simd::arrays;
+use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use std::io::Write;
 use tokio::io::AsyncWrite;
 

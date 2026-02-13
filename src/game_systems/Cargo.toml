@@ -1,5 +1,5 @@
 [package]
-name = "ionic-game-systems"
+name = "temper-game-systems"
 edition.workspace = true
 version.workspace = true
 

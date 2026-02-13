@@ -1,6 +1,6 @@
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode, Clone)]
 #[packet(packet_id = "move_entity_pos", state = "play")]

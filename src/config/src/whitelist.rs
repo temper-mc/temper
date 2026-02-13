@@ -1,6 +1,6 @@
 use crate::errors::ConfigError;
 use dashmap::DashSet;
-use ionic_general_purpose::paths::get_root_path;
+use temper_general_purpose::paths::get_root_path;
 use once_cell::sync::OnceCell;
 use rayon::prelude::*;
 use serde_derive::Deserialize;

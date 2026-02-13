@@ -11,12 +11,12 @@ pub enum RootPathError {
 
 /// Returns the root path of the executable.
 /// e.g.
-/// - If the executable is located at "D:/server/ferrumc.exe",
+/// - If the executable is located at "D:/server/temper.exe",
 ///   this function will return "D:/server".
 ///
 /// # Examples
 /// ```rust
-/// use ionic_general_purpose::paths::get_root_path;
+/// use temper_general_purpose::paths::get_root_path;
 ///
 /// // Returns a PathBuf or panics if an error occurs
 /// let root_path = get_root_path();

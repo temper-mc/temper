@@ -1,9 +1,9 @@
 mod launch;
 
 use crate::errors::BinaryError;
-use ionic_config::whitelist::create_whitelist;
-use ionic_core::pos::ChunkPos;
-use ionic_state::GlobalState;
+use temper_config::whitelist::create_whitelist;
+use temper_core::pos::ChunkPos;
+use temper_state::GlobalState;
 use std::sync::Arc;
 use std::time::Instant;
 use tracing::info;
@@ -31,11 +31,11 @@ pub fn entry(start_time: Instant, no_tui: bool) -> Result<(), BinaryError> {
                 shutdown_handler(global_state.clone());
             }
         })
-        .expect("Error setting Ctrl-C handler");
+            .expect("Error setting Ctrl-C handler");
     }
 
     #[cfg(feature = "dashboard")]
-    ionic_dashboard::start_dashboard(global_state.clone());
+    temper_dashboard::start_dashboard(global_state.clone());
 
     game_loop::start_game_loop(global_state.clone(), no_tui)?;
 

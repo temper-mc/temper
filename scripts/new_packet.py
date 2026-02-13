@@ -4,8 +4,8 @@ import re
 incoming_template = """
 use crate::packets::IncomingPacket;
 
-use ionic_macros::{packet, NetDecode};
-use ferrumc_state::ServerState;
+use temper_macros::{packet, NetDecode};
+use temper_state::ServerState;
 use std::sync::Arc;
 
 #[derive(NetDecode)]
@@ -15,9 +15,9 @@ pub struct ++name++ {
 """
 
 handler = """
-use ferrumc_state::GlobalStateResource;
+use temper_state::GlobalStateResource;
 use bevy_ecs::prelude::Res;
-use ferrumc_net::++name++Receiver;
+use temper_net::++name++Receiver;
 
 pub fn handle(
     events: Res<++name++Receiver>,
@@ -25,7 +25,7 @@ pub fn handle(
 ) {}"""
 
 outgoing_template = """
-use ionic_macros::{packet, NetEncode};\
+use temper_macros::{packet, NetEncode};\
 
 #[derive(NetEncode)]
 #[packet(packet_id = "++id++", state="play")]

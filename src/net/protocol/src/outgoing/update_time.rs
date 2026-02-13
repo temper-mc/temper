@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetEncode};
+use temper_macros::{packet, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "set_time", state = "play")]

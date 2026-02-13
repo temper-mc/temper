@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use ionic_codec::encode::{errors::NetEncodeError, NetEncode, NetEncodeOpts};
+use temper_codec::encode::{errors::NetEncodeError, NetEncode, NetEncodeOpts};
 use tokio::io::AsyncWrite;
 
 use crate::{

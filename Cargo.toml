@@ -1,4 +1,4 @@
-# FerrumC Project workspace
+# Temper Project workspace
 #
 # Layout of this file:
 # - Members of the workspace.
@@ -17,9 +17,9 @@ members = [
     "src/adapters/anvil",
     "src/adapters/nbt",
     "src/app",
-    "src/base/macros",
     "src/base/general_purpose",
     "src/base/logging",
+    "src/base/macros",
     "src/base/profiling",
     "src/base/threadpool",
     "src/bin",
@@ -55,9 +55,10 @@ members = [
     "src/text",
     "src/utils",
     "src/world",
-    "src/world/format",
     "src/world/db",
+    "src/world/format",
     "src/world/gen",
+    "tests",
 ]
 
 [workspace.package]
@@ -113,43 +114,43 @@ debug = true
 #=============== Dependencies ==============#
 [workspace.dependencies]
 # Workspace members
-ionic-app = { path = "src/app" }
-ionic-anvil = { path = "src/adapters/anvil" }
-ionic-config = { path = "src/config" }
-ionic-core = { path = "src/core" }
-ionic-default-commands = { path = "src/default_commands" }
-ionic-commands = { path = "src/commands" }
-ionic-general-purpose = { path = "src/base/general_purpose" }
-ionic-logging = { path = "src/base/logging" }
-ionic-macros = { path = "src/base/macros" }
-ionic-nbt = { path = "src/adapters/nbt" }
-ionic-net-runtime = { path = "src/net/runtime" }
-ionic-performance = { path = "src/performance" }
-ionic-codec = { path = "src/net/codec" }
-ionic-protocol = { path = "src/net/protocol" }
-ionic-encryption = { path = "src/net/encryption" }
-ionic-plugins = { path = "src/plugins" }
-ionic-profiling = { path = "src/base/profiling" }
-ionic-registry = { path = "src/registry" }
-ionic-scheduler = { path = "src/scheduler" }
-ionic-state = { path = "src/state" }
-ionic-storage = { path = "src/storage" }
-ionic-text = { path = "src/text" }
-ionic-threadpool = { path = "src/base/threadpool" }
-ionic-utils = { path = "src/utils" }
-ionic-world = { path = "src/world" }
-ionic-world-gen = { path = "src/world/gen" }
-ionic-world-format = { path = "src/world/format" }
-ionic-inventories = { path = "src/inventories" }
-ionic-data = { path = "src/data" }
-ionic-components = { path = "src/components" }
-ionic-dashboard = { path = "src/dashboard" }
-ionic-messages = { path = "src/messages" }
-ionic-entities = { path = "src/entities" }
-ionic-physics = { path = "src/physics" }
-ionic-particles = { path = "src/particles" }
-ionic-resources = { path = "src/resources" }
-ionic-game-systems = { path = "src/game_systems" }
+temper-app = { path = "src/app" }
+temper-anvil = { path = "src/adapters/anvil" }
+temper-config = { path = "src/config" }
+temper-core = { path = "src/core" }
+temper-default-commands = { path = "src/default_commands" }
+temper-commands = { path = "src/commands" }
+temper-general-purpose = { path = "src/base/general_purpose" }
+temper-logging = { path = "src/base/logging" }
+temper-macros = { path = "src/base/macros" }
+temper-nbt = { path = "src/adapters/nbt" }
+temper-net-runtime = { path = "src/net/runtime" }
+temper-performance = { path = "src/performance" }
+temper-codec = { path = "src/net/codec" }
+temper-protocol = { path = "src/net/protocol" }
+temper-encryption = { path = "src/net/encryption" }
+temper-plugins = { path = "src/plugins" }
+temper-profiling = { path = "src/base/profiling" }
+temper-registry = { path = "src/registry" }
+temper-scheduler = { path = "src/scheduler" }
+temper-state = { path = "src/state" }
+temper-storage = { path = "src/storage" }
+temper-text = { path = "src/text" }
+temper-threadpool = { path = "src/base/threadpool" }
+temper-utils = { path = "src/utils" }
+temper-world = { path = "src/world" }
+temper-world-gen = { path = "src/world/gen" }
+temper-world-format = { path = "src/world/format" }
+temper-inventories = { path = "src/inventories" }
+temper-data = { path = "src/data" }
+temper-components = { path = "src/components" }
+temper-dashboard = { path = "src/dashboard" }
+temper-messages = { path = "src/messages" }
+temper-entities = { path = "src/entities" }
+temper-physics = { path = "src/physics" }
+temper-particles = { path = "src/particles" }
+temper-resources = { path = "src/resources" }
+temper-game-systems = { path = "src/game_systems" }
 
 # Asynchronous
 tokio = { version = "1.49.0", features = [
@@ -179,11 +180,11 @@ rusty_pool = "0.7.0"
 crossbeam-queue = "0.3.12"
 
 # Network
-reqwest = { version = "0.13.1", features = ["json", "native-tls", "blocking", "http2"], default-features = false }
+reqwest = { version = "0.13.2", features = ["json", "native-tls", "blocking", "http2"], default-features = false }
 
 # Error handling
 thiserror = "2.0.18"
-anyhow = "1.0.100"
+anyhow = "1.0.101"
 
 # Cryptography
 rand = "0.8.5"
@@ -208,7 +209,7 @@ toml = "0.9.11"
 craftflow-nbt = "2.1.0"
 figment = { version = "0.10.19", features = ["toml", "env"] }
 simd-json = "0.17.0"
-bytemuck = { version = "1.24.0", features = ["extern_crate_alloc", "derive"] }
+bytemuck = { version = "1.25.0", features = ["extern_crate_alloc", "derive"] }
 serde_yaml_ng = "0.10.0"
 
 # Bit manipulation
@@ -216,14 +217,14 @@ byteorder = "1.5.0"
 
 # Data types
 dashmap = "7.0.0-rc2"
-uuid = { version = "1.19.0", features = ["v4", "v3", "serde"] }
+uuid = { version = "1.20.0", features = ["v4", "v3", "serde"] }
 indexmap = { version = "2.13.0", features = ["serde"] }
 bimap = "0.6.3"
 
 # Macros
 lazy_static = "1.5.0"
 quote = "1.0.44"
-syn = { version = "2.0.114", features = ["extra-traits"] }
+syn = { version = "2.0.115", features = ["extra-traits"] }
 proc-macro2 = "1.0.106"
 paste = "1.0.15"
 maplit = "1.0.2"
@@ -235,12 +236,13 @@ ctor = "0.6.3"
 
 # Compression/Decompression
 yazi = "0.2.1"
+flate2 = "1.1.9"
 
 # Database
 heed = "0.22.1-nested-rtxns-6"
 
 # CLI
-clap = { version = "4.5.54", features = ["derive", "env"] }
+clap = { version = "4.5.58", features = ["derive", "env"] }
 indicatif = "0.18.3"
 colored = "3.1.1"
 ratatui = "0.30.0"
@@ -250,9 +252,9 @@ tui-logger = { version = "0.18.1", features = ["tracing-support", "crossterm"] }
 deepsize = "0.2.0"
 page_size = "0.6.0"
 enum-ordinalize = "4.3.2"
-regex = "1.12.2"
+regex = "1.12.3"
 noise = "0.9.0"
-ctrlc = "3.5.1"
+ctrlc = "3.5.2"
 num_cpus = "1.17.0"
 typename = "0.1.2"
 bevy_ecs = { version = "0.18.0", features = ["multi_threaded", "trace", "debug"], default-features = false }
@@ -268,13 +270,13 @@ unicode-width = "0.2.2"
 
 # I/O
 memmap2 = "0.9.9"
-tempfile = "3.24.0"
+tempfile = "3.25.0"
 
 # Benchmarking
-criterion = { version = "0.7.0", features = ["html_reports"] }
+criterion = { version = "0.8.2", features = ["html_reports"] }
 
-phf = { version = "0.11", features = ["macros"] }
-phf_codegen = { version = "0.11" }
+phf = { version = "0.13.1", features = ["macros"] }
+phf_codegen = { version = "0.13.1" }
 
 # Web server
 axum = { version = "0.8.8", features = ["tokio", "ws"] }

@@ -3,12 +3,12 @@ mod importing;
 pub mod player;
 
 use dashmap::DashMap;
-use ionic_config::server_config::get_global_config;
-use ionic_core::pos::ChunkPos;
-use ionic_general_purpose::paths::get_root_path;
-use ionic_storage::lmdb::LmdbBackend;
-use ionic_world_format::errors::WorldError;
-use ionic_world_format::Chunk;
+use temper_config::server_config::get_global_config;
+use temper_core::pos::ChunkPos;
+use temper_general_purpose::paths::get_root_path;
+use temper_storage::lmdb::LmdbBackend;
+use temper_world_format::errors::WorldError;
+use temper_world_format::Chunk;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 use std::process::exit;
@@ -18,7 +18,6 @@ pub use world_gen;
 use world_gen::WorldGenerator;
 use wyhash::WyHasherBuilder;
 
-/// THIS IS TEMPRORARY AND WILL BE MOVED TO FERRUMC-WORLD ONCE OTHER WORLD-RELATED PR'S ARE MERGED
 
 #[derive(Clone)]
 pub struct World {
@@ -89,7 +88,7 @@ impl World {
     /// Loads a chunk from the database or cache, or generates it if it doesn't exist. Returns a mutable reference.
     pub fn get_or_generate_mut<'a>(
         &'a self,
-        chunk_pos: ionic_core::pos::ChunkPos,
+        chunk_pos: temper_core::pos::ChunkPos,
         dimension: &'a str,
     ) -> Result<MutChunk<'a>, WorldError> {
         if self.chunk_exists(chunk_pos, dimension)? {
@@ -99,7 +98,7 @@ impl World {
                 .world_generator
                 .generate_chunk(chunk_pos)
                 .map_err(|err| {
-                    ionic_world_format::errors::WorldError::WorldGenerationError(format!(
+                    temper_world_format::errors::WorldError::WorldGenerationError(format!(
                         "Failed to generate chunk at {:?}: {}",
                         chunk_pos, err
                     ))
@@ -163,7 +162,7 @@ fn check_config_validity() -> Result<(), WorldError> {
 #[cfg(test)]
 mod tests {
     use crate::World;
-    use ionic_core::pos::ChunkPos;
+    use temper_core::pos::ChunkPos;
 
     #[test]
     #[ignore]

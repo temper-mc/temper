@@ -1,14 +1,14 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_state::GlobalStateResource;
-use ionic_text::TextComponent;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_net_runtime::connection::StreamWriter;
+use temper_state::GlobalStateResource;
+use temper_text::TextComponent;
 
 pub fn handle(
     query: Query<(Entity, &StreamWriter, &PlayerIdentity)>,
     state: Res<GlobalStateResource>,
 ) {
-    let packet = ionic_protocol::outgoing::disconnect::DisconnectPacket {
+    let packet = temper_protocol::outgoing::disconnect::DisconnectPacket {
         reason: TextComponent::from("Server is shutting down").into(),
     };
 

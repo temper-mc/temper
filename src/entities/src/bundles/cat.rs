@@ -1,10 +1,10 @@
 use bevy_ecs::prelude::Bundle;
-use ionic_components::entity_identity::EntityIdentity;
-use ionic_components::player::grounded::OnGround;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_components::player::velocity::Velocity;
-use ionic_data::generated::entities::EntityType as VanillaEntityType;
+use temper_components::entity_identity::EntityIdentity;
+use temper_components::player::grounded::OnGround;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_components::player::velocity::Velocity;
+use temper_data::generated::entities::EntityType as VanillaEntityType;
 
 use crate::components::{
     CombatProperties, EntityMetadata, LastSyncedPosition, PhysicalProperties, SpawnProperties,
@@ -13,7 +13,7 @@ use crate::components::{
 /// Complete bundle to spawn a cat in Bevy ECS.
 ///
 /// This bundle contains all the necessary components to represent a cat
-/// in the world. It uses Vanilla's data from ionic-data to correctly
+/// in the world. It uses Vanilla's data from temper-data to correctly
 /// initialize properties.
 #[derive(Bundle)]
 pub struct CatBundle {

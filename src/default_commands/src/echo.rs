@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::*;
-use ionic_commands::{arg::primitive::string::GreedyString, Sender};
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_macros::command;
-use ionic_text::{TextComponent, TextComponentBuilder};
+use temper_commands::{arg::primitive::string::GreedyString, Sender};
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_macros::command;
+use temper_text::{TextComponent, TextComponentBuilder};
 
 #[command("echo")]
 fn test_command(

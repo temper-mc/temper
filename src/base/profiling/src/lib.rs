@@ -196,7 +196,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ionic_macros::profile;
+    use temper_macros::profile;
     use std::thread;
     use thread::sleep;
     use tracing::Level;

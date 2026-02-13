@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use ionic_components::player::keepalive::KeepAliveTracker;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_state::GlobalStateResource;
+use temper_components::player::keepalive::KeepAliveTracker;
+use temper_net_runtime::connection::StreamWriter;
+use temper_state::GlobalStateResource;
 use std::time::Duration;
 use tracing::warn;
 
@@ -44,7 +44,7 @@ pub fn keep_alive_system(
         if elapsed >= KEEPALIVE_INTERVAL && tracker.has_received_keep_alive {
             let timestamp = rand::random::<i64>(); // or use a counter
             let packet =
-                ionic_protocol::outgoing::keep_alive::OutgoingKeepAlivePacket { timestamp };
+                temper_protocol::outgoing::keep_alive::OutgoingKeepAlivePacket { timestamp };
 
             if let Err(err) = stream_writer.send_packet_ref(&packet) {
                 warn!("Failed to send keep alive packet to {}: {:?}", entity, err);

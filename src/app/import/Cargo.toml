@@ -5,8 +5,8 @@ edition = "2024"
 
 [dependencies]
 tracing = { workspace = true }
-ionic-world = { workspace = true }
-ionic-threadpool = { workspace = true }
-ionic-config = { workspace = true }
+temper-world = { workspace = true }
+temper-threadpool = { workspace = true }
+temper-config = { workspace = true }
 bin-cli = { path = "../cli" }
-ionic-general-purpose = { workspace = true }
+temper-general-purpose = { workspace = true }

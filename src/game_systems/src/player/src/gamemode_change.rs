@@ -1,13 +1,13 @@
 use bevy_ecs::prelude::*;
-use ionic_components::player::abilities::PlayerAbilities;
-use ionic_components::player::gamemode::GameModeComponent;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_messages::PlayerGameModeChanged;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::game_event::GameEventPacket;
-use ionic_protocol::outgoing::player_abilities::PlayerAbilities as OutgoingAbilities;
-use ionic_protocol::outgoing::system_message::SystemMessagePacket;
-use ionic_text::{Color, NamedColor, TextComponent, TextComponentBuilder};
+use temper_components::player::abilities::PlayerAbilities;
+use temper_components::player::gamemode::GameModeComponent;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_messages::PlayerGameModeChanged;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::game_event::GameEventPacket;
+use temper_protocol::outgoing::player_abilities::PlayerAbilities as OutgoingAbilities;
+use temper_protocol::outgoing::system_message::SystemMessagePacket;
+use temper_text::{Color, NamedColor, TextComponent, TextComponentBuilder};
 use tracing::{error, info};
 
 /// Listens for `ChangeGameModeEvent` and applies all game logic.
@@ -59,10 +59,10 @@ pub fn handle(
 
         // 4. Send confirmation chat message
         let mode_name = match new_mode {
-            ionic_components::player::gamemode::GameMode::Survival => "Survival",
-            ionic_components::player::gamemode::GameMode::Creative => "Creative",
-            ionic_components::player::gamemode::GameMode::Adventure => "Adventure",
-            ionic_components::player::gamemode::GameMode::Spectator => "Spectator",
+            temper_components::player::gamemode::GameMode::Survival => "Survival",
+            temper_components::player::gamemode::GameMode::Creative => "Creative",
+            temper_components::player::gamemode::GameMode::Adventure => "Adventure",
+            temper_components::player::gamemode::GameMode::Spectator => "Spectator",
         };
 
         let msg = TextComponentBuilder::new("Set gamemode to ")

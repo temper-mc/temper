@@ -1,11 +1,11 @@
 use bevy_ecs::prelude::Query;
-use ionic_codec::net_types::adhoc_id::AdHocID;
-use ionic_commands::Sender;
-use ionic_macros::command;
-use ionic_nbt::NBT;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::show_dialog::{DialogBody, DialogContent, ShowDialog};
-use ionic_text::TextComponent;
+use temper_codec::net_types::adhoc_id::AdHocID;
+use temper_commands::Sender;
+use temper_macros::command;
+use temper_nbt::NBT;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::show_dialog::{DialogBody, DialogContent, ShowDialog};
+use temper_text::TextComponent;
 
 static CREDITS_TEXT: &str = include_str!("../../../assets/data/credits.txt");
 

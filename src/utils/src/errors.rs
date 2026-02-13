@@ -1,6 +1,6 @@
-use ionic_config::errors::ConfigError;
-use ionic_logging::errors::LoggingError;
-use ionic_profiling::errors::ProfilingError;
+use temper_config::errors::ConfigError;
+use temper_logging::errors::LoggingError;
+use temper_profiling::errors::ProfilingError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

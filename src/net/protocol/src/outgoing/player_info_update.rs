@@ -1,10 +1,10 @@
 use base64::Engine;
 use bevy_ecs::prelude::{Component, Entity, Query};
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_codec::net_types::prefixed_optional::PrefixedOptional;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_macros::{packet, NetEncode};
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::prefixed_optional::PrefixedOptional;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_macros::{packet, NetEncode};
 use tracing::debug;
 
 #[derive(NetEncode)]

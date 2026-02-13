@@ -1,7 +1,7 @@
-//! Command-line interface module for FerrumC.
+//! Command-line interface module for temper.
 //!
 //! This module provides all CLI argument parsing and command handling
-//! functionality for the FerrumC Minecraft server.
+//! functionality for the temper Minecraft server.
 //!
 //! # Submodules
 //!
@@ -11,10 +11,10 @@
 //!
 //! ```bash
 //! # Run the server
-//! ionic run
+//! temper run
 //!
 //! # Clear all server data
-//! ionic clear --all
+//! temper clear --all
 //! ```
 
 pub mod args;

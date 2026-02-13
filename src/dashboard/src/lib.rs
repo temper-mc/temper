@@ -1,6 +1,6 @@
 //! # Dashboard WebSocket API
 //!
-//! This module provides a WebSocket-based API for the FerrumC dashboard.
+//! This module provides a WebSocket-based API for the temper dashboard.
 //!
 //! ## WebSocket Protocol
 //!
@@ -42,8 +42,8 @@ use axum::response::{Html, IntoResponse, Response};
 use axum::routing::get;
 use axum::Router;
 use include_dir::{include_dir, Dir};
-use ionic_config::server_config::get_global_config;
-use ionic_state::GlobalState;
+use temper_config::server_config::get_global_config;
+use temper_state::GlobalState;
 use tokio::sync::broadcast;
 use tracing::{debug, info};
 
@@ -53,7 +53,7 @@ mod ws;
 
 pub fn start_dashboard(state: GlobalState) {
     std::thread::Builder::new()
-        .name("ionic-dashboard".to_string())
+        .name("temper-dashboard".to_string())
         .spawn(move || {
             let rt = tokio::runtime::Builder::new_multi_thread()
                 .enable_all()
@@ -84,7 +84,7 @@ static DASHBOARD_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/dashboard-dist
 static DASHBOARD_DIR: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/dashboard-dist");
 
 async fn start_webserver(state: GlobalState) {
-    debug!("Starting FerrumC dashboard webserver...");
+    debug!("Starting temper dashboard webserver...");
 
     // Gather handshake data once at startup
     let handshake = handshake::Handshake::gather();

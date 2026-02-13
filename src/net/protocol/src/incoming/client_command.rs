@@ -4,8 +4,8 @@
 //! - Action 0: Request respawn after death
 
 #[allow(unused_imports)]
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::{packet, NetDecode};
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::{packet, NetDecode};
 
 /// Client command actions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, NetDecode)]

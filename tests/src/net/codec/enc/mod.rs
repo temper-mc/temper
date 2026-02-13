@@ -1,5 +1,5 @@
-use ionic_codec::{encode::NetEncode, net_types::var_int::VarInt};
-use ionic_macros::NetEncode;
+use temper_codec::{encode::NetEncode, net_types::var_int::VarInt};
+use temper_macros::NetEncode;
 use std::io::Write;
 
 mod enums;
@@ -26,22 +26,6 @@ fn test_encode() {
     };
     let mut writer = Vec::<u8>::new();
     example
-        .encode(&mut writer, &ionic_codec::encode::NetEncodeOpts::None)
+        .encode(&mut writer, &temper_codec::encode::NetEncodeOpts::None)
         .unwrap();
-}
-
-#[expect(unreachable_code)]
-fn _test_compression() -> ! {
-    let example = SomeExampleEncStructWithPacketId {
-        packet_id: VarInt::from(0x10),
-        field1: 42,
-        field2: 69,
-    };
-    // infinite loop, do not use in cargo test
-    loop {
-        let mut writer = Vec::<u8>::new();
-        example
-            .encode(&mut writer, &ionic_codec::encode::NetEncodeOpts::Compressed)
-            .unwrap();
-    }
 }

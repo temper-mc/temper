@@ -1,22 +1,22 @@
 use bevy_ecs::prelude::*;
 use bevy_math::DVec3;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::swimming::SwimmingState;
-use ionic_core::block_state_id::BlockStateId;
-use ionic_core::pos::BlockPos;
-use ionic_macros::match_block;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
-use ionic_state::GlobalStateResource;
+use temper_codec::net_types::var_int::VarInt;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::swimming::SwimmingState;
+use temper_core::block_state_id::BlockStateId;
+use temper_core::pos::BlockPos;
+use temper_macros::match_block;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
+use temper_state::GlobalStateResource;
 use tracing::error;
 
 /// Height of player's eyes from feet (blocks)
 const PLAYER_EYE_HEIGHT: f64 = 1.62;
 
 /// Check if a player is in water by testing at eye level
-fn is_player_in_water(state: &ionic_state::GlobalState, pos: &Position) -> bool {
+fn is_player_in_water(state: &temper_state::GlobalState, pos: &Position) -> bool {
     let eye_pos = DVec3::new(pos.x, pos.y + PLAYER_EYE_HEIGHT, pos.z)
         .floor()
         .as_ivec3();

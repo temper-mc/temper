@@ -1,5 +1,5 @@
-use ionic_codec::decode::{NetDecode, NetDecodeOpts};
-use ionic_codec::encode::{NetEncode, NetEncodeOpts};
+use temper_codec::decode::{NetDecode, NetDecodeOpts};
+use temper_codec::encode::{NetEncode, NetEncodeOpts};
 
 #[test]
 fn hashmaps() {

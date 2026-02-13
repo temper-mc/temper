@@ -4,10 +4,10 @@ use crate::time::WorldTime;
 use crate::world_sync_tracker::WorldSyncTracker;
 use bevy_ecs::prelude::World;
 use crossbeam_channel::Receiver;
-use ionic_config::server_config::get_global_config;
-use ionic_net_runtime::connection::NewConnection;
-use ionic_performance::ServerPerformance;
-use ionic_state::GlobalStateResource;
+use temper_config::server_config::get_global_config;
+use temper_net_runtime::connection::NewConnection;
+use temper_performance::ServerPerformance;
+use temper_state::GlobalStateResource;
 
 pub mod new_conn;
 pub mod server_command_rx;

@@ -5,15 +5,15 @@
 //! 2. Broadcast the new player's info + spawn packets to existing players
 
 use bevy_ecs::prelude::{Entity, MessageReader, Query, Res};
-use ionic_components::player::player_identity::PlayerIdentity;
-use ionic_components::player::position::Position;
-use ionic_components::player::rotation::Rotation;
-use ionic_macros::get_registry_entry;
-use ionic_messages::player_join::PlayerJoined;
-use ionic_net_runtime::connection::StreamWriter;
-use ionic_protocol::outgoing::player_info_update::PlayerInfoUpdatePacket;
-use ionic_protocol::outgoing::spawn_entity::SpawnEntityPacket;
-use ionic_state::GlobalStateResource;
+use temper_components::player::player_identity::PlayerIdentity;
+use temper_components::player::position::Position;
+use temper_components::player::rotation::Rotation;
+use temper_macros::get_registry_entry;
+use temper_messages::player_join::PlayerJoined;
+use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::player_info_update::PlayerInfoUpdatePacket;
+use temper_protocol::outgoing::spawn_entity::SpawnEntityPacket;
+use temper_state::GlobalStateResource;
 use tracing::{error, trace};
 
 const PLAYER_TYPE_ID: i32 =

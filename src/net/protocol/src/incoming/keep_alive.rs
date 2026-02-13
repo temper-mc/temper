@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetDecode};
+use temper_macros::{packet, NetDecode};
 use typename::TypeName;
 
 #[derive(TypeName, NetDecode)]

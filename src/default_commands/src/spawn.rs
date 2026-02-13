@@ -1,12 +1,12 @@
 use bevy_ecs::prelude::MessageWriter;
 use bimap::BiMap;
-use ionic_commands::{
+use temper_commands::{
     arg::{primitive::PrimitiveArgument, utils::parser_error, CommandArgument, ParserResult},
     CommandContext, Sender, Suggestion,
 };
-use ionic_macros::command;
-use ionic_messages::{EntityType, SpawnEntityCommand};
-use ionic_text::TextComponent;
+use temper_macros::command;
+use temper_messages::{EntityType, SpawnEntityCommand};
+use temper_text::TextComponent;
 use lazy_static::lazy_static;
 
 /// Wrapper type for EntityType that implements CommandArgument

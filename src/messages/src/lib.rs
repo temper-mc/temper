@@ -43,7 +43,7 @@ use crate::packet_messages::Movement;
 use crate::particle::SendParticle;
 use crate::teleport_player::TeleportPlayer;
 pub use block_break::BlockBrokenEvent;
-use ionic_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
+use temper_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
 
 pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<Movement>(world);

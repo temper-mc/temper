@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetDecode};
+use temper_macros::{packet, NetDecode};
 
 #[derive(NetDecode)]
 #[packet(packet_id = "move_player_pos", state = "play")]

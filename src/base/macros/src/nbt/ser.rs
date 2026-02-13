@@ -81,19 +81,19 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
                 if flatten {
                     return quote! {
-                        <#ty as ::ionic_nbt::NBTSerializable>::serialize(&self.#ident, writer, &::ionic_nbt::NBTSerializeOptions::Flatten);
+                        <#ty as ::temper_nbt::NBTSerializable>::serialize(&self.#ident, writer, &::temper_nbt::NBTSerializeOptions::Flatten);
                     };
                 }
 
                 if let Some(condition) = skip_if {
                     quote! {
                         if !#condition (&self.#ident) {
-                            <#ty as ::ionic_nbt::NBTSerializable>::serialize(&self.#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#serialize_name));
+                            <#ty as ::temper_nbt::NBTSerializable>::serialize(&self.#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#serialize_name));
                         }
                     }
                 } else {
                     quote! {
-                        <#ty as ::ionic_nbt::NBTSerializable>::serialize(&self.#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#serialize_name));
+                        <#ty as ::temper_nbt::NBTSerializable>::serialize(&self.#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#serialize_name));
                     }
                 }
             });
@@ -169,7 +169,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             }
 
                             quote! {
-                                <#ty as ::ionic_nbt::NBTSerializable>::serialize(#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#serialize_name));
+                                <#ty as ::temper_nbt::NBTSerializable>::serialize(#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#serialize_name));
                             }
                         });
 
@@ -179,11 +179,11 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         let tagged = if let Some(tag) = tagged {
                             if untagged { fields } else {
                                 quote! {
-                                    <&'_ str as ::ionic_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#tag));
-                                    <u8 as ::ionic_nbt::NBTSerializable>::serialize(&10, writer, &::ionic_nbt::NBTSerializeOptions::None);
-                                    <&'_ str as ::ionic_nbt::NBTSerializable>::serialize(&#variant_content, writer, &::ionic_nbt::NBTSerializeOptions::None);
+                                    <&'_ str as ::temper_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#tag));
+                                    <u8 as ::temper_nbt::NBTSerializable>::serialize(&10, writer, &::temper_nbt::NBTSerializeOptions::None);
+                                    <&'_ str as ::temper_nbt::NBTSerializable>::serialize(&#variant_content, writer, &::temper_nbt::NBTSerializeOptions::None);
                                     #fields
-                                    <u8 as ::ionic_nbt::NBTSerializable>::serialize(&0u8, writer, &::ionic_nbt::NBTSerializeOptions::None);
+                                    <u8 as ::temper_nbt::NBTSerializable>::serialize(&0u8, writer, &::temper_nbt::NBTSerializeOptions::None);
                                 }
                             }
                         } else { fields };
@@ -202,14 +202,14 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             if !untagged && tagged.is_some() {
                                 if fields_unnamed.unnamed.len() == 1 {
                                     quote! {
-                                        <#ty as ::ionic_nbt::NBTSerializable>::serialize(#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#variant_content));
+                                        <#ty as ::temper_nbt::NBTSerializable>::serialize(#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#variant_content));
                                     }
                                 } else {
                                     quote! { unimplemented!(); }
                                 }
                             } else {
                                 quote! {
-                                    <#ty as ::ionic_nbt::NBTSerializable>::serialize(#ident, writer, &::ionic_nbt::NBTSerializeOptions::None);
+                                    <#ty as ::temper_nbt::NBTSerializable>::serialize(#ident, writer, &::temper_nbt::NBTSerializeOptions::None);
                                 }
                             }
                         });
@@ -220,7 +220,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         let tagged = if let Some(tag) = tagged {
                             if untagged { fields } else {
                                 quote! {
-                                    <&'_ str as ::ionic_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#tag));
+                                    <&'_ str as ::temper_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#tag));
                                     #fields
                                 }
                             }
@@ -237,13 +237,13 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             if untagged {
                                 quote! {
                                     => {
-                                        <&'_ str as ::ionic_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::None);
+                                        <&'_ str as ::temper_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::None);
                                     }
                                 }
                             } else {
                                 quote! {
                                     => {
-                                        <&'_ str as ::ionic_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#tag));
+                                        <&'_ str as ::temper_nbt::NBTSerializable>::serialize(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#tag));
                                     }
                                 }
                             }
@@ -336,19 +336,19 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
                 if flatten {
                     return quote! {
-                        <#ty as ::ionic_nbt::NBTSerializable>::serialize_async(&self.#ident, writer, &::ionic_nbt::NBTSerializeOptions::Flatten).await;
+                        <#ty as ::temper_nbt::NBTSerializable>::serialize_async(&self.#ident, writer, &::temper_nbt::NBTSerializeOptions::Flatten).await;
                     };
                 }
 
                 if let Some(condition) = skip_if {
                     quote! {
                         if !#condition (&self.#ident) {
-                            <#ty as ::ionic_nbt::NBTSerializable>::serialize_async(&self.#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#serialize_name)).await;
+                            <#ty as ::temper_nbt::NBTSerializable>::serialize_async(&self.#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#serialize_name)).await;
                         }
                     }
                 } else {
                     quote! {
-                        <#ty as ::ionic_nbt::NBTSerializable>::serialize_async(&self.#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#serialize_name)).await;
+                        <#ty as ::temper_nbt::NBTSerializable>::serialize_async(&self.#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#serialize_name)).await;
                     }
                 }
             });
@@ -424,7 +424,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             }
 
                             quote! {
-                                <#ty as ::ionic_nbt::NBTSerializable>::serialize_async(#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#serialize_name)).await;
+                                <#ty as ::temper_nbt::NBTSerializable>::serialize_async(#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#serialize_name)).await;
                             }
                         });
 
@@ -434,11 +434,11 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         let tagged = if let Some(tag) = tagged {
                             if untagged { fields } else {
                                 quote! {
-                                    <&'_ str as ::ionic_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#tag)).await;
-                                    <u8 as ::ionic_nbt::NBTSerializable>::serialize_async(&10, writer, &::ionic_nbt::NBTSerializeOptions::None).await;
-                                    <&'_ str as ::ionic_nbt::NBTSerializable>::serialize_async(&#variant_content, writer, &::ionic_nbt::NBTSerializeOptions::None).await;
+                                    <&'_ str as ::temper_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#tag)).await;
+                                    <u8 as ::temper_nbt::NBTSerializable>::serialize_async(&10, writer, &::temper_nbt::NBTSerializeOptions::None).await;
+                                    <&'_ str as ::temper_nbt::NBTSerializable>::serialize_async(&#variant_content, writer, &::temper_nbt::NBTSerializeOptions::None).await;
                                     #fields
-                                    <u8 as ::ionic_nbt::NBTSerializable>::serialize_async(&0u8, writer, &::ionic_nbt::NBTSerializeOptions::None).await;
+                                    <u8 as ::temper_nbt::NBTSerializable>::serialize_async(&0u8, writer, &::temper_nbt::NBTSerializeOptions::None).await;
                                 }
                             }
                         } else { fields };
@@ -457,14 +457,14 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             if !untagged && tagged.is_some() {
                                 if fields_unnamed.unnamed.len() == 1 {
                                     quote! {
-                                        <#ty as ::ionic_nbt::NBTSerializable>::serialize_async(#ident, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#variant_content)).await;
+                                        <#ty as ::temper_nbt::NBTSerializable>::serialize_async(#ident, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#variant_content)).await;
                                     }
                                 } else {
                                     quote! { unimplemented!(); }
                                 }
                             } else {
                                 quote! {
-                                    <#ty as ::ionic_nbt::NBTSerializable>::serialize_async(#ident, writer, &::ionic_nbt::NBTSerializeOptions::None).await;
+                                    <#ty as ::temper_nbt::NBTSerializable>::serialize_async(#ident, writer, &::temper_nbt::NBTSerializeOptions::None).await;
                                 }
                             }
                         });
@@ -475,7 +475,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                         let tagged = if let Some(tag) = tagged {
                             if untagged { fields } else {
                                 quote! {
-                                    <&'_ str as ::ionic_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#tag)).await;
+                                    <&'_ str as ::temper_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#tag)).await;
                                     #fields
                                 }
                             }
@@ -492,13 +492,13 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             if untagged {
                                 quote! {
                                     => {
-                                        <&'_ str as ::ionic_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::None).await;
+                                        <&'_ str as ::temper_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::None).await;
                                     }
                                 }
                             } else {
                                 quote! {
                                     => {
-                                        <&'_ str as ::ionic_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(#tag)).await;
+                                        <&'_ str as ::temper_nbt::NBTSerializable>::serialize_async(&#tag_name, writer, &::temper_nbt::NBTSerializeOptions::WithHeader(#tag)).await;
                                     }
                                 }
                             }
@@ -524,44 +524,44 @@ pub fn derive(input: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        impl #impl_generics ::ionic_nbt::NBTSerializable for #name #ty_generics #where_clause {
-            fn serialize<W: std::io::Write>(&self, writer: &mut W, options: &::ionic_nbt::NBTSerializeOptions) {
+        impl #impl_generics ::temper_nbt::NBTSerializable for #name #ty_generics #where_clause {
+            fn serialize<W: std::io::Write>(&self, writer: &mut W, options: &::temper_nbt::NBTSerializeOptions) {
                 match options {
-                    ::ionic_nbt::NBTSerializeOptions::WithHeader(name) => {
-                        <u8 as ::ionic_nbt::NBTSerializable>::serialize(&Self::id(), writer, &::ionic_nbt::NBTSerializeOptions::None);
-                        <&'_ str as ::ionic_nbt::NBTSerializable>::serialize(name, writer, &::ionic_nbt::NBTSerializeOptions::None);
+                    ::temper_nbt::NBTSerializeOptions::WithHeader(name) => {
+                        <u8 as ::temper_nbt::NBTSerializable>::serialize(&Self::id(), writer, &::temper_nbt::NBTSerializeOptions::None);
+                        <&'_ str as ::temper_nbt::NBTSerializable>::serialize(name, writer, &::temper_nbt::NBTSerializeOptions::None);
                     }
-                    ::ionic_nbt::NBTSerializeOptions::Network => {
-                        <u8 as ::ionic_nbt::NBTSerializable>::serialize(&Self::id(), writer, &::ionic_nbt::NBTSerializeOptions::None);
+                    ::temper_nbt::NBTSerializeOptions::Network => {
+                        <u8 as ::temper_nbt::NBTSerializable>::serialize(&Self::id(), writer, &::temper_nbt::NBTSerializeOptions::None);
                     }
-                    ::ionic_nbt::NBTSerializeOptions::None => {}
-                    ::ionic_nbt::NBTSerializeOptions::Flatten => {}
+                    ::temper_nbt::NBTSerializeOptions::None => {}
+                    ::temper_nbt::NBTSerializeOptions::Flatten => {}
                 }
 
                 #serialize_impl
 
-                if options != &::ionic_nbt::NBTSerializeOptions::Flatten && Self::id() == 10 {
-                    <u8 as ::ionic_nbt::NBTSerializable>::serialize(&0u8, writer, &::ionic_nbt::NBTSerializeOptions::None);
+                if options != &::temper_nbt::NBTSerializeOptions::Flatten && Self::id() == 10 {
+                    <u8 as ::temper_nbt::NBTSerializable>::serialize(&0u8, writer, &::temper_nbt::NBTSerializeOptions::None);
                 }
             }
 
-            async fn serialize_async<'a, W: ::ionic_nbt::tokio::io::AsyncWrite + ::core::marker::Unpin>(&self, writer: &mut W, options: &::ionic_nbt::NBTSerializeOptions<'a>) {
+            async fn serialize_async<'a, W: ::temper_nbt::tokio::io::AsyncWrite + ::core::marker::Unpin>(&self, writer: &mut W, options: &::temper_nbt::NBTSerializeOptions<'a>) {
                 match options {
-                    ::ionic_nbt::NBTSerializeOptions::WithHeader(name) => {
-                        <u8 as ::ionic_nbt::NBTSerializable>::serialize_async(&Self::id(), writer, &::ionic_nbt::NBTSerializeOptions::None).await;
-                        <&'a str as ::ionic_nbt::NBTSerializable>::serialize_async(&name, writer, &::ionic_nbt::NBTSerializeOptions::None).await;
+                    ::temper_nbt::NBTSerializeOptions::WithHeader(name) => {
+                        <u8 as ::temper_nbt::NBTSerializable>::serialize_async(&Self::id(), writer, &::temper_nbt::NBTSerializeOptions::None).await;
+                        <&'a str as ::temper_nbt::NBTSerializable>::serialize_async(&name, writer, &::temper_nbt::NBTSerializeOptions::None).await;
                     }
-                    ::ionic_nbt::NBTSerializeOptions::Network => {
-                        <u8 as ::ionic_nbt::NBTSerializable>::serialize_async(&Self::id(), writer, &::ionic_nbt::NBTSerializeOptions::None).await;
+                    ::temper_nbt::NBTSerializeOptions::Network => {
+                        <u8 as ::temper_nbt::NBTSerializable>::serialize_async(&Self::id(), writer, &::temper_nbt::NBTSerializeOptions::None).await;
                     }
-                    ::ionic_nbt::NBTSerializeOptions::None => {}
-                    ::ionic_nbt::NBTSerializeOptions::Flatten => {}
+                    ::temper_nbt::NBTSerializeOptions::None => {}
+                    ::temper_nbt::NBTSerializeOptions::Flatten => {}
                 }
 
                 #serialize_async_impl
 
-                if options != &::ionic_nbt::NBTSerializeOptions::Flatten && Self::id() == 10 {
-                    <u8 as ::ionic_nbt::NBTSerializable>::serialize_async(&0u8, writer, &::ionic_nbt::NBTSerializeOptions::None).await;
+                if options != &::temper_nbt::NBTSerializeOptions::Flatten && Self::id() == 10 {
+                    <u8 as ::temper_nbt::NBTSerializable>::serialize_async(&0u8, writer, &::temper_nbt::NBTSerializeOptions::None).await;
                 }
             }
 
@@ -573,7 +573,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
         impl #impl_generics #name #ty_generics #where_clause {
             pub fn serialize_with_header(&self) -> Vec<u8> {
                 let mut writer = Vec::new();
-                <#name #ty_generics as ::ionic_nbt::NBTSerializable>::serialize(self, &mut writer, &::ionic_nbt::NBTSerializeOptions::WithHeader(stringify!(#name)));
+                <#name #ty_generics as ::temper_nbt::NBTSerializable>::serialize(self, &mut writer, &::temper_nbt::NBTSerializeOptions::WithHeader(stringify!(#name)));
                 writer
             }
         }
@@ -582,9 +582,9 @@ pub fn derive(input: TokenStream) -> TokenStream {
             pub fn serialize_as_network(&self) -> Vec<u8> {
                 let mut writer = Vec::new();
 
-                <#name #ty_generics as ::ionic_nbt::NBTSerializable>::serialize(self, &mut writer, &::ionic_nbt::NBTSerializeOptions::Network);
-                /*<u8 as ::ionic_nbt::NBTSerializable>::serialize(&<Self as ::ionic_nbt::NBTSerializable>::id(), &mut writer, &::ionic_nbt::NBTSerializeOptions::None);
-                <#name #ty_generics as ::ionic_nbt::NBTSerializable>::serialize(self, &mut writer, &::ionic_nbt::NBTSerializeOptions::None);*/
+                <#name #ty_generics as ::temper_nbt::NBTSerializable>::serialize(self, &mut writer, &::temper_nbt::NBTSerializeOptions::Network);
+                /*<u8 as ::temper_nbt::NBTSerializable>::serialize(&<Self as ::temper_nbt::NBTSerializable>::id(), &mut writer, &::temper_nbt::NBTSerializeOptions::None);
+                <#name #ty_generics as ::temper_nbt::NBTSerializable>::serialize(self, &mut writer, &::temper_nbt::NBTSerializeOptions::None);*/
 
                 writer
             }

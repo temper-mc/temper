@@ -1,14 +1,12 @@
 [package]
-name = "ionic-utils"
-description = "Collection of utilities for use within FerrumC codebase."
+name = "temper-utils"
+description = "Collection of utilities for use within Temper codebase."
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 thiserror = { workspace = true }
-ionic-logging = { workspace = true }
-ionic-profiling = { workspace = true }
-ionic-config = { workspace = true }
+temper-logging = { workspace = true }
+temper-profiling = { workspace = true }
+temper-config = { workspace = true }
 bevy_math = { workspace = true }
-ionic-state = { workspace = true }
-ionic-world = { workspace = true }

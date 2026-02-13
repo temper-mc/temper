@@ -1,4 +1,4 @@
-use ionic_macros::{packet, NetDecode};
+use temper_macros::{packet, NetDecode};
 
 #[derive(NetDecode)]
 #[packet(packet_id = "set_carried_item", state = "play")]

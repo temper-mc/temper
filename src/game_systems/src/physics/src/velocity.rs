@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::Query;
 use bevy_math::Vec3A;
-use ionic_components::player::position::Position;
-use ionic_components::player::velocity::Velocity;
+use temper_components::player::position::Position;
+use temper_components::player::velocity::Velocity;
 
 pub fn handle(mut query: Query<(&Velocity, &mut Position)>) {
     for (vel, mut pos) in query.iter_mut() {
@@ -18,9 +18,9 @@ mod tests {
     use bevy_ecs::message::MessageRegistry;
     use bevy_ecs::prelude::*;
     use bevy_math::Vec3A;
-    use ionic_components::player::position::Position;
-    use ionic_components::player::velocity::Velocity;
-    use ionic_messages::entity_update::SendEntityUpdate;
+    use temper_components::player::position::Position;
+    use temper_components::player::velocity::Velocity;
+    use temper_messages::entity_update::SendEntityUpdate;
 
     #[test]
     fn test_velocity_updates_position() {

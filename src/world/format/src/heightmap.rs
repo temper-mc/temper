@@ -2,9 +2,9 @@ use crate::errors::WorldError;
 use crate::vanilla_chunk_format::VanillaHeightmaps;
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use ionic_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use ionic_codec::net_types::var_int::VarInt;
-use ionic_macros::NetEncode;
+use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
+use temper_codec::net_types::var_int::VarInt;
+use temper_macros::NetEncode;
 
 #[derive(Default, Clone, DeepSizeOf, Encode, Decode)]
 pub struct Heightmaps {
