@@ -1,10 +1,10 @@
 <div align="center">
-    <img src="https://img.shields.io/github/license/temper-mc/temper?style=for-the-badge&color=red" alt="License">
-    <img src="https://img.shields.io/github/languages/code-size/temper-mc/temper?style=for-the-badge&color=red" alt="Code Size">
-    <img src="https://www.aschey.tech/tokei/github.com/temper-mc/temper?style=for-the-badge&color=red" alt="Lines of Code">
-    <img src="https://img.shields.io/badge/language-Rust-orange?style=for-the-badge&color=red" alt="Language">
+    <img src="https://img.shields.io/github/license/temper-mc/temper?style=for-the-badge&color=4A0D67" alt="License">
+    <img src="https://img.shields.io/github/languages/code-size/temper-mc/temper?style=for-the-badge&color=8332AC" alt="Code Size">
+    <img src="https://www.aschey.tech/tokei/github.com/temper-mc/temper?style=for-the-badge&color=caa8f5" alt="Lines of Code">
+    <img src="https://img.shields.io/github/last-commit/temper-mc/temper?style=for-the-badge&color=07BEB8" alt="Last Commit">
     <a  href="https://discord.gg/6QPZgUy4sA">
-    <img alt="Discord" src="https://img.shields.io/discord/1469329170055037087?style=for-the-badge&logo=discord&logoColor=red&color=red&link=https%3A%2F%2Fdiscord.gg%2F6QPZgUy4sA">
+    <img alt="Discord" src="https://img.shields.io/discord/1469329170055037087?style=for-the-badge&logo=discord&logoColor=73EEDC&color=73EEDC&link=https%3A%2F%2Fdiscord.gg%2F6QPZgUy4sA">
     </a>
 </div>
 
@@ -72,7 +72,7 @@ instructions below to download the latest pre-compiled binary.
 4. Download the artifact for your operating system (Windows, Linux, or macOS)
 5. Follow the instructions in the `Usage` section
 
-### [Option 2] Compile from source
+### Compile from source
 
 ##### Clone and build the project.
 
@@ -101,6 +101,7 @@ help    Print this message or the help of the given subcommand(s)
 Options:
 --log <LOG>  [default: debug] [possible values: trace, debug, info, warn, error]
 -h, --help       Print help
+--no-tui         Disable the TUI (terminal user interface)
 ```
 
 1. Move the Temper binary (`temper.exe` or `temper` depending on the OS) to your desired server directory
