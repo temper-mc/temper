@@ -1,11 +1,11 @@
 use crate::{FromNbt, NBTSerializable, NBTSerializeOptions, NbtTape};
+use std::fmt::Debug;
+use std::io::{Read, Write};
+use std::ops::{Deref, DerefMut};
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
-use std::fmt::Debug;
-use std::io::{Read, Write};
-use std::ops::{Deref, DerefMut};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite};
 
 pub struct NBT<T> {
@@ -55,7 +55,7 @@ impl<T: for<'a> FromNbt<'a>> NetDecode for NBT<T> {
                     "NBT did not contain a root compound".into(),
                 ))?,
             )
-                .map_err(|_| NetDecodeError::ExternalError("NBT Parse Error".into()))?,
+            .map_err(|_| NetDecodeError::ExternalError("NBT Parse Error".into()))?,
         })
     }
 
@@ -73,7 +73,7 @@ impl<T: for<'a> FromNbt<'a>> NetDecode for NBT<T> {
                     "NBT did not contain a root compound".into(),
                 ))?,
             )
-                .map_err(|_| NetDecodeError::ExternalError("NBT Parse error".into()))?,
+            .map_err(|_| NetDecodeError::ExternalError("NBT Parse error".into()))?,
         })
     }
 }

@@ -121,11 +121,11 @@ pub fn setup_packet_handling(input: TokenStream) -> TokenStream {
                 &item_struct.attrs,
                 PacketBoundiness::Serverbound,
             )
-                .expect(
-                    "parse_packet_attribute failed\
+            .expect(
+                "parse_packet_attribute failed\
                 \nPlease provide the packet_id and state fields in the #[packet(...)] attribute.\
                 \nExample: #[packet(packet_id = \"example_packet\", state = \"handshake\")]",
-                );
+            );
 
             if state == "play" {
                 let struct_name = item_struct.ident;

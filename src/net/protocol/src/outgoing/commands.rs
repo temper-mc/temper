@@ -1,6 +1,6 @@
-use temper_commands::graph::{node::CommandNode, CommandGraph};
 use temper_codec::net_types::{length_prefixed_vec::LengthPrefixedVec, var_int::VarInt};
-use temper_macros::{packet, NetEncode};
+use temper_commands::graph::{CommandGraph, node::CommandNode};
+use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode, Debug)]
 #[packet(packet_id = "commands", state = "play")]

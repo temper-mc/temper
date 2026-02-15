@@ -1,4 +1,4 @@
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode, Copy, Clone)]
 #[packet(packet_id = "entity_event", state = "play")]

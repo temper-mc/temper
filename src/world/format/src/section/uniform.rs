@@ -1,5 +1,5 @@
-use crate::section::AIR;
 use crate::BlockStateId;
+use crate::section::AIR;
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
 

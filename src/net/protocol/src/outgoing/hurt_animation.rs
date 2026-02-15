@@ -3,7 +3,7 @@
 //! Sent to clients to play the hurt animation on an entity.
 
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 /// Packet sent to play the hurt/damage animation on an entity.
 ///

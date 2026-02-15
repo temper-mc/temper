@@ -1,5 +1,5 @@
-use temper_macros::NBTSerialize;
 use serde::{Deserialize, Serialize};
+use temper_macros::NBTSerialize;
 
 #[cfg(test)]
 mod tests;

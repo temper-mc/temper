@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::{Query, Res};
+use std::collections::HashSet;
 use temper_components::player::chunk_receiver::ChunkReceiver;
 use temper_core::pos::ChunkPos;
 use temper_state::GlobalStateResource;
-use std::collections::HashSet;
 use tracing::{error, trace};
 
 pub fn handle(state: Res<GlobalStateResource>, query: Query<&ChunkReceiver>) {

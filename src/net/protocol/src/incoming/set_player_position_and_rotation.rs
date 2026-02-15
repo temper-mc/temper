@@ -1,4 +1,4 @@
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 #[derive(NetDecode)]
 #[packet(packet_id = "move_player_pos_rot", state = "play")]

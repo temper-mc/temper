@@ -1,4 +1,4 @@
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 // The vanilla client sends this packet when the player
 // starts/stops flying with the Flags parameter changed accordingly.

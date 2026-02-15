@@ -13,8 +13,8 @@ use ratatui::prelude::{Line, Modifier, Span};
 use std::thread::sleep;
 use std::time::Duration;
 use tracing::info;
-use tui_input::backend::crossterm::EventHandler;
 use tui_input::Input;
+use tui_input::backend::crossterm::EventHandler;
 use tui_logger::{TuiWidgetEvent, TuiWidgetState};
 
 pub fn run_tui(state: GlobalState, sender: Sender<String>) {

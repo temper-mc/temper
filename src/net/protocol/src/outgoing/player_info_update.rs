@@ -4,7 +4,7 @@ use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_codec::net_types::prefixed_optional::PrefixedOptional;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::player_identity::PlayerIdentity;
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 use tracing::debug;
 
 #[derive(NetEncode)]

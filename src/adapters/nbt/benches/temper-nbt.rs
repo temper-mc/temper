@@ -1,10 +1,10 @@
 use crate::structs::{BlockState, Chunk, Palette};
 use criterion::{criterion_group, criterion_main, Criterion, Throughput};
 use fastnbt::Value;
-use temper_macros::NBTDeserialize;
 use nbt as hematite_nbt;
 use std::hint::black_box;
 use std::io::Cursor;
+use temper_macros::NBTDeserialize;
 
 mod structs {
     use super::*;
@@ -133,7 +133,9 @@ fn criterion_benchmark(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("Chunk Data NBT Parsing");
     group.throughput(Throughput::Bytes(data.len() as u64));
-    group.bench_function("temper NBT", |b| b.iter(|| bench_temper_nbt(black_box(data))));
+    group.bench_function("temper NBT", |b| {
+        b.iter(|| bench_temper_nbt(black_box(data)))
+    });
     group.bench_function("simdnbt borrow", |b| {
         b.iter(|| bench_simdnbt(black_box(data)))
     });

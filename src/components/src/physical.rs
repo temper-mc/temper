@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::Component;
 use bevy_math::bounding::Aabb3d;
-use temper_data::generated::entities::EntityType as VanillaEntityType;
 use std::ops::{Deref, DerefMut};
+use temper_data::generated::entities::EntityType as VanillaEntityType;
 
 /// Entity bounding box (collision box).
 ///

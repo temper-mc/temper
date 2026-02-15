@@ -1,5 +1,5 @@
 use temper_components::player::abilities::PlayerAbilities as PlayerAbilitiesComponent;
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "player_abilities", state = "play")]

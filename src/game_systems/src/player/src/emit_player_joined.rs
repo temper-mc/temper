@@ -24,8 +24,7 @@ pub fn emit_player_joined(
     for (entity, pending) in query.iter() {
         trace!(
             "Emitting PlayerJoined event for {} ({:?})",
-            pending.0.username,
-            entity
+            pending.0.username, entity
         );
 
         events.write(PlayerJoined {

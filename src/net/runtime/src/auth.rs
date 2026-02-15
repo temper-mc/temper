@@ -1,10 +1,10 @@
 use base64::Engine;
-use temper_components::player::player_identity::PlayerProperty;
-use temper_encryption::minecraft_hex_digest;
-use temper_protocol::errors::NetAuthenticationError;
 use serde_derive::Deserialize;
 use std::str::FromStr;
 use std::sync::Arc;
+use temper_components::player::player_identity::PlayerProperty;
+use temper_encryption::minecraft_hex_digest;
+use temper_protocol::errors::NetAuthenticationError;
 use uuid::Uuid;
 
 /// Authenticates the given player with Mojang's session server.
@@ -67,7 +67,7 @@ pub(crate) async fn authenticate_user(
                     .decode(&property.value)
                     .map_err(|err| NetAuthenticationError::ParseError(Arc::new(err)))?,
             )
-                .map_err(|err| NetAuthenticationError::ParseError(Arc::new(err)))?,
+            .map_err(|err| NetAuthenticationError::ParseError(Arc::new(err)))?,
         })
     }
 

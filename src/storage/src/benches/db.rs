@@ -1,5 +1,5 @@
-use temper_storage::lmdb::LmdbBackend;
 use std::collections::HashSet;
+use temper_storage::lmdb::LmdbBackend;
 
 fn generate_random_data(size: usize) -> Vec<u8> {
     (0..size).map(|_| rand::random::<u8>()).collect()
@@ -39,7 +39,7 @@ pub(crate) fn db_benches(c: &mut criterion::Criterion) {
                 generate_random_key(&mut used_keys),
                 generate_random_data(512),
             )
-                .unwrap();
+            .unwrap();
         })
     });
 
@@ -50,7 +50,7 @@ pub(crate) fn db_benches(c: &mut criterion::Criterion) {
                 generate_random_key(&mut used_keys),
                 generate_random_data(1024),
             )
-                .unwrap();
+            .unwrap();
         })
     });
 
@@ -61,7 +61,7 @@ pub(crate) fn db_benches(c: &mut criterion::Criterion) {
                 generate_random_key(&mut used_keys),
                 generate_random_data(4096),
             )
-                .unwrap();
+            .unwrap();
         })
     });
 

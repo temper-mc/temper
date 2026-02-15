@@ -64,7 +64,7 @@ fn test_to_string() {
             .into_text()
             .underlined()
             .on_hover_show_text("boo"))
-            .to_string()
+        .to_string()
     );
     let component = ComponentBuilder::text("This is a test!")
         .underlined()
@@ -77,22 +77,22 @@ fn test_to_string() {
             .underlined()
             .bold()
             .on_hover_show_text("boo"))
-            .to_string()
+        .to_string()
     );
     let component = ComponentBuilder::keybind("key.jump");
     assert_eq!(component.to_string(), Text::keybind("key.jump").to_string());
 }
 
-use temper_nbt::NBTSerializeOptions;
-use temper_nbt::{NBTSerializable, NBT};
+use std::fs::File;
+use std::io::{Cursor, Write};
 use temper_codec::{
     decode::{NetDecode, NetDecodeOpts},
     encode::{NetEncode, NetEncodeOpts},
     net_types::var_int::VarInt,
 };
 use temper_macros::{packet, NetEncode};
-use std::fs::File;
-use std::io::{Cursor, Write};
+use temper_nbt::NBTSerializeOptions;
+use temper_nbt::{NBTSerializable, NBT};
 
 #[derive(NetEncode)]
 #[packet(packet_id = 0x6C, state = "play")]
@@ -156,7 +156,7 @@ fn test_serialize_to_nbt() {
         &mut cursor,
         &NetEncodeOpts::WithLength,
     )
-        .unwrap();
+    .unwrap();
 
     println!("\n{}\n", bytes_to_string(&cursor.get_ref()[..]));
 

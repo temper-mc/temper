@@ -1,5 +1,5 @@
 use temper_inventories::slot::InventorySlot;
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 #[derive(NetDecode)]
 #[packet(packet_id = "set_creative_mode_slot", state = "play")]

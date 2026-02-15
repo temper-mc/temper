@@ -1,10 +1,10 @@
 mod net;
 
+use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::position::Position;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::color::Color;
 use temper_inventories::slot::InventorySlot;
-use temper_codec::net_types::var_int::VarInt;
 use temper_macros::Discriminant;
 
 #[derive(Clone, Discriminant)]

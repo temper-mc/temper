@@ -3,7 +3,7 @@
 //! Sent when a player disconnects to remove them from other players' tab lists.
 
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 /// Packet to remove players from the tab list
 #[derive(NetEncode)]

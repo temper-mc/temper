@@ -10,7 +10,7 @@ use temper_codec::net_types::var_int::VarInt;
 use temper_protocol::errors::NetError;
 
 // External compression lib (Zlib, Gzip, etc.) used to compress packet payloads
-use yazi::{compress, CompressionLevel, Format};
+use yazi::{CompressionLevel, Format, compress};
 
 // For error logging
 use temper_protocol::errors::CompressionError::GenericCompressionError;
@@ -80,13 +80,13 @@ pub fn compress_packet(
                 Format::Zlib,                // Minecraft uses Zlib format
                 CompressionLevel::BestSpeed, // Fastest compression option
             )
-                .map_err(|err| {
-                    error!("Failed to compress packet: {:?}", err);
-                    NetError::CompressionError(GenericCompressionError(format!(
-                        "Failed to compress packet: {:?}",
-                        err
-                    )))
-                })?;
+            .map_err(|err| {
+                error!("Failed to compress packet: {:?}", err);
+                NetError::CompressionError(GenericCompressionError(format!(
+                    "Failed to compress packet: {:?}",
+                    err
+                )))
+            })?;
 
             // Prepend the uncompressed size as a VarInt
             VarInt::new(uncompressed_frame.len() as i32)
@@ -118,12 +118,12 @@ mod tests {
     use crate::compression::compress_packet;
     use temper_protocol::ConnState;
 
+    use std::io::Cursor;
     use temper_codec::encode::errors::NetEncodeError;
     use temper_codec::encode::{NetEncode, NetEncodeOpts};
     use temper_codec::net_types::var_int::VarInt;
     use temper_protocol::errors::PacketError;
     use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
-    use std::io::Cursor;
 
     struct TestPacket {
         test_vi: VarInt,
@@ -203,7 +203,7 @@ mod tests {
             &NetEncodeOpts::WithLength,
             64,
         )
-            .unwrap();
+        .unwrap();
 
         let mut async_reader = Cursor::new(compressed);
 

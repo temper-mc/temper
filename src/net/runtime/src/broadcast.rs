@@ -27,7 +27,7 @@ use crate::connection::StreamWriter;
 pub fn broadcast_packet_except<'a, P, I>(sender: Entity, packet: &P, recipients: I)
 where
     P: NetEncode + Send,
-    I: Iterator<Item=(Entity, &'a StreamWriter)>,
+    I: Iterator<Item = (Entity, &'a StreamWriter)>,
 {
     for (entity, writer) in recipients {
         if entity == sender {
@@ -50,7 +50,7 @@ where
 pub fn broadcast_packet_all<'a, P, I>(packet: &P, recipients: I)
 where
     P: NetEncode + Send,
-    I: Iterator<Item=(Entity, &'a StreamWriter)>,
+    I: Iterator<Item = (Entity, &'a StreamWriter)>,
 {
     for (entity, writer) in recipients {
         if !writer.is_running() {

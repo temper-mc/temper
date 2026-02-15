@@ -1,12 +1,12 @@
 use std::{io::Write, ops::Deref};
 
-use temper_codec::encode::{errors::NetEncodeError, NetEncode, NetEncodeOpts};
+use temper_codec::encode::{NetEncode, NetEncodeOpts, errors::NetEncodeError};
 use tokio::io::AsyncWrite;
 
 use crate::{
     arg::{
-        utils::{error, parser_error}, CommandArgument,
-        ParserResult,
+        CommandArgument, ParserResult,
+        utils::{error, parser_error},
     },
     ctx::CommandContext,
 };

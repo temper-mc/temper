@@ -1,8 +1,8 @@
+use crate::ConnState;
 use crate::errors::CompressionError::{
     ChecksumMismatch, CompressedPacketTooSmall, GenericDecompressionError, MissingChecksum,
 };
 use crate::errors::PacketError;
-use crate::ConnState;
 use std::fmt::Debug;
 use std::io::Cursor;
 use temper_codec::net_types::var_int::VarInt;
@@ -11,7 +11,7 @@ use temper_macros::lookup_packet;
 use tokio::io::AsyncRead;
 use tokio::io::AsyncReadExt;
 use tracing::{debug, error, trace};
-use yazi::{decompress, Format};
+use yazi::{Format, decompress};
 
 /// Represents a minimal parsed network packet (frame) read from the client.
 ///

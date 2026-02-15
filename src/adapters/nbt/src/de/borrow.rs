@@ -1,9 +1,9 @@
 use crate::de::converter::FromNbt;
 use crate::{NBTSerializable, NBTSerializeOptions};
-use temper_general_purpose::simd::arrays;
+use std::io::Write;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
-use std::io::Write;
+use temper_general_purpose::simd::arrays;
 use tokio::io::AsyncWrite;
 
 #[repr(u8)]

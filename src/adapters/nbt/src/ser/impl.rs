@@ -1,7 +1,7 @@
 use super::{NBTSerializable, NBTSerializeOptions};
-use temper_general_purpose::simd::arrays;
 use std::collections::HashMap;
 use std::io::Write;
+use temper_general_purpose::simd::arrays;
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 use uuid::Uuid;
 

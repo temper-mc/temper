@@ -7,4 +7,5 @@ use temper_entities::markers::entity_types::Pig;
 pub fn tick_pig(
     query: Query<&Position, With<Pig>>,
     players: Query<&Position, With<PlayerIdentity>>,
-) {}
+) {
+}

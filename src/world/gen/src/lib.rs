@@ -5,9 +5,9 @@ mod interp;
 
 use crate::errors::WorldGenError;
 use crate::interp::smoothstep;
+use noise::{Fbm, MultiFractal, NoiseFn, Perlin, RidgedMulti};
 use temper_core::pos::ChunkPos;
 use temper_world_format::Chunk;
-use noise::{Fbm, MultiFractal, NoiseFn, Perlin, RidgedMulti};
 
 /// Trait for generating a biome
 ///
@@ -16,7 +16,7 @@ pub(crate) trait BiomeGenerator {
     fn _biome_id(&self) -> u8;
     fn _biome_name(&self) -> String;
     fn generate_chunk(&self, pos: ChunkPos, noise: &NoiseGenerator)
-                      -> Result<Chunk, WorldGenError>;
+    -> Result<Chunk, WorldGenError>;
 }
 
 #[derive(Clone)]

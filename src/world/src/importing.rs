@@ -1,15 +1,15 @@
 use crate::World;
 use indicatif::{ProgressBar, ProgressStyle};
+use rayon::prelude::*;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::Arc;
 use temper_anvil::load_anvil_file;
 use temper_core::pos::ChunkPos;
 use temper_threadpool::ThreadPool;
 use temper_world_format::errors::WorldError;
 use temper_world_format::vanilla_chunk_format::VanillaChunk;
 use temper_world_format::Chunk;
-use rayon::prelude::*;
-use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Arc;
 use tracing::{error, info};
 
 impl World {

@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 pub(crate) fn resolve_uuid(
     uuid: Uuid,
-    iter: impl Iterator<Item=(Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
+    iter: impl Iterator<Item = (Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
 ) -> Option<Entity> {
     for (entity, entity_id_opt, player_id_opt) in iter {
         match (player_id_opt, entity_id_opt) {

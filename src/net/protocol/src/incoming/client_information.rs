@@ -1,10 +1,10 @@
-use temper_components::player::client_information::ClientInformationComponent;
+use std::fmt::Display;
+use std::io::Read;
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetDecode};
-use std::fmt::Display;
-use std::io::Read;
+use temper_components::player::client_information::ClientInformationComponent;
+use temper_macros::{NetDecode, packet};
 use tokio::io::AsyncRead;
 use tracing::warn;
 use typename::TypeName;

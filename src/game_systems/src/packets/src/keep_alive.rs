@@ -1,9 +1,9 @@
 use bevy_ecs::prelude::Res;
 use bevy_ecs::system::Query;
+use std::time::Instant;
 use temper_components::player::keepalive::KeepAliveTracker;
 use temper_protocol::IncomingKeepAlivePacketReceiver;
 use temper_state::GlobalStateResource;
-use std::time::Instant;
 use tracing::{error, warn};
 
 pub fn handle(

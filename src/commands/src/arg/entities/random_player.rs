@@ -1,10 +1,10 @@
 use bevy_ecs::entity::Entity;
+use rand::prelude::IteratorRandom;
 use temper_components::entity_identity::EntityIdentity;
 use temper_components::player::player_identity::PlayerIdentity;
-use rand::prelude::IteratorRandom;
 
 pub(crate) fn resolve_random_player(
-    iter: impl Iterator<Item=(Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
+    iter: impl Iterator<Item = (Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
 ) -> Option<Entity> {
     let mut rng = rand::thread_rng();
     iter.filter_map(|(entity, _, player_id)| {
@@ -14,5 +14,5 @@ pub(crate) fn resolve_random_player(
             None
         }
     })
-        .choose(&mut rng)
+    .choose(&mut rng)
 }

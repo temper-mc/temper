@@ -1,7 +1,7 @@
 //! Command arguments.
 
-use temper_text::TextComponent;
 use primitive::PrimitiveArgument;
+use temper_text::TextComponent;
 
 use crate::{Suggestion, ctx::CommandContext};
 

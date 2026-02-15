@@ -4,6 +4,7 @@ mod status;
 use crate::conn_init::login::login;
 use crate::conn_init::status::status;
 use crate::connection::StreamWriter;
+use std::sync::atomic::Ordering;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::client_information::ClientInformationComponent;
@@ -17,7 +18,6 @@ use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
 use temper_protocol::outgoing::login_disconnect::LoginDisconnectPacket;
 use temper_state::GlobalState;
 use temper_text::{ComponentBuilder, NamedColor, TextComponent};
-use std::sync::atomic::Ordering;
 use tokio::net::tcp::OwnedReadHalf;
 use tracing::{error, trace};
 
@@ -73,7 +73,7 @@ pub async fn handle_handshake(
         conn_write.compress.load(Ordering::Relaxed),
         temper_protocol::ConnState::Handshake,
     )
-        .await?;
+    .await?;
 
     // Ensure the packet ID matches the expected handshake packet.
     let expected_id = lookup_packet!("handshake", "serverbound", "intention");

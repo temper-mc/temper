@@ -3,7 +3,7 @@ use temper_components::entity_identity::EntityIdentity;
 use temper_components::player::player_identity::PlayerIdentity;
 
 pub(crate) fn resolve_any_player(
-    iter: impl Iterator<Item=(Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
+    iter: impl Iterator<Item = (Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
 ) -> Vec<Entity> {
     let mut players = Vec::new();
     for (entity, _, player_id) in iter {

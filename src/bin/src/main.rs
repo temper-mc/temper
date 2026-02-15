@@ -1,9 +1,9 @@
 #![feature(try_blocks)]
 
 use clap::Parser;
+use std::time::Instant;
 use temper_app::bin_cli::args::{CLIArgs, Command};
 use temper_app::{bin_cli, bin_import, bin_runtime};
-use std::time::Instant;
 use tracing::{error, info};
 
 #[cfg(feature = "dhat")]

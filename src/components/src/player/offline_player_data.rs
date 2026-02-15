@@ -5,8 +5,8 @@ use crate::player::experience::Experience;
 use crate::player::gamemode::GameMode;
 use crate::player::gameplay_state::ender_chest::EnderChest;
 use crate::player::hunger::Hunger;
-use bitcode_derive::{Decode, Encode};
 use crate::player::rotation::Rotation;
+use bitcode_derive::{Decode, Encode};
 use temper_inventories::inventory::Inventory;
 
 #[derive(Clone, Debug, Encode, Decode, Default)]

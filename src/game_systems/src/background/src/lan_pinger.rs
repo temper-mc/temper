@@ -1,6 +1,6 @@
-use temper_config::server_config::get_global_config;
 use rand::prelude::SliceRandom;
 use std::net::{Ipv4Addr, SocketAddrV4};
+use temper_config::server_config::get_global_config;
 use tokio::net::UdpSocket;
 use tracing::error;
 

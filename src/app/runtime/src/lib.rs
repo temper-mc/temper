@@ -1,11 +1,11 @@
 mod launch;
 
 use crate::errors::BinaryError;
+use std::sync::Arc;
+use std::time::Instant;
 use temper_config::whitelist::create_whitelist;
 use temper_core::pos::ChunkPos;
 use temper_state::GlobalState;
-use std::sync::Arc;
-use std::time::Instant;
 use tracing::info;
 
 mod errors;
@@ -31,7 +31,7 @@ pub fn entry(start_time: Instant, no_tui: bool) -> Result<(), BinaryError> {
                 shutdown_handler(global_state.clone());
             }
         })
-            .expect("Error setting Ctrl-C handler");
+        .expect("Error setting Ctrl-C handler");
     }
 
     #[cfg(feature = "dashboard")]

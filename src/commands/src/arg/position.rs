@@ -133,8 +133,8 @@ impl CommandPosition {
 mod tests {
     use super::*;
     use crate::{Command, CommandInput, Sender};
-    use temper_state::create_test_state;
     use std::sync::Arc;
+    use temper_state::create_test_state;
 
     #[test]
     fn test_parse() {

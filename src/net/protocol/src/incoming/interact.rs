@@ -3,7 +3,7 @@
 //! Sent when a player interacts with another entity (attack, use, etc).
 
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 /// Interaction types for the interact packet.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, NetDecode)]

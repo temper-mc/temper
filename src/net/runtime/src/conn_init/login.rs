@@ -7,23 +7,25 @@ use temper_codec::decode::NetDecode;
 use temper_codec::encode::NetEncodeOpts;
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_codec::net_types::prefixed_optional::PrefixedOptional;
-use temper_config::server_config::{get_global_config, ServerConfig};
+use temper_config::server_config::{ServerConfig, get_global_config};
 use temper_encryption::errors::NetEncryptionError;
 use temper_encryption::get_encryption_keys;
 use temper_encryption::read::EncryptedReader;
 use temper_macros::lookup_packet;
+use temper_protocol::ConnState::*;
 use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
 use temper_protocol::outgoing::login_success::{LoginSuccessPacket, LoginSuccessProperties};
 use temper_protocol::outgoing::set_default_spawn_position::DEFAULT_SPAWN_POSITION;
 use temper_protocol::outgoing::{commands::CommandsPacket, registry_data::REGISTRY_PACKETS};
-use temper_protocol::ConnState::*;
 use temper_state::GlobalState;
 
+use rand::RngCore;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::player_identity::{PlayerIdentity, PlayerProperty};
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
 use temper_core::pos::ChunkPos;
+use temper_protocol::ConnState;
 use temper_protocol::errors::{NetAuthenticationError, NetError, PacketError};
 use temper_protocol::incoming::ack_finish_configuration::AckFinishConfigurationPacket;
 use temper_protocol::incoming::client_information::ClientInformation;
@@ -45,8 +47,6 @@ use temper_protocol::outgoing::player_info_update::PlayerInfoUpdatePacket;
 use temper_protocol::outgoing::set_center_chunk::SetCenterChunk;
 use temper_protocol::outgoing::set_compression::SetCompressionPacket;
 use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
-use temper_protocol::ConnState;
-use rand::RngCore;
 use tokio::net::tcp::OwnedReadHalf;
 use tracing::{debug, error, trace};
 use uuid::Uuid;
@@ -552,7 +552,7 @@ pub(super) async fn login(
         &player_properties,
         compressed,
     )
-        .await?;
+    .await?;
 
     // Phase 2: Configuration
     let client_info = receive_client_information(conn_read, compressed).await?;

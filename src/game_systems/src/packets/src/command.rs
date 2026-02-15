@@ -1,7 +1,8 @@
 use bevy_ecs::prelude::*;
 use temper_commands::{
-    messages::{CommandDispatched, ResolvedCommandDispatched}, resolve,
     Sender,
+    messages::{CommandDispatched, ResolvedCommandDispatched},
+    resolve,
 };
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_core::mq;

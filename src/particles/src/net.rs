@@ -1,9 +1,9 @@
 use crate::{ParticleType, VibrationSource};
+use std::io::Write;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
-use std::io::Write;
 use ParticleType::*;
 
 impl NetEncode for ParticleType {

@@ -2,7 +2,7 @@ use temper_codec::net_types::angle::NetAngle;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::rotation::Rotation;
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode, Clone)]
 #[packet(packet_id = "move_entity_rot", state = "play")]

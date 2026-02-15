@@ -1,5 +1,5 @@
-use temper_macros::setup_packet_handling;
 use std::fmt::Display;
+use temper_macros::setup_packet_handling;
 
 use bevy_ecs::prelude::*;
 use std::sync::Arc;

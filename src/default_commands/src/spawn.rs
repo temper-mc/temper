@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::MessageWriter;
 use bimap::BiMap;
+use lazy_static::lazy_static;
 use temper_commands::{
     arg::{primitive::PrimitiveArgument, utils::parser_error, CommandArgument, ParserResult},
     CommandContext, Sender, Suggestion,
@@ -7,7 +8,6 @@ use temper_commands::{
 use temper_macros::command;
 use temper_messages::{EntityType, SpawnEntityCommand};
 use temper_text::TextComponent;
-use lazy_static::lazy_static;
 
 /// Wrapper type for EntityType that implements CommandArgument
 #[derive(Debug, Clone, Copy)]

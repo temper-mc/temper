@@ -1,8 +1,8 @@
 use bitcode_derive::{Decode, Encode};
-use temper_macros::{NBTDeserialize, NBTSerialize};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::fmt::Display;
+use temper_macros::{NBTDeserialize, NBTSerialize};
 
 /// Information about a block's name and properties.
 ///

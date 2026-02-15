@@ -1,12 +1,12 @@
+use crate::Chunk;
 use crate::heightmap::{Heightmaps, NetworkHeightmap};
 use crate::section::network::NetworkSection;
-use crate::Chunk;
+use std::io::Cursor;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_codec::net_types::byte_array::ByteArray;
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_macros::NetEncode;
-use std::io::Cursor;
 
 #[derive(NetEncode)]
 pub struct NetworkChunk {

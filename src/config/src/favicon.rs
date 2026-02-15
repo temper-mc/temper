@@ -1,8 +1,8 @@
 use base64::Engine;
-use temper_general_purpose::paths::get_root_path;
 use lazy_static::lazy_static;
 use std::fs::File;
 use std::io::Read;
+use temper_general_purpose::paths::get_root_path;
 
 const BAKED_FAVICON: &[u8] = include_bytes!("../../../assets/data/icon-64.png");
 

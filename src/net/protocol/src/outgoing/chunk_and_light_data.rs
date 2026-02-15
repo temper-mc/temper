@@ -2,10 +2,10 @@ use crate::errors::NetError;
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::pos::ChunkPos;
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
+use temper_world_format::Chunk;
 use temper_world_format::light::network::NetworkLightData;
 use temper_world_format::network::NetworkChunk;
-use temper_world_format::Chunk;
 
 #[derive(NetEncode)]
 pub struct BlockEntity {

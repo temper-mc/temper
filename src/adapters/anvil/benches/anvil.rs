@@ -1,10 +1,10 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use fastanvil::Region;
-use temper_anvil::load_anvil_file;
 use rayon::prelude::*;
 use std::fs::File;
 use std::hint::black_box;
 use std::path::PathBuf;
+use temper_anvil::load_anvil_file;
 
 fn criterion_benchmark(c: &mut Criterion) {
     let mut read_all_group = c.benchmark_group("Read All");

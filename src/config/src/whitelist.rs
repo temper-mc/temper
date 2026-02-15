@@ -1,6 +1,5 @@
 use crate::errors::ConfigError;
 use dashmap::DashSet;
-use temper_general_purpose::paths::get_root_path;
 use once_cell::sync::OnceCell;
 use rayon::prelude::*;
 use serde_derive::Deserialize;
@@ -8,6 +7,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 use std::io::Write;
+use temper_general_purpose::paths::get_root_path;
 use tracing::error;
 use uuid::Uuid;
 

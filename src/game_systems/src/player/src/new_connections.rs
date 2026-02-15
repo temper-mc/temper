@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::{Commands, Res};
+use std::time::Instant;
 use temper_components::player::chunk_receiver::ChunkReceiver;
 use temper_components::player::grounded::OnGround;
 use temper_components::player::keepalive::KeepAliveTracker;
@@ -12,7 +13,6 @@ use temper_inventories::hotbar::Hotbar;
 use temper_net_runtime::connection::DisconnectHandle;
 use temper_resources::new_conn::NewConnectionRecv;
 use temper_state::GlobalStateResource;
-use std::time::Instant;
 use tracing::{error, info};
 
 pub fn accept_new_connections(

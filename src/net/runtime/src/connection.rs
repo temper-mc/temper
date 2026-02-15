@@ -2,30 +2,30 @@ use crate::compression::compress_packet;
 use crate::conn_init::handle_handshake;
 use bevy_ecs::prelude::{Component, Entity};
 use crossbeam_channel::Sender;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
 use temper_codec::encode::NetEncode;
 use temper_codec::encode::NetEncodeOpts;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_encryption::read::EncryptedReader;
 use temper_encryption::write::EncryptedWriter;
+use temper_protocol::ConnState::Play;
 use temper_protocol::errors::CompressionError::GenericCompressionError;
 use temper_protocol::errors::NetError::HandshakeTimeout;
 use temper_protocol::errors::PacketError::InvalidPacket;
 use temper_protocol::errors::{NetError, PacketError};
 use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
-use temper_protocol::ConnState::Play;
-use temper_protocol::{handle_packet, PacketSender};
+use temper_protocol::{PacketSender, handle_packet};
 use temper_state::ServerState;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
 use tokio::io::AsyncWriteExt;
-use tokio::net::tcp::OwnedWriteHalf;
 use tokio::net::TcpStream;
+use tokio::net::tcp::OwnedWriteHalf;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::sync::oneshot;
 use tokio::time::timeout;
-use tracing::{debug, debug_span, error, trace, warn, Instrument};
+use tracing::{Instrument, debug, debug_span, error, trace, warn};
 
 /// The maximum time allowed for a client to complete its initial handshake.
 /// Connections exceeding this duration will be dropped to avoid resource hogging.
@@ -160,13 +160,13 @@ impl StreamWriter {
             net_encode_opts,
             512,
         )
-            .map_err(|err| {
-                error!("Failed to compress packet: {:?}", err);
-                NetError::CompressionError(GenericCompressionError(format!(
-                    "Failed to compress packet: {:?}",
-                    err
-                )))
-            })?;
+        .map_err(|err| {
+            error!("Failed to compress packet: {:?}", err);
+            NetError::CompressionError(GenericCompressionError(format!(
+                "Failed to compress packet: {:?}",
+                err
+            )))
+        })?;
 
         self.sender
             .send(WriterCommand::SendPacket(raw_bytes))
@@ -187,13 +187,13 @@ impl StreamWriter {
             &NetEncodeOpts::WithLength,
             512,
         )
-            .map_err(|err| {
-                error!("Failed to compress packet: {:?}", err);
-                NetError::CompressionError(GenericCompressionError(format!(
-                    "Failed to compress packet: {:?}",
-                    err
-                )))
-            })?;
+        .map_err(|err| {
+            error!("Failed to compress packet: {:?}", err);
+            NetError::CompressionError(GenericCompressionError(format!(
+                "Failed to compress packet: {:?}",
+                err
+            )))
+        })?;
 
         Ok(raw_bytes)
     }
@@ -279,13 +279,13 @@ pub async fn handle_connection(
         state.clone(),
         entity_holder.clone(),
     )
-        .await;
+    .await;
 
     let handshake_result = timeout(
         MAX_HANDSHAKE_TIMEOUT,
         handle_handshake(&mut tcp_reader, &stream, state.clone()),
     )
-        .await;
+    .await;
 
     let login_result = match handshake_result {
         // Handshake completed within timeout
@@ -413,8 +413,8 @@ pub async fn handle_connection(
             &mut packet_skele.data,
             packet_sender.clone(),
         )
-            .instrument(debug_span!("eid", %entity))
-            .into_inner()
+        .instrument(debug_span!("eid", %entity))
+        .into_inner()
         {
             Ok(()) => {
                 trace!(

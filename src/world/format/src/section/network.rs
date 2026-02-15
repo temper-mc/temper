@@ -2,7 +2,7 @@ use crate::section::biome::BiomeData;
 use crate::section::direct::DirectSection;
 use crate::section::paletted::PalettedSection;
 use crate::section::uniform::UniformSection;
-use crate::section::{ChunkSection, ChunkSectionType, CHUNK_SECTION_LENGTH};
+use crate::section::{CHUNK_SECTION_LENGTH, ChunkSection, ChunkSectionType};
 use temper_codec::net_types::net_array::NetworkArray;
 use temper_codec::net_types::var_int::VarInt;
 use temper_macros::NetEncode;

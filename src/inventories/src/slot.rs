@@ -1,12 +1,12 @@
 use crate::item::ItemID;
 use bitcode_derive::{Decode, Encode};
+use std::fmt::Display;
+use std::io::{Read, Write};
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_codec::net_types::var_int::VarInt;
-use std::fmt::Display;
-use std::io::{Read, Write};
 use tokio::io::{AsyncRead, AsyncWrite};
 
 #[derive(Debug, Clone, Hash, Default, PartialEq, Decode, Encode)]
@@ -160,9 +160,9 @@ impl NetEncode for InventorySlot {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
     use temper_codec::encode::NetEncodeOpts;
     use temper_codec::net_types::var_int::VarInt;
-    use std::io::Cursor;
 
     // This helper function runs the encode/decode cycle
     fn run_roundtrip_test(slot_in: &InventorySlot) -> InventorySlot {

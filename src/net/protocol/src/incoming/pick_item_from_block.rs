@@ -1,5 +1,5 @@
 use temper_codec::net_types::network_position::NetworkPosition;
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 /// Client-to-Server packet to request a "pick block" action.
 #[derive(NetDecode, Debug)]

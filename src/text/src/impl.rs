@@ -1,9 +1,9 @@
 use crate::*;
-use temper_nbt::{NBTSerializable, NBTSerializeOptions};
 use paste::paste;
 use std::fmt;
 use std::ops::Add;
 use std::str::FromStr;
+use temper_nbt::{NBTSerializable, NBTSerializeOptions};
 
 impl From<String> for TextComponent {
     fn from(value: String) -> Self {

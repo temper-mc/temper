@@ -1,8 +1,8 @@
-use crate::{infrastructure, Command, CommandContext, CommandInput, Sender};
+use crate::{Command, CommandContext, CommandInput, Sender, infrastructure};
 use bevy_ecs::error;
+use std::sync::Arc;
 use temper_state::GlobalState;
 use temper_text::{NamedColor, TextComponent, TextComponentBuilder};
-use std::sync::Arc;
 
 pub fn resolve(
     input: String,

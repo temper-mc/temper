@@ -1,8 +1,8 @@
 use crate::section::AIR;
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use temper_core::block_state_id::BlockStateId;
 use std::num::NonZeroU16;
+use temper_core::block_state_id::BlockStateId;
 
 pub type PaletteIndex = u16;
 
@@ -71,14 +71,15 @@ impl BlockPalette {
         // First, check if the id already exists within the palette
         for (idx, val) in self.palette.iter_mut().enumerate() {
             if let Some((block_id, count)) = val
-                && *block_id == id {
+                && *block_id == id
+            {
                 *count = NonZeroU16::new(
                     count
                         .get()
                         .checked_add(1)
                         .expect("count should never exceed 4096"),
                 )
-                    .expect("addition should not overflow");
+                .expect("addition should not overflow");
 
                 return if count.get() + 1 >= 4096 {
                     BlockPaletteResult::ConvertToUniform(id)

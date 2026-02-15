@@ -1,6 +1,6 @@
-use temper_config::server_config::get_global_config;
 use serde::Serialize;
 use sysinfo::System;
+use temper_config::server_config::get_global_config;
 
 /// Hardware/system information
 #[derive(Clone, Debug, Serialize)]

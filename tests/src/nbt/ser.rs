@@ -1,6 +1,6 @@
+use std::collections::HashMap;
 use temper_macros::NBTDeserialize;
 use temper_nbt::{FromNbt, NBTSerializable, NBTSerializeOptions};
-use std::collections::HashMap;
 
 #[test]
 fn basic_compound_ser() {

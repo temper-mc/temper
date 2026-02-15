@@ -6,7 +6,7 @@ use temper_components::entity_identity::EntityIdentity;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
-use temper_macros::{get_registry_entry, packet, NetEncode};
+use temper_macros::{NetEncode, get_registry_entry, packet};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "add_entity", state = "play")]

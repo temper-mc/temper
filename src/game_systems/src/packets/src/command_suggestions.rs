@@ -4,10 +4,10 @@ use bevy_ecs::prelude::*;
 use temper_codec::net_types::{
     length_prefixed_vec::LengthPrefixedVec, prefixed_optional::PrefixedOptional, var_int::VarInt,
 };
-use temper_commands::{Command, CommandContext, CommandInput, Sender, ROOT_COMMAND};
+use temper_commands::{Command, CommandContext, CommandInput, ROOT_COMMAND, Sender};
 use temper_net_runtime::connection::StreamWriter;
-use temper_protocol::outgoing::command_suggestions::{CommandSuggestionsPacket, Match};
 use temper_protocol::CommandSuggestionRequestReceiver;
+use temper_protocol::outgoing::command_suggestions::{CommandSuggestionsPacket, Match};
 use temper_state::{GlobalState, GlobalStateResource};
 use tracing::error;
 

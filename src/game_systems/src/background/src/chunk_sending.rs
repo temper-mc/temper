@@ -1,5 +1,7 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
 use bevy_math::{IVec2, IVec3};
+use std::cmp::max;
+use std::sync::atomic::Ordering;
 use temper_codec::encode::NetEncodeOpts;
 use temper_components::player::chunk_receiver::ChunkReceiver;
 use temper_components::player::client_information::ClientInformationComponent;
@@ -13,8 +15,6 @@ use temper_protocol::outgoing::chunk_batch_finish::ChunkBatchFinish;
 use temper_protocol::outgoing::chunk_batch_start::ChunkBatchStart;
 use temper_protocol::outgoing::set_center_chunk::SetCenterChunk;
 use temper_state::GlobalStateResource;
-use std::cmp::max;
-use std::sync::atomic::Ordering;
 
 // Just take the needed chunks from the ChunkReceiver and send them
 // calculating which chunks are required is figured out elsewhere
@@ -90,7 +90,7 @@ pub fn handle(
             x: center_chunk.x.into(),
             z: center_chunk.z.into(),
         })
-            .expect("Failed to send SetCenterChunk");
+        .expect("Failed to send SetCenterChunk");
 
         for coordinates in needed_chunks
             .into_iter()
@@ -129,7 +129,7 @@ pub fn handle(
                         &NetEncodeOpts::WithLength,
                         get_global_config().network_compression_threshold as usize,
                     )
-                        .expect("Failed to compress ChunkAndLightData packet")
+                    .expect("Failed to compress ChunkAndLightData packet")
                 }
             });
         }
@@ -143,7 +143,7 @@ pub fn handle(
         conn.send_packet(ChunkBatchFinish {
             batch_size: packets_len.into(),
         })
-            .expect("Failed to send ChunkBatchFinish");
+        .expect("Failed to send ChunkBatchFinish");
 
         // Tell the client to unload chunks that are no longer needed
 

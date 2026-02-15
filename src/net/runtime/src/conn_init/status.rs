@@ -1,5 +1,6 @@
 use crate::conn_init::LoginResult;
 use crate::connection::StreamWriter;
+use rand::prelude::SliceRandom;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_config::favicon::get_favicon_base64;
 use temper_config::server_config::get_global_config;
@@ -13,7 +14,6 @@ use temper_protocol::incoming::status_request::StatusRequestPacket;
 use temper_protocol::outgoing::ping_response::PongPacket;
 use temper_protocol::outgoing::status_response::StatusResponse;
 use temper_state::GlobalState;
-use rand::prelude::SliceRandom;
 use tokio::net::tcp::OwnedReadHalf;
 use tracing::warn;
 

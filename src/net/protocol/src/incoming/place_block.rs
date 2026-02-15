@@ -1,6 +1,6 @@
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 #[derive(NetDecode, Debug)]
 #[packet(packet_id = "use_item_on", state = "play")]

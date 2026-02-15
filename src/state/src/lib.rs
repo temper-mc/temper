@@ -2,11 +2,11 @@ pub mod player_list;
 
 use crate::player_list::PlayerList;
 use bevy_ecs::prelude::Resource;
-use temper_threadpool::ThreadPool;
-use temper_world::World;
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::Instant;
+use temper_threadpool::ThreadPool;
+use temper_world::World;
 use tempfile::TempDir;
 
 pub struct ServerState {

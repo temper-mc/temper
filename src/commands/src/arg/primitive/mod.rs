@@ -13,13 +13,13 @@ use std::io::Write;
 use enum_ordinalize::Ordinalize;
 use float::FloatArgumentFlags;
 use int::IntArgumentFlags;
+use long::LongArgumentFlags;
+use string::StringArgumentType;
 use temper_codec::{
-    encode::{errors::NetEncodeError, NetEncode, NetEncodeOpts},
+    encode::{NetEncode, NetEncodeOpts, errors::NetEncodeError},
     net_types::var_int::VarInt,
 };
 use temper_macros::NetEncode;
-use long::LongArgumentFlags;
-use string::StringArgumentType;
 use tokio::io::AsyncWrite;
 
 pub mod bool;

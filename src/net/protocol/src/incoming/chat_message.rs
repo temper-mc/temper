@@ -1,5 +1,5 @@
 use temper_codec::net_types::{prefixed_optional::PrefixedOptional, var_int::VarInt};
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 #[derive(NetDecode)]
 #[packet(packet_id = "chat", state = "play")]

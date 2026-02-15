@@ -27,8 +27,7 @@ pub fn handle(
 
             trace!(
                 "Notified {} that {} joined",
-                receiver_identity.username,
-                player_who_joined.username
+                receiver_identity.username, player_who_joined.username
             );
         }
     }

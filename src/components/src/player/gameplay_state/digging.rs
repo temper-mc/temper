@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::Component;
-use temper_codec::net_types::network_position::NetworkPosition;
 use std::time::{Duration, Instant};
+use temper_codec::net_types::network_position::NetworkPosition;
 
 /// An "action component" added to a player when they start digging.
 #[derive(Component, Debug, Clone)]

@@ -1,10 +1,10 @@
 use crate::ConnState;
+use std::error::Error;
+use std::sync::Arc;
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_config::server_config::get_global_config;
 use temper_world_format::errors::WorldError;
-use std::error::Error;
-use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -138,11 +138,12 @@ impl From<std::io::Error> for NetError {
 
 impl From<temper_codec::net_types::NetTypesError> for NetError {
     fn from(err: temper_codec::net_types::NetTypesError) -> Self {
-        use temper_codec::net_types::NetTypesError;
         use std::io::ErrorKind;
+        use temper_codec::net_types::NetTypesError;
 
         if let NetTypesError::Io(io_err) = &err
-            && io_err.kind() == ErrorKind::UnexpectedEof {
+            && io_err.kind() == ErrorKind::UnexpectedEof
+        {
             return NetError::ConnectionDropped;
         }
         NetError::TypesError(err)

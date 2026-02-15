@@ -196,8 +196,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use temper_macros::profile;
     use std::thread;
+    use temper_macros::profile;
     use thread::sleep;
     use tracing::Level;
     use tracing_subscriber::layer::SubscriberExt;

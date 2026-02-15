@@ -1,6 +1,6 @@
 use criterion::{Criterion, criterion_group, criterion_main};
-use temper_threadpool::ThreadPool;
 use std::time::Duration;
+use temper_threadpool::ThreadPool;
 
 fn bench(c: &mut Criterion) {
     let pool = ThreadPool::new();

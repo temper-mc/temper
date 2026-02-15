@@ -1,7 +1,7 @@
+use temper_codec::net_types::adhoc_id::AdHocID;
+use temper_macros::{NBTSerialize, NetEncode, packet};
 use temper_nbt::NBT;
 use temper_text::TextComponent;
-use temper_codec::net_types::adhoc_id::AdHocID;
-use temper_macros::{packet, NBTSerialize, NetEncode};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "show_dialog", state = "play")]

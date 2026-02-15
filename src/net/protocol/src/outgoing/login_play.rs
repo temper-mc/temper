@@ -1,7 +1,7 @@
-use temper_config::server_config::get_global_config;
 use temper_codec::net_types::net_array::NetworkArray;
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetEncode};
+use temper_config::server_config::get_global_config;
+use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "login", state = "play")]

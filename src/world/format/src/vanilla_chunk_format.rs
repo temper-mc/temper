@@ -1,9 +1,9 @@
 use bitcode::{Decode, Encode};
+use macro_rules_attribute::{apply, attribute_alias};
+use serde_derive::{Deserialize, Serialize};
 use temper_core::block_data::BlockData;
 use temper_macros::NBTDeserialize;
 use temper_macros::NBTSerialize;
-use macro_rules_attribute::{apply, attribute_alias};
-use serde_derive::{Deserialize, Serialize};
 
 attribute_alias! {
     #[apply(ChunkDerives)] = #[derive(NBTSerialize, NBTDeserialize,

@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
+use std::time::Duration;
 use temper_components::player::keepalive::KeepAliveTracker;
 use temper_net_runtime::connection::StreamWriter;
 use temper_state::GlobalStateResource;
-use std::time::Duration;
 use tracing::warn;
 
 pub fn keep_alive_system(

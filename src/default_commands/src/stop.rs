@@ -1,8 +1,8 @@
 use bevy_ecs::prelude::Res;
+use std::sync::atomic::Ordering::Relaxed;
 use temper_commands::Sender;
 use temper_macros::command;
 use temper_state::GlobalStateResource;
-use std::sync::atomic::Ordering::Relaxed;
 use tracing::info;
 
 #[command("stop")]

@@ -1,4 +1,4 @@
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "set_time", state = "play")]

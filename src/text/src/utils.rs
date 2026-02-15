@@ -1,6 +1,6 @@
 use crate::*;
-use temper_macros::NBTSerialize;
 use serde::{Deserialize, Serialize};
+use temper_macros::NBTSerialize;
 
 #[macro_export]
 macro_rules! make_bool_setters {

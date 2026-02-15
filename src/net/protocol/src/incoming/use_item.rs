@@ -4,7 +4,7 @@
 //! This is used for eating food, throwing projectiles, etc.
 
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 /// Which hand is being used for an action.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, NetDecode)]

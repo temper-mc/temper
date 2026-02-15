@@ -1,5 +1,5 @@
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "select_known_packs", state = "configuration")]

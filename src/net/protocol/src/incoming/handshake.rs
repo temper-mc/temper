@@ -1,5 +1,5 @@
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetDecode};
+use temper_macros::{NetDecode, packet};
 
 #[derive(NetDecode, Debug)]
 #[packet(packet_id = "intention", state = "handshake")]
@@ -12,10 +12,10 @@ pub struct Handshake {
 
 #[cfg(test)]
 mod tests {
+    use std::io::Cursor;
     use temper_codec::decode::{NetDecode, NetDecodeOpts};
     use temper_codec::net_types::var_int::VarInt;
     use temper_macros::NetDecode;
-    use std::io::Cursor;
 
     #[test]
     fn test_macro_decode() {

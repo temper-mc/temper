@@ -9,8 +9,8 @@ use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::sneak::SneakState;
 use temper_net_runtime::broadcast::broadcast_packet_except;
 use temper_net_runtime::connection::StreamWriter;
-use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use temper_protocol::PlayerInputReceiver;
+use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use tracing::{debug, warn};
 
 /// PlayerInput flags (1.21.x protocol)

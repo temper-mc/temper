@@ -1,8 +1,8 @@
 use crate::server_config::DEFAULT_CONFIG;
 use crate::whitelist::create_blank_whitelist_file;
-use temper_general_purpose::paths::get_root_path;
 use std::fs::File;
 use std::io::Write;
+use temper_general_purpose::paths::get_root_path;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

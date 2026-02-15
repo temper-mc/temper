@@ -1,4 +1,4 @@
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 use temper_text::TextComponent;
 
 #[derive(NetEncode, Debug, Clone)]

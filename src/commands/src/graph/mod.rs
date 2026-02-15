@@ -3,9 +3,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use node::{CommandNode, CommandNodeFlag, CommandNodeType};
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_codec::net_types::var_int::VarInt;
-use node::{CommandNode, CommandNodeFlag, CommandNodeType};
 
 use crate::Command;
 
@@ -68,7 +68,7 @@ impl CommandGraph {
 
             if is_last
                 && (command.args.is_empty()
-                || command.args.first().is_some_and(|arg| !arg.required))
+                    || command.args.first().is_some_and(|arg| !arg.required))
             {
                 node.flags |= CommandNodeFlag::Executable.bitmask();
             }

@@ -1,8 +1,8 @@
 use bitcode::{Decode, Encode};
+use lazy_static::lazy_static;
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_codec::net_types::prefixed_optional::PrefixedOptional;
-use temper_macros::{build_registry_packets, packet, NetEncode};
-use lazy_static::lazy_static;
+use temper_macros::{NetEncode, build_registry_packets, packet};
 
 #[derive(NetEncode)]
 #[packet(packet_id = "registry_data", state = "configuration")]
@@ -61,9 +61,9 @@ pub struct RegistryEntry {
 mod tests {
     use crate::outgoing::registry_data::RegistryEntry;
     use indexmap::IndexMap;
-    use temper_codec::net_types::prefixed_optional::PrefixedOptional;
     use serde_json::Value;
     use std::io::Write;
+    use temper_codec::net_types::prefixed_optional::PrefixedOptional;
 
     #[test]
     #[ignore]

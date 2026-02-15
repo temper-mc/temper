@@ -3,9 +3,9 @@
 //! Sent by the server to respawn a player. Changes the player's dimension,
 //! resets their position, and optionally keeps their metadata.
 
-use temper_components::player::gamemode::GameMode;
 use temper_codec::net_types::var_int::VarInt;
-use temper_macros::{packet, NetEncode};
+use temper_components::player::gamemode::GameMode;
+use temper_macros::{NetEncode, packet};
 
 /// Bit flags for what player data to keep on respawn/dimension change.
 pub mod data_kept_flags {

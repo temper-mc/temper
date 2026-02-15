@@ -54,7 +54,8 @@ pub fn handle(
             let vec = IVec2::new(loaded_chunk.0, loaded_chunk.1);
             let dx = IVec2::new(player_chunk.x(), player_chunk.z()).chebyshev_distance(vec);
             if dx > radius as u32
-                && let Some(pos) = chunk_receiver.loaded.take(&loaded_chunk) {
+                && let Some(pos) = chunk_receiver.loaded.take(&loaded_chunk)
+            {
                 chunk_receiver.unloading.push_back(pos);
             }
         }

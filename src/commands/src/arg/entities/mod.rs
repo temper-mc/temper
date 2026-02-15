@@ -106,7 +106,7 @@ impl CommandArgument for EntityArgument {
 impl EntityArgument {
     pub fn resolve(
         &self,
-        iter: impl Iterator<Item=(Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
+        iter: impl Iterator<Item = (Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
     ) -> Vec<Entity> {
         match self {
             EntityArgument::PlayerName(name) => player::resolve_player_name(name.clone(), iter)
@@ -133,10 +133,10 @@ mod tests {
     use super::*;
     use crate::{Command, CommandInput, Sender};
     use bevy_ecs::prelude::World;
+    use std::sync::Arc;
     use temper_components::entity_identity::EntityIdentity;
     use temper_components::player::player_identity::PlayerIdentity;
     use temper_state::create_test_state;
-    use std::sync::Arc;
 
     #[test]
     fn test_parse_entity_argument() {

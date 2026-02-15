@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::Component;
-use temper_inventories::item::ItemID;
 use std::collections::HashMap;
 use std::time::Instant;
+use temper_inventories::item::ItemID;
 
 /// Tracks item cooldowns (e.g., Ender Pearl).
 #[derive(Component, Debug, Clone, Default)]

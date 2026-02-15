@@ -2,8 +2,8 @@ use bevy_ecs::prelude::{Entity, Query, Res};
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_net_runtime::connection::StreamWriter;
-use temper_protocol::outgoing::entity_animation::EntityAnimationPacket;
 use temper_protocol::SwingArmPacketReceiver;
+use temper_protocol::outgoing::entity_animation::EntityAnimationPacket;
 use temper_state::GlobalStateResource;
 use tracing::error;
 

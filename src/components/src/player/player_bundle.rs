@@ -1,3 +1,8 @@
+use crate::player::chunk_receiver::ChunkReceiver;
+use crate::player::grounded::OnGround;
+use crate::player::player_identity::PlayerIdentity;
+use crate::player::position::Position;
+use crate::player::rotation::Rotation;
 use crate::{
     active_effects::ActiveEffects,
     health::Health,
@@ -9,11 +14,6 @@ use crate::{
 };
 use bevy_ecs::prelude::Bundle;
 use temper_inventories::{hotbar::Hotbar, inventory::Inventory};
-use crate::player::chunk_receiver::ChunkReceiver;
-use crate::player::grounded::OnGround;
-use crate::player::player_identity::PlayerIdentity;
-use crate::player::position::Position;
-use crate::player::rotation::Rotation;
 
 /// A Bevy Bundle containing all components required for a player entity.
 /// This groups all 17+ components into a single, spawnable unit.

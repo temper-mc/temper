@@ -1,9 +1,9 @@
 use criterion::{Criterion, Throughput};
+use rand::Rng;
+use std::hint::black_box;
 use temper_core::block_state_id::BlockStateId;
 use temper_macros::block;
 use temper_world_format::Chunk;
-use rand::Rng;
-use std::hint::black_box;
 
 fn get_rand_in_range(min: i32, max: i32) -> i32 {
     let mut rng = rand::thread_rng();

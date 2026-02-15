@@ -1,9 +1,9 @@
 pub mod errors;
 pub mod tui_formatter;
 
+use log::LevelFilter::Debug;
 use temper_general_purpose::paths::get_root_path;
 use temper_profiling::ProfilerTracingLayer;
-use log::LevelFilter::Debug;
 use tracing::Level;
 use tracing_appender::rolling::Rotation;
 use tracing_subscriber::layer::SubscriberExt;

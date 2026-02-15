@@ -1,10 +1,10 @@
 use crate::player::abilities::PlayerAbilities;
 use bevy_ecs::prelude::Component;
 use bitcode_derive::{Decode, Encode};
-use temper_config::server_config::get_global_config;
+use std::io::Write;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
-use std::io::Write;
+use temper_config::server_config::get_global_config;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Decode, Encode)]
 #[repr(u8)]

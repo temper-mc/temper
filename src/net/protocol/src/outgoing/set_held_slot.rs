@@ -1,4 +1,4 @@
-use temper_macros::{packet, NetEncode};
+use temper_macros::{NetEncode, packet};
 
 /// Server-to-Client packet to set the player's selected hotbar slot.
 #[derive(NetEncode, Copy, Clone)]

@@ -33,8 +33,7 @@ pub fn handle(
 
             trace!(
                 "Notified {} that {} left",
-                receiver_identity.username,
-                player_who_left.username
+                receiver_identity.username, player_who_left.username
             );
         }
     }

@@ -2,11 +2,11 @@ use crate::block_data::BlockData;
 use ahash::RandomState;
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
-use temper_codec::net_types::var_int::VarInt;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::process::exit;
+use temper_codec::net_types::var_int::VarInt;
 use tracing::{error, warn};
 
 // The number of block entries in the mappings file

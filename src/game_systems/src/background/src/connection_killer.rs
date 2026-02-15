@@ -54,20 +54,20 @@ pub fn connection_killer(
 
         // --- 1. Try to get the "full" player ---
         if let Ok((
-                      _entity,
-                      conn,
-                      player_identity,
-                      abilities,
-                      gamemode,
-                      pos,
-                      rot,
-                      inv,
-                      health,
-                      hunger,
-                      exp,
-                      echest,
-                      effects,
-                  )) = full_player_query.get(disconnecting_entity)
+            _entity,
+            conn,
+            player_identity,
+            abilities,
+            gamemode,
+            pos,
+            rot,
+            inv,
+            health,
+            hunger,
+            exp,
+            echest,
+            effects,
+        )) = full_player_query.get(disconnecting_entity)
         {
             // --- SUCCESS: This is a fully-joined player ---
             info!(
