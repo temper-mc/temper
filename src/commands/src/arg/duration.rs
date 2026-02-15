@@ -25,7 +25,7 @@ impl CommandArgument for Duration {
             };
 
             match unit {
-                'd' => duration += Duration::from_days(value),
+                'd' => duration += Duration::from_hours(value * 24),
                 'h' => duration += Duration::from_hours(value),
                 'm' => duration += Duration::from_mins(value),
                 's' => duration += Duration::from_secs(value),

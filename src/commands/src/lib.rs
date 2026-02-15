@@ -1,6 +1,4 @@
 //! Temper's Command API.
-#![feature(duration_constructors)]
-#![feature(anonymous_lifetime_in_impl_trait)]
 
 use std::sync::{Arc, LazyLock};
 

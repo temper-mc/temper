@@ -1,5 +1,3 @@
-#![feature(try_blocks)]
-
 use clap::Parser;
 use std::time::Instant;
 use temper_app::bin_cli::args::{CLIArgs, Command};

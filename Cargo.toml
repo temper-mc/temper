@@ -7,8 +7,6 @@
 # - Workspace dependencies.
 
 
-cargo-features = ["profile-rustflags"]
-
 [workspace]
 resolver = "2"
 
@@ -287,23 +285,3 @@ dir-size = "0.1.1"
 
 [profile.dev.package.yazi]
 opt-level = 3
-
-[profile.dev.package.bevy_ecs]
-rustflags = ["-Zhint-mostly-unused"]
-
-[profile.dev.package.windows]
-rustflags = ["-Zhint-mostly-unused"]
-opt-level = 0
-
-[profile.dev.package.windows-sys]
-rustflags = ["-Zhint-mostly-unused"]
-opt-level = 0
-
-[profile.dev.package.tokio]
-rustflags = ["-Zhint-mostly-unused"]
-
-[profile.dev.package.glam]
-rustflags = ["-Zhint-mostly-unused"]
-
-[profile.dev.package.reqwest]
-rustflags = ["-Zhint-mostly-unused"]

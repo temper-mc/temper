@@ -104,9 +104,15 @@ impl CommandArgument for EntityArgument {
 }
 
 impl EntityArgument {
-    pub fn resolve(
+    pub fn resolve<'a>(
         &self,
-        iter: impl Iterator<Item = (Entity, Option<&EntityIdentity>, Option<&PlayerIdentity>)>,
+        iter: impl Iterator<
+            Item = (
+                Entity,
+                Option<&'a EntityIdentity>,
+                Option<&'a PlayerIdentity>,
+            ),
+        >,
     ) -> Vec<Entity> {
         match self {
             EntityArgument::PlayerName(name) => player::resolve_player_name(name.clone(), iter)
