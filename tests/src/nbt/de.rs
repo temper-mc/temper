@@ -3,7 +3,6 @@
 #![cfg(test)]
 
 use temper_macros::{NBTDeserialize, NBTSerialize};
-use temper_nbt::de::converter::FromNbt;
 
 #[test]
 #[ignore]

@@ -1,4 +1,3 @@
-use std::io::Write;
 use temper_codec::{encode::NetEncode, net_types::var_int::VarInt};
 use temper_macros::NetEncode;
 
