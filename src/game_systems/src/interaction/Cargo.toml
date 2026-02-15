@@ -1,0 +1,11 @@
+[package]
+name = "interaction"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy_ecs = { workspace = true }
+temper-core = { workspace = true }
+temper-messages = { workspace = true }
+temper-world = { workspace = true }
+tracing = { workspace = true }
