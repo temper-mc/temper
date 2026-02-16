@@ -3,6 +3,7 @@
 use crate::errors::BinaryError;
 use std::time::Instant;
 use temper_config::server_config::get_global_config;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_state::player_list::PlayerList;
 use temper_state::{GlobalState, ServerState};
@@ -44,7 +45,10 @@ pub fn generate_spawn_chunks(state: GlobalState) -> Result<(), BinaryError> {
 
             match chunk {
                 Ok(chunk) => {
-                    if let Err(e) = state_clone.world.insert_chunk(pos, "overworld", chunk) {
+                    if let Err(e) = state_clone
+                        .world
+                        .insert_chunk(pos, Dimension::Overworld, chunk)
+                    {
                         error!("Error saving chunk ({}, {}): {:?}", x, z, e);
                     }
                 }

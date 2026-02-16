@@ -10,6 +10,7 @@ use temper_protocol::outgoing::set_held_slot::SetHeldItem;
 use temper_state::GlobalStateResource;
 
 use temper_components::player::position::Position;
+use temper_core::dimension::Dimension;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
 use temper_protocol::PickItemFromBlockReceiver;
 use tracing::{debug, error, warn};
@@ -49,7 +50,7 @@ pub fn handle(
         let chunk = match state
             .0
             .world
-            .get_or_generate_chunk(ChunkPos::from(pos.coords), "overworld")
+            .get_or_generate_chunk(ChunkPos::from(pos.coords), Dimension::Overworld)
         {
             Ok(chunk) => chunk,
             Err(e) => {

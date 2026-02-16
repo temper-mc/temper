@@ -3,9 +3,10 @@ use bevy_math::{IVec3, Vec3A};
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
-use temper_entities::PhysicalProperties;
 use temper_entities::markers::HasWaterDrag;
+use temper_entities::PhysicalProperties;
 use temper_macros::match_block;
 use temper_state::GlobalStateResource;
 
@@ -18,7 +19,7 @@ pub fn handle(
         let chunk = state
             .0
             .world
-            .get_or_generate_mut(chunk_pos, "overworld")
+            .get_or_generate_mut(chunk_pos, Dimension::Overworld)
             .expect("Failed to load or generate chunk");
 
         // Check if the entity's center (middle of body) is in water

@@ -1,5 +1,6 @@
 use std::hash::{Hash, Hasher};
 use temper_config::server_config::get_global_config;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_storage::lmdb::LmdbBackend;
 use temper_world_format::errors::WorldError;
@@ -7,16 +8,6 @@ use temper_world_format::errors::WorldError::CorruptedChunkData;
 use temper_world_format::Chunk;
 use tracing::warn;
 use yazi::CompressionLevel;
-
-/// Represents a dimension in the world. The first three variants are the standard Minecraft
-/// dimensions, and the `Custom` variant can be used for modded dimensions or other custom implementations.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Dimension {
-    Overworld,
-    Nether,
-    End,
-    Custom(u16),
-}
 
 pub fn save_chunk_internal(
     storage: &LmdbBackend,

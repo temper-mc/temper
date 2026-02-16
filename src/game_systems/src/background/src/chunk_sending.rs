@@ -7,6 +7,7 @@ use temper_components::player::chunk_receiver::ChunkReceiver;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::position::Position;
 use temper_config::server_config::get_global_config;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_net_runtime::compression::compress_packet;
 use temper_net_runtime::connection::StreamWriter;
@@ -119,7 +120,7 @@ pub fn handle(
                     let chunk = state
                         .0
                         .world
-                        .get_or_generate_chunk(coordinates, "overworld")
+                        .get_or_generate_chunk(coordinates, Dimension::Overworld)
                         .expect("Failed to load or generate chunk");
                     let packet = ChunkAndLightData::from_chunk(coordinates, &chunk)
                         .expect("Failed to create ChunkAndLightData");

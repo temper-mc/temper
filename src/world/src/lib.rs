@@ -7,13 +7,13 @@ use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use temper_config::server_config::get_global_config;
+pub use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_general_purpose::paths::get_root_path;
 use temper_storage::lmdb::LmdbBackend;
 use temper_world_format::errors::WorldError;
 use temper_world_format::Chunk;
 use tracing::{error, warn};
-use world_db::chunks::Dimension;
 pub use world_db::*;
 pub use world_gen;
 use world_gen::WorldGenerator;
@@ -162,17 +162,19 @@ fn check_config_validity() -> Result<(), WorldError> {
 #[cfg(test)]
 mod tests {
     use crate::World;
+    use temper_core::dimension::Dimension;
     use temper_core::pos::ChunkPos;
-    use world_db::chunks::Dimension;
 
     #[test]
     #[ignore]
     fn dump_chunk() {
         let world = World::new(std::env::current_dir().unwrap().join("../../../world"), 0);
-        let chunk = world.get_chunk(ChunkPos::new(1, 1), Dimension::Overworld).expect(
-            "Failed to load chunk. If it's a bitcode error, chances are the chunk format \
+        let chunk = world
+            .get_chunk(ChunkPos::new(1, 1), Dimension::Overworld)
+            .expect(
+                "Failed to load chunk. If it's a bitcode error, chances are the chunk format \
              has changed since last generating a world so you'll need to regenerate",
-        );
+            );
         let encoded = bitcode::encode(&*chunk);
         std::fs::write("../../../.etc/raw_chunk.dat", encoded).unwrap();
     }

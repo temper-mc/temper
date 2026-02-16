@@ -3,6 +3,7 @@ use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
 use temper_entities::markers::{HasGravity, HasWaterDrag};
 use temper_macros::match_block;
@@ -33,7 +34,7 @@ pub(crate) fn handle(mut entities: EntityQuery, state: Res<GlobalStateResource>)
             let chunk = state
                 .0
                 .world
-                .get_or_generate_mut(chunk_pos, "overworld")
+                .get_or_generate_mut(chunk_pos, Dimension::Overworld)
                 .expect("Failed to load or generate chunk");
 
             let feet_pos = pos.coords.as_ivec3();
@@ -70,7 +71,7 @@ mod tests {
         let mut chunk = state
             .0
             .world
-            .get_or_generate_mut(chunk_pos, "overworld")
+            .get_or_generate_mut(chunk_pos, Dimension::Overworld)
             .expect("Failed to load or generate chunk");
 
         chunk.fill(block!("water", { level: 0 }));
