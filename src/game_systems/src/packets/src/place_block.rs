@@ -5,9 +5,9 @@ use temper_components::bounds::CollisionBounds;
 use temper_components::player::position::Position;
 use temper_core::pos::BlockPos;
 use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::PlaceBlockReceiver;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
 use temper_protocol::outgoing::block_update::BlockUpdate;
-use temper_protocol::PlaceBlockReceiver;
 use temper_state::GlobalStateResource;
 use tracing::{debug, error, trace};
 

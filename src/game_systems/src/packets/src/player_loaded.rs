@@ -5,8 +5,8 @@ use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_macros::match_block;
 use temper_net_runtime::connection::StreamWriter;
-use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
 use temper_protocol::PlayerLoadedReceiver;
+use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
 use temper_state::GlobalStateResource;
 use tracing::warn;
 
