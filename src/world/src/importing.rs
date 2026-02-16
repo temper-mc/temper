@@ -5,12 +5,13 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use temper_anvil::load_anvil_file;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_threadpool::ThreadPool;
 use temper_world_format::errors::WorldError;
 use temper_world_format::vanilla_chunk_format::VanillaChunk;
 use temper_world_format::Chunk;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 impl World {
     fn get_chunk_count(&self, import_dir: &Path) -> Result<u64, WorldError> {
@@ -92,10 +93,22 @@ impl World {
                         batch.execute({
                             let self_clone = arc_self.clone();
                             let progress = progress.clone();
+                            let dim = match vanilla_chunk.dimension.as_deref() {
+                                Some("overworld") | None => Dimension::Overworld,
+                                Some("the_nether") => Dimension::Nether,
+                                Some("the_end") => Dimension::End,
+                                Some(other) => {
+                                    warn!(
+                                        "Unknown dimension '{}' in chunk at ({}, {}). Defaulting to overworld.",
+                                        other, vanilla_chunk.x_pos, vanilla_chunk.z_pos
+                                    );
+                                    Dimension::Overworld
+                                }
+                            };
                             move || {
                                 let res = self_clone.insert_chunk(
                                     ChunkPos::new(vanilla_chunk.x_pos, vanilla_chunk.z_pos),
-                                    vanilla_chunk.dimension.as_deref().unwrap_or("overworld"),
+                                    dim,
                                     Chunk::try_from(&vanilla_chunk)?,
                                 );
                                 progress.inc(1);

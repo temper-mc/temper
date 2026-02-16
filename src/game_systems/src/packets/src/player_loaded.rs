@@ -1,6 +1,7 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
 use temper_components::player::position::Position;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_macros::match_block;
 use temper_net_runtime::connection::StreamWriter;
@@ -32,7 +33,11 @@ pub fn handle(
             player_pos.z as i32,
         );
         let chunk_pos = pos.chunk();
-        let Ok(chunk) = state.0.world.get_or_generate_chunk(chunk_pos, "overworld") else {
+        let Ok(chunk) = state
+            .0
+            .world
+            .get_or_generate_chunk(chunk_pos, Dimension::Overworld)
+        else {
             warn!(
                 "Failed to get or generate chunk for player {} at position: ({}, {}, {})",
                 player, player_pos.x, player_pos.y, player_pos.z

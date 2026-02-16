@@ -24,6 +24,7 @@ use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::player_identity::{PlayerIdentity, PlayerProperty};
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_protocol::ConnState;
 use temper_protocol::errors::{NetAuthenticationError, NetError, PacketError};
@@ -475,7 +476,7 @@ fn send_initial_chunks(
                 move || -> Result<Vec<u8>, NetError> {
                     let x = (pos.x as i32 >> 4) + rad_x;
                     let z = (pos.z as i32 >> 4) + rad_z;
-                    let chunk = state.world.get_or_generate_chunk(ChunkPos::new(x, z), "overworld").expect("Failed to load or generate chunk");
+                    let chunk = state.world.get_or_generate_chunk(ChunkPos::new(x, z), Dimension::Overworld).expect("Failed to load or generate chunk");
                     let chunk_data =
                         temper_protocol::outgoing::chunk_and_light_data::ChunkAndLightData::from_chunk(
                             ChunkPos::new(x, z),

@@ -6,6 +6,7 @@ use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
 use temper_entities::PhysicalProperties;
 use temper_entities::markers::HasCollisions;
@@ -120,7 +121,7 @@ pub fn is_solid_block(state: &GlobalState, pos: IVec3) -> bool {
     let chunk_coordinates = ChunkPos::from(pos.as_dvec3());
     let block_state = state
         .world
-        .get_or_generate_mut(chunk_coordinates, "overworld")
+        .get_or_generate_mut(chunk_coordinates, Dimension::Overworld)
         .expect("Failed to load or generate chunk")
         .get_block(ChunkBlockPos::from(pos));
 

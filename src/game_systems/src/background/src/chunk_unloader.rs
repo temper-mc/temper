@@ -1,6 +1,7 @@
 use bevy_ecs::prelude::{Query, Res};
 use std::collections::HashSet;
 use temper_components::player::chunk_receiver::ChunkReceiver;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_state::GlobalStateResource;
 use tracing::{error, trace};
@@ -17,7 +18,7 @@ pub fn handle(state: Res<GlobalStateResource>, query: Query<&ChunkReceiver>) {
                 state
                     .0
                     .world
-                    .insert_chunk(*pos, dim.as_str(), chunk.clone())
+                    .insert_chunk(*pos, *dim, chunk.clone())
                     .expect("Failed to re-insert chunk after unloading from cache.");
                 continue;
             }
@@ -55,7 +56,7 @@ pub fn handle(state: Res<GlobalStateResource>, query: Query<&ChunkReceiver>) {
             .0
             .world
             .get_cache()
-            .remove(&(*chunk_pos, "overworld".to_string()));
+            .remove(&(*chunk_pos, Dimension::Overworld));
         match removed_chunk {
             Some(((pos, dim), chunk)) => {
                 let dirty = chunk.sections.iter().any(|section| section.dirty);
@@ -63,7 +64,7 @@ pub fn handle(state: Res<GlobalStateResource>, query: Query<&ChunkReceiver>) {
                     state
                         .0
                         .world
-                        .insert_chunk(pos, dim.as_str(), chunk)
+                        .insert_chunk(pos, dim, chunk)
                         .expect("Failed to re-insert chunk after unloading from cache.");
                     written_chunks += 1;
                 }

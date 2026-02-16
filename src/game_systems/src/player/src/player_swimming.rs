@@ -5,6 +5,7 @@ use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::position::Position;
 use temper_components::player::swimming::SwimmingState;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_macros::match_block;
 use temper_net_runtime::connection::StreamWriter;
@@ -23,7 +24,10 @@ fn is_player_in_water(state: &temper_state::GlobalState, pos: &Position) -> bool
 
     let pos = BlockPos::of(eye_pos.x, eye_pos.y, eye_pos.z);
 
-    let Ok(chunk) = state.world.get_or_generate_chunk(pos.chunk(), "overworld") else {
+    let Ok(chunk) = state
+        .world
+        .get_or_generate_chunk(pos.chunk(), Dimension::Overworld)
+    else {
         error!(
             "Failed to get or generate chunk at position: {:?}",
             pos.chunk()

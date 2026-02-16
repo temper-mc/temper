@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use temper_config::server_config::get_global_config;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::mq;
 use temper_inventories::hotbar::Hotbar;
 use temper_inventories::inventory::Inventory;
@@ -114,7 +115,7 @@ pub fn handle(
                     let mut chunk = state
                         .0
                         .world
-                        .get_or_generate_mut(offset_pos.chunk(), "overworld")
+                        .get_or_generate_mut(offset_pos.chunk(), Dimension::Overworld)
                         .expect("Failed to load or generate chunk");
                     let block_clicked = chunk.get_block(offset_pos.chunk_block_pos());
                     trace!("Block clicked: {:?}", block_clicked);

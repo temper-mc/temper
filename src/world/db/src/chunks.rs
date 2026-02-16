@@ -1,5 +1,6 @@
-use std::hash::Hasher;
+use std::hash::{Hash, Hasher};
 use temper_config::server_config::get_global_config;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_storage::lmdb::LmdbBackend;
 use temper_world_format::Chunk;
@@ -11,7 +12,7 @@ use yazi::CompressionLevel;
 pub fn save_chunk_internal(
     storage: &LmdbBackend,
     pos: ChunkPos,
-    dimension: &str,
+    dimension: Dimension,
     chunk: &Chunk,
 ) -> Result<(), WorldError> {
     if !storage.table_exists("chunks".to_string())? {
@@ -30,7 +31,7 @@ pub fn save_chunk_internal(
 pub fn load_chunk_internal(
     storage: &LmdbBackend,
     pos: ChunkPos,
-    dimension: &str,
+    dimension: Dimension,
 ) -> Result<Chunk, WorldError> {
     let digest = create_key(dimension, pos);
     match storage.get("chunks".to_string(), digest)? {
@@ -56,7 +57,7 @@ pub fn load_chunk_internal(
 
 pub fn load_chunk_batch_internal(
     storage: &LmdbBackend,
-    coords: &[(ChunkPos, &str)],
+    coords: &[(ChunkPos, Dimension)],
 ) -> Result<Vec<Chunk>, WorldError> {
     let digests = coords
         .iter()
@@ -90,7 +91,7 @@ pub fn load_chunk_batch_internal(
 pub fn chunk_exists_internal(
     storage: &LmdbBackend,
     pos: ChunkPos,
-    dimension: &str,
+    dimension: Dimension,
 ) -> Result<bool, WorldError> {
     if !storage.table_exists("chunks".to_string())? {
         return Ok(false);
@@ -102,7 +103,7 @@ pub fn chunk_exists_internal(
 pub fn delete_chunk_internal(
     storage: &LmdbBackend,
     pos: ChunkPos,
-    dimension: &str,
+    dimension: Dimension,
 ) -> Result<(), WorldError> {
     let digest = create_key(dimension, pos);
     storage.delete("chunks".to_string(), digest)?;
@@ -114,10 +115,9 @@ pub fn sync_internal(storage: &LmdbBackend) -> Result<(), WorldError> {
     Ok(())
 }
 
-fn create_key(dimension: &str, pos: ChunkPos) -> u128 {
+fn create_key(dimension: Dimension, pos: ChunkPos) -> u128 {
     let mut hasher = wyhash::WyHash::with_seed(0);
-    hasher.write(dimension.as_bytes());
-    hasher.write_u8(0xFF);
+    dimension.hash(&mut hasher);
     let dim_hash = hasher.finish();
     (dim_hash as u128) << 96 | pos.pack() as u128
 }

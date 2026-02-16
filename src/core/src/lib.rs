@@ -4,5 +4,6 @@ pub mod errors;
 pub mod block_data;
 pub mod block_state_id;
 pub mod color;
+pub mod dimension;
 pub mod mq;
 pub mod pos;

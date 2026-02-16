@@ -7,6 +7,7 @@ use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 use temper_config::server_config::get_global_config;
+pub use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_general_purpose::paths::get_root_path;
 use temper_storage::lmdb::LmdbBackend;
@@ -65,7 +66,7 @@ impl World {
     pub fn get_or_generate_chunk<'a>(
         &'a self,
         chunk_pos: ChunkPos,
-        dimension: &'a str,
+        dimension: Dimension,
     ) -> Result<RefChunk<'a>, WorldError> {
         if self.chunk_exists(chunk_pos, dimension)? {
             self.get_chunk(chunk_pos, dimension)
@@ -88,7 +89,7 @@ impl World {
     pub fn get_or_generate_mut<'a>(
         &'a self,
         chunk_pos: temper_core::pos::ChunkPos,
-        dimension: &'a str,
+        dimension: Dimension,
     ) -> Result<MutChunk<'a>, WorldError> {
         if self.chunk_exists(chunk_pos, dimension)? {
             self.get_chunk_mut(chunk_pos, dimension)
@@ -108,9 +109,9 @@ impl World {
     }
 }
 
-type ChunkCache = DashMap<(ChunkPos, String), Chunk, WyHasherBuilder>;
-pub type MutChunk<'a> = dashmap::mapref::one::RefMut<'a, (ChunkPos, String), Chunk>;
-pub type RefChunk<'a> = dashmap::mapref::one::Ref<'a, (ChunkPos, String), Chunk>;
+type ChunkCache = DashMap<(ChunkPos, Dimension), Chunk, WyHasherBuilder>;
+pub type MutChunk<'a> = dashmap::mapref::one::RefMut<'a, (ChunkPos, Dimension), Chunk>;
+pub type RefChunk<'a> = dashmap::mapref::one::Ref<'a, (ChunkPos, Dimension), Chunk>;
 
 fn check_config_validity() -> Result<(), WorldError> {
     // We don't actually check if the import path is valid here since that would brick a server
@@ -161,16 +162,19 @@ fn check_config_validity() -> Result<(), WorldError> {
 #[cfg(test)]
 mod tests {
     use crate::World;
+    use temper_core::dimension::Dimension;
     use temper_core::pos::ChunkPos;
 
     #[test]
     #[ignore]
     fn dump_chunk() {
         let world = World::new(std::env::current_dir().unwrap().join("../../../world"), 0);
-        let chunk = world.get_chunk(ChunkPos::new(1, 1), "overworld").expect(
-            "Failed to load chunk. If it's a bitcode error, chances are the chunk format \
+        let chunk = world
+            .get_chunk(ChunkPos::new(1, 1), Dimension::Overworld)
+            .expect(
+                "Failed to load chunk. If it's a bitcode error, chances are the chunk format \
              has changed since last generating a world so you'll need to regenerate",
-        );
+            );
         let encoded = bitcode::encode(&*chunk);
         std::fs::write("../../../.etc/raw_chunk.dat", encoded).unwrap();
     }

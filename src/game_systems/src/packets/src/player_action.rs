@@ -5,6 +5,7 @@ use temper_messages::player_digging::*;
 
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlayerActionReceiver;
@@ -44,7 +45,7 @@ pub fn handle(
                 let mut chunk = state
                     .0
                     .world
-                    .get_or_generate_mut(pos.chunk(), "overworld")
+                    .get_or_generate_mut(pos.chunk(), Dimension::Overworld)
                     .expect("Failed to load or generate chunk");
                 chunk.set_block(pos.chunk_block_pos(), BlockStateId::default());
 

@@ -1,4 +1,5 @@
 use crate::{MutChunk, RefChunk, World};
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_world_format::errors::WorldError;
 use temper_world_format::Chunk;
@@ -16,7 +17,7 @@ impl World {
     pub fn insert_chunk(
         &self,
         pos: ChunkPos,
-        dimension: &str,
+        dimension: Dimension,
         chunk: Chunk,
     ) -> Result<(), WorldError> {
         let mut chunk = chunk;
@@ -29,17 +30,21 @@ impl World {
     /// Load a chunk from the storage backend. If the chunk is in the cache, it will be returned
     /// from the cache instead of the storage backend. If the chunk is not in the cache, it will be
     /// loaded from the storage backend and inserted into the cache.
-    pub fn get_chunk(&'_ self, pos: ChunkPos, dimension: &str) -> Result<RefChunk<'_>, WorldError> {
-        if let Some(chunk) = self.cache.get(&(pos, dimension.to_string())) {
+    pub fn get_chunk(
+        &'_ self,
+        pos: ChunkPos,
+        dimension: Dimension,
+    ) -> Result<RefChunk<'_>, WorldError> {
+        if let Some(chunk) = self.cache.get(&(pos, dimension)) {
             return Ok(chunk);
         }
         let chunk = load_chunk_internal(&self.storage_backend, pos, dimension);
         match chunk {
             Ok(c) => {
-                self.cache.insert((pos, dimension.to_string()), c);
+                self.cache.insert((pos, dimension), c);
                 Ok(self
                     .cache
-                    .get(&(pos, dimension.to_string()))
+                    .get(&(pos, dimension))
                     .expect("Chunk was just inserted into the cache"))
             }
             Err(e) => Err(e),
@@ -52,18 +57,18 @@ impl World {
     pub fn get_chunk_mut(
         &'_ self,
         pos: ChunkPos,
-        dimension: &'_ str,
+        dimension: Dimension,
     ) -> Result<MutChunk<'_>, WorldError> {
-        if let Some(chunk) = self.cache.get_mut(&(pos, dimension.to_string())) {
+        if let Some(chunk) = self.cache.get_mut(&(pos, dimension)) {
             return Ok(chunk);
         }
         let chunk = load_chunk_internal(&self.storage_backend, pos, dimension);
         match chunk {
             Ok(c) => {
-                self.cache.insert((pos, dimension.to_string()), c);
+                self.cache.insert((pos, dimension), c);
                 Ok(self
                     .cache
-                    .get_mut(&(pos, dimension.to_string()))
+                    .get_mut(&(pos, dimension))
                     .expect("Chunk was just inserted into the cache"))
             }
             Err(e) => Err(e),
@@ -75,8 +80,8 @@ impl World {
     /// It will first check if the chunk is in the cache and if it is, it will return true. If the
     /// chunk is not in the cache, it will check the storage backend for the chunk, returning true
     /// if it exists and false if it does not.
-    pub fn chunk_exists(&self, pos: ChunkPos, dimension: &str) -> Result<bool, WorldError> {
-        if self.cache.contains_key(&(pos, dimension.to_string())) {
+    pub fn chunk_exists(&self, pos: ChunkPos, dimension: Dimension) -> Result<bool, WorldError> {
+        if self.cache.contains_key(&(pos, dimension)) {
             return Ok(true);
         }
         chunk_exists_internal(&self.storage_backend, pos, dimension)
@@ -85,8 +90,8 @@ impl World {
     /// Delete a chunk from the storage backend.
     ///
     /// This function will remove the chunk from the cache and delete it from the storage backend.
-    pub fn delete_chunk(&self, pos: ChunkPos, dimension: &str) -> Result<(), WorldError> {
-        self.cache.remove(&(pos, dimension.to_string()));
+    pub fn delete_chunk(&self, pos: ChunkPos, dimension: Dimension) -> Result<(), WorldError> {
+        self.cache.remove(&(pos, dimension));
         delete_chunk_internal(&self.storage_backend, pos, dimension)
     }
 
@@ -105,7 +110,7 @@ impl World {
                 continue;
             }
             trace!("Syncing chunk: {:?}", k.0);
-            save_chunk_internal(&self.storage_backend, k.0, &k.1, v)?;
+            save_chunk_internal(&self.storage_backend, k.0, k.1, v)?;
         }
 
         sync_internal(&self.storage_backend)
@@ -118,12 +123,12 @@ impl World {
     /// returned as a vector.
     pub fn load_chunk_batch(
         &'_ self,
-        coords: &'_ [(ChunkPos, &'_ str)],
+        coords: &'_ [(ChunkPos, Dimension)],
     ) -> Result<Vec<RefChunk<'_>>, WorldError> {
         let mut found_chunks = Vec::new();
         let mut missing_chunks = Vec::new();
         for coord in coords {
-            if let Some(chunk) = self.cache.get(&(coord.0, coord.1.to_string())) {
+            if let Some(chunk) = self.cache.get(&(coord.0, coord.1)) {
                 found_chunks.push(chunk);
             } else {
                 missing_chunks.push(*coord);
@@ -131,10 +136,10 @@ impl World {
         }
         let fetched = load_chunk_batch_internal(&self.storage_backend, &missing_chunks)?;
         for (chunk, (pos, dimension)) in fetched.into_iter().zip(missing_chunks) {
-            self.cache.insert((pos, dimension.to_string()), chunk);
+            self.cache.insert((pos, dimension), chunk);
             let found_chunk = self
                 .cache
-                .get(&(pos, dimension.to_string()))
+                .get(&(pos, dimension))
                 .expect("Chunk was just inserted into the cache");
             found_chunks.push(found_chunk);
         }
@@ -143,12 +148,12 @@ impl World {
 
     pub fn load_chunk_batch_mut(
         &'_ self,
-        coords: &'_ [(ChunkPos, &'_ str)],
+        coords: &'_ [(ChunkPos, Dimension)],
     ) -> Result<Vec<MutChunk<'_>>, WorldError> {
         let mut found_chunks = Vec::new();
         let mut missing_chunks = Vec::new();
         for coord in coords {
-            if let Some(chunk) = self.cache.get_mut(&(coord.0, coord.1.to_string())) {
+            if let Some(chunk) = self.cache.get_mut(&(coord.0, coord.1)) {
                 found_chunks.push(chunk);
             } else {
                 missing_chunks.push(*coord);
@@ -156,10 +161,10 @@ impl World {
         }
         let fetched = load_chunk_batch_internal(&self.storage_backend, &missing_chunks)?;
         for (chunk, (pos, dimension)) in fetched.into_iter().zip(missing_chunks) {
-            self.cache.insert((pos, dimension.to_string()), chunk);
+            self.cache.insert((pos, dimension), chunk);
             let found_chunk = self
                 .cache
-                .get_mut(&(pos, dimension.to_string()))
+                .get_mut(&(pos, dimension))
                 .expect("Chunk was just inserted into the cache");
             found_chunks.push(found_chunk);
         }

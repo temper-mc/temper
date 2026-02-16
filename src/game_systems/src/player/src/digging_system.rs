@@ -5,6 +5,7 @@ use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::abilities::PlayerAbilities;
 use temper_components::player::gameplay_state::digging::PlayerDigging;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_data::blocks::types::Block;
 use temper_messages::player_digging::*;
@@ -35,7 +36,7 @@ pub fn handle_start_digging(
         let chunk = match state
             .0
             .world
-            .get_or_generate_chunk(pos.chunk(), "overworld")
+            .get_or_generate_chunk(pos.chunk(), Dimension::Overworld)
         {
             Ok(chunk) => chunk,
             Err(e) => {
@@ -219,7 +220,7 @@ pub fn handle_finish_digging(
             let chunk = match state
                 .0
                 .world
-                .get_or_generate_chunk(pos.chunk(), "overworld")
+                .get_or_generate_chunk(pos.chunk(), Dimension::Overworld)
             {
                 Ok(chunk) => chunk,
                 Err(e) => {
@@ -285,7 +286,7 @@ fn break_block(
     let mut chunk = state
         .0
         .world
-        .get_or_generate_mut(pos.chunk(), "overworld")
+        .get_or_generate_mut(pos.chunk(), Dimension::Overworld)
         .expect("Failed to load or generate chunk");
     chunk.set_block(pos.chunk_block_pos(), BlockStateId::default());
 

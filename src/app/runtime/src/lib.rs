@@ -4,6 +4,7 @@ use crate::errors::BinaryError;
 use std::sync::Arc;
 use std::time::Instant;
 use temper_config::whitelist::create_whitelist;
+use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_state::GlobalState;
 use tracing::info;
@@ -19,7 +20,7 @@ pub fn entry(start_time: Instant, no_tui: bool) -> Result<(), BinaryError> {
 
     if !global_state
         .world
-        .chunk_exists(ChunkPos::new(0, 0), "overworld")?
+        .chunk_exists(ChunkPos::new(0, 0), Dimension::Overworld)?
     {
         launch::generate_spawn_chunks(global_state.clone())?;
     }
