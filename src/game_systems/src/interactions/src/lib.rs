@@ -11,4 +11,4 @@
 //! 3. If yes, toggles the relevant property and returns the new state
 //! 4. The packet handler updates the chunk and broadcasts to players
 
-mod block_interactions;
+pub mod block_interactions;
