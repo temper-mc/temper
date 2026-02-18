@@ -74,4 +74,5 @@ pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<BlockBrokenEvent>(world);
     MessageRegistry::register_message::<TeleportPlayer>(world);
     MessageRegistry::register_message::<WorldChange>(world);
+    MessageRegistry::register_message::<BlockInteractMessage>(world);
 }
