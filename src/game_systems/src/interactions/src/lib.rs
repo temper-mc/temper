@@ -12,3 +12,4 @@
 //! 4. The packet handler updates the chunk and broadcasts to players
 
 pub mod block_interactions;
+pub mod interaction_listener;

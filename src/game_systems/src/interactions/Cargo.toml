@@ -5,7 +5,13 @@ edition = "2024"
 
 [dependencies]
 bevy_ecs = { workspace = true }
+temper-codec = { workspace = true }
+temper-components = { workspace = true }
+temper-config = { workspace = true }
 temper-core = { workspace = true }
 temper-messages = { workspace = true }
+temper-net-runtime = { workspace = true }
+temper-protocol = { workspace = true }
+temper-state = { workspace = true }
 temper-world = { workspace = true }
 tracing = { workspace = true }
