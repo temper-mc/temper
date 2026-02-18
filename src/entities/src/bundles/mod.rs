@@ -10,6 +10,12 @@ pub use hostile::*;
 pub use neutral::*;
 pub use passive::*;
 
+// Block entity bundles
+pub mod door;
+
+// Block entity bundles re-exports
+pub use door::DoorBlockBundle;
+
 /// Macro to define an entity bundle with all standard components.
 ///
 /// This macro generates a bundle struct with identity, metadata, combat properties,

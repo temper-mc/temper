@@ -21,3 +21,13 @@ pub struct BlockInteractMessage {
     pub position: BlockCoords,
     pub sequence: VarInt,
 }
+
+/// Emitted when a block has been toggled (door opened/closed, etc.).
+///
+/// Fired by the interaction listener after a successful toggle.
+#[derive(Message, Clone, Debug)]
+pub struct BlockToggledEvent {
+    pub player: Entity,
+    pub position: BlockCoords,
+    pub is_active: bool,
+}

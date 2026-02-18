@@ -25,6 +25,7 @@ temper-resources = { workspace = true }
 temper-logging = { workspace = true }
 temper-messages = { workspace = true }
 temper-game-systems = { workspace = true }
+interactions = { workspace = true }
 temper-dashboard = { workspace = true, optional = true }
 temper-components = { workspace = true }
 

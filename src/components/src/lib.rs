@@ -2,6 +2,7 @@ pub mod active_effects;
 pub mod bounds;
 pub mod entity_identity;
 pub mod health;
+pub mod interaction;
 pub mod player;
 // Core entity components based on temper-data
 pub mod combat;

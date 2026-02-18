@@ -2,6 +2,7 @@ use bevy_ecs::prelude::*;
 use std::time::{Duration, Instant};
 
 use temper_codec::net_types::var_int::VarInt;
+use temper_codec::net_types::network_position::NetworkPosition;
 use temper_components::player::abilities::PlayerAbilities;
 use temper_components::player::gameplay_state::digging::PlayerDigging;
 use temper_core::block_state_id::BlockStateId;
@@ -13,6 +14,7 @@ use temper_messages::world_change::WorldChange;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::{block_change_ack::BlockChangeAck, block_update::BlockUpdate};
 use temper_state::GlobalStateResource;
+use interactions::block_interactions::break_block_with_door_half;
 use tracing::{debug, error, warn};
 
 // A query for just the components needed to acknowledge a dig packet
@@ -58,16 +60,18 @@ pub fn handle_start_digging(
         };
 
         // --- 3. Get Hardness ---
-        // Get Hardness directly using the ID
-        let Some(block_data) = Block::by_id(block_state_id.raw()) else {
-            warn!(
-                "Could not find block data for BlockStateId: {}",
-                block_state_id
-            );
-            continue;
+        // Note: Block::by_id expects a block ID, not a state ID.
+        // Fall back to a default hardness if the lookup fails.
+        let hardness = match Block::by_id(block_state_id.raw()) {
+            Some(block_data) => block_data.hardness,
+            None => {
+                debug!(
+                    "Could not find block data for BlockStateId: {}, using default hardness",
+                    block_state_id
+                );
+                1.5 // Default hardness for unknown blocks
+            }
         };
-
-        let hardness = block_data.hardness;
 
         // --- 4. Check for unbreakable block ---
         if hardness < 0.0 {
@@ -292,11 +296,10 @@ fn break_block(
         .world
         .get_or_generate_mut(pos.chunk(), Dimension::Overworld)
         .expect("Failed to load or generate chunk");
-    chunk.set_block(pos.chunk_block_pos(), BlockStateId::default());
 
-    // Send block broken event for un-grounding system
     debug!("Sending BlockBrokenEvent for block at {:?}", pos.pos);
-    block_break_writer.write(temper_messages::BlockBrokenEvent { position: pos });
+
+    let broken_positions = break_block_with_door_half(&mut chunk, pos, block_break_writer);
     world_change.write(WorldChange {
         chunk: Some(pos.chunk()),
     });
@@ -309,6 +312,22 @@ fn break_block(
     for (eid, conn) in broadcast_query {
         if !state.0.players.is_connected(eid) {
             continue;
+        }
+        for broken_pos in &broken_positions {
+            let update = BlockUpdate {
+                location: NetworkPosition {
+                    x: broken_pos.pos.x,
+                    y: broken_pos.pos.y as i16,
+                    z: broken_pos.pos.z,
+                },
+                block_state_id: VarInt::from(BlockStateId::default()),
+            };
+            if let Err(e) = conn.send_packet_ref(&update) {
+                error!(
+                    "Failed to send block update to {:?} for broken block: {:?}",
+                    eid, e
+                );
+            }
         }
         if let Err(e) = conn.send_packet_ref(&block_update_packet) {
             error!(

@@ -3,6 +3,8 @@ use temper_components::player::abilities::PlayerAbilities;
 use temper_messages::BlockBrokenEvent;
 use temper_messages::player_digging::*;
 
+use interactions::block_interactions::break_block_with_door_half;
+use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
@@ -55,13 +57,13 @@ pub fn handle(
                     .world
                     .get_or_generate_mut(pos.chunk(), Dimension::Overworld)
                     .expect("Failed to load or generate chunk");
-                chunk.set_block(pos.chunk_block_pos(), BlockStateId::default());
+
                 world_change.write(temper_messages::world_change::WorldChange {
                     chunk: Some(pos.chunk()),
                 });
 
-                // Send block broken event for un-grounding system
-                block_break_events.write(BlockBrokenEvent { position: pos });
+                let broken_positions =
+                    break_block_with_door_half(&mut chunk, pos, &mut block_break_events);
 
                 // Broadcast the change
                 for (eid, conn) in &broadcast_query {
@@ -69,12 +71,21 @@ pub fn handle(
                         continue;
                     }
 
-                    let block_update_packet = BlockUpdate {
-                        location: event.location.clone(),
-                        block_state_id: VarInt::from(BlockStateId::default()),
-                    };
-                    if let Err(e) = conn.send_packet_ref(&block_update_packet) {
-                        error!("Failed to send block update packet: {:?}", e);
+                    for broken_pos in &broken_positions {
+                        let update = BlockUpdate {
+                            location: NetworkPosition {
+                                x: broken_pos.pos.x,
+                                y: broken_pos.pos.y as i16,
+                                z: broken_pos.pos.z,
+                            },
+                            block_state_id: VarInt::from(BlockStateId::default()),
+                        };
+                        if let Err(e) = conn.send_packet_ref(&update) {
+                            error!(
+                                "Failed to send block update to {:?} for broken block: {:?}",
+                                eid, e
+                            );
+                        }
                     }
 
                     if eid == trigger_eid {

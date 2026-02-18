@@ -45,7 +45,7 @@ use crate::packet_messages::Movement;
 use crate::particle::SendParticle;
 use crate::teleport_player::TeleportPlayer;
 pub use block_break::BlockBrokenEvent;
-pub use block_interaction::{BlockCoords, BlockInteractMessage};
+pub use block_interaction::{BlockCoords, BlockInteractMessage, BlockToggledEvent};
 use temper_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
 use world_change::WorldChange;
 
@@ -75,4 +75,5 @@ pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<TeleportPlayer>(world);
     MessageRegistry::register_message::<WorldChange>(world);
     MessageRegistry::register_message::<BlockInteractMessage>(world);
+    MessageRegistry::register_message::<BlockToggledEvent>(world);
 }
