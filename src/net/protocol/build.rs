@@ -1,6 +1,5 @@
 use std::process::{Command, Stdio};
 
-// build.rs
 use serde::Deserialize;
 use std::{
     collections::HashMap,
@@ -9,8 +8,6 @@ use std::{
 };
 use syn::__private::ToTokens;
 use walkdir::WalkDir;
-
-// -------------------- packets.json schema --------------------
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -81,8 +78,6 @@ fn lookup_packet_id(packets: &Packets, state: &str, bound: Bound, packet_name: &
         .protocol_id
 }
 
-// -------------------- attribute parsing --------------------
-
 fn to_snake_case(s: &str) -> String {
     let mut out = String::with_capacity(s.len() + 8);
     for (i, c) in s.chars().enumerate() {
@@ -99,7 +94,6 @@ fn parse_packet_attr(attr: &syn::Attribute) -> Option<(String, String)> {
         return None;
     }
 
-    // Expect: #[packet(packet_id = "...", state = "...")]
     let mut packet_id: Option<String> = None;
     let mut state: Option<String> = None;
 
@@ -112,7 +106,6 @@ fn parse_packet_attr(attr: &syn::Attribute) -> Option<(String, String)> {
         let ident = nv.path.get_ident()?.to_string();
         match ident.as_str() {
             "packet_id" => {
-                // accept string or int-ish tokens
                 packet_id = Some(match nv.value {
                     syn::Expr::Lit(syn::ExprLit {
                         lit: syn::Lit::Str(s),
