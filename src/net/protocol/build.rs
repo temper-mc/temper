@@ -1,4 +1,3 @@
-use std::io::Read;
 use std::process::{Command, Stdio};
 
 // build.rs
@@ -158,16 +157,15 @@ fn parse_packet_id_resolve(packets: &Packets, state: &str, bound: Bound, raw: &s
 }
 
 fn main() {
-    let mut child = Command::new("cargo")
+    let child = Command::new("cargo")
         .args(["pkgid", "--package", "temper"])
         .stdout(Stdio::piped())
         .spawn()
+        .unwrap()
+        .wait_with_output()
         .unwrap();
 
-    let mut version = String::new();
-    if let Some(mut stdout) = child.stdout.take() {
-        stdout.read_to_string(&mut version).unwrap();
-    }
+    let version = String::from_utf8_lossy(&child.stdout);
 
     let version = version.split('@').collect::<Vec<&str>>()[1];
 
@@ -287,7 +285,7 @@ fn main() {
             let packet = <{struct_path} as temper_codec::decode::NetDecode>::decode(cursor,&temper_codec::decode::NetDecodeOpts::None)?;
             if packet_sender.{snake}.is_full() {{
             tracing::trace!("Packet sender channel for {struct_name} is full. Dropping packet from {{}}.", entity);
-            return Ok(());
+            Ok(())
             }} else {{
             packet_sender.{snake}.send((packet, entity)).expect("Failed to send packet");
             Ok(())
