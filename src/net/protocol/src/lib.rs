@@ -1,17 +1,12 @@
 use std::fmt::Display;
-use temper_macros::setup_packet_handling;
 
 use bevy_ecs::prelude::*;
-use std::sync::Arc;
 
 pub mod errors;
 pub mod incoming;
 pub mod outgoing;
 
-use crossbeam_channel::Receiver;
-use crossbeam_channel::Sender;
-
-setup_packet_handling!("\\src\\incoming");
+include!(concat!(env!("OUT_DIR"), "/packet_handling.rs"));
 
 #[derive(Eq, PartialEq, Debug, Clone, Copy)]
 pub enum ConnState {
