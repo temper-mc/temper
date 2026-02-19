@@ -32,3 +32,9 @@ temper-encryption = { path = "../encryption" }
 indexmap = { workspace = true }
 serde_json = { workspace = true }
 craftflow-nbt = { workspace = true }
+
+[build-dependencies]
+serde = { workspace = true }
+walkdir = { workspace = true }
+syn = { workspace = true }
+serde_json = { workspace = true }
