@@ -1,3 +1,4 @@
+use crate::bounds::CollisionBounds;
 use crate::player::chunk_receiver::ChunkReceiver;
 use crate::player::grounded::OnGround;
 use crate::player::player_identity::PlayerIdentity;
@@ -31,6 +32,7 @@ pub struct PlayerBundle {
     pub rotation: Rotation,
     pub on_ground: OnGround,
     pub chunk_receiver: ChunkReceiver,
+    pub collision_bounds: CollisionBounds,
 
     // Inventory
     pub inventory: Inventory,

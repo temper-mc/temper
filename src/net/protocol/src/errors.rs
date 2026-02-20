@@ -1,8 +1,10 @@
 use crate::ConnState;
 use std::error::Error;
+use std::io::ErrorKind::UnexpectedEof;
 use std::sync::Arc;
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::net_types::NetTypesError;
 use temper_config::server_config::get_global_config;
 use temper_world_format::errors::WorldError;
 use thiserror::Error;
@@ -29,13 +31,13 @@ pub enum PacketError {
     },
 
     #[error("NetType error: {0}")]
-    NetTypeError(#[from] temper_codec::net_types::NetTypesError),
+    NetTypeError(#[from] NetTypesError),
 
     #[error("Compression error: {0}")]
     CompressionError(#[from] CompressionError),
 
     #[error("IO error: {0}")]
-    IoError(#[from] std::io::Error),
+    IoError(std::io::Error),
 
     #[error("Dropped connection")]
     DroppedConnection,
@@ -87,7 +89,7 @@ pub enum NetError {
     UTF8Error(#[from] std::string::FromUtf8Error),
 
     #[error("VarInt Error: {0}")]
-    TypesError(temper_codec::net_types::NetTypesError),
+    TypesError(NetTypesError),
 
     #[error("ECS Error: {0}")]
     ECSError(bevy_ecs::error::BevyError),
@@ -136,13 +138,22 @@ impl From<std::io::Error> for NetError {
     }
 }
 
-impl From<temper_codec::net_types::NetTypesError> for NetError {
-    fn from(err: temper_codec::net_types::NetTypesError) -> Self {
-        use std::io::ErrorKind;
+impl From<std::io::Error> for PacketError {
+    fn from(err: std::io::Error) -> Self {
+        use std::io::ErrorKind::*;
+        match err.kind() {
+            ConnectionAborted | ConnectionReset | UnexpectedEof => PacketError::DroppedConnection,
+            _ => PacketError::IoError(err),
+        }
+    }
+}
+
+impl From<NetTypesError> for NetError {
+    fn from(err: NetTypesError) -> Self {
         use temper_codec::net_types::NetTypesError;
 
         if let NetTypesError::Io(io_err) = &err
-            && io_err.kind() == ErrorKind::UnexpectedEof
+            && io_err.kind() == UnexpectedEof
         {
             return NetError::ConnectionDropped;
         }

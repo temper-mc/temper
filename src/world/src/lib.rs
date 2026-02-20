@@ -63,11 +63,11 @@ impl World {
     }
 
     /// Loads a chunk from the database or cache, or generates it if it doesn't exist.
-    pub fn get_or_generate_chunk<'a>(
-        &'a self,
+    pub fn get_or_generate_chunk(
+        &'_ self,
         chunk_pos: ChunkPos,
         dimension: Dimension,
-    ) -> Result<RefChunk<'a>, WorldError> {
+    ) -> Result<RefChunk<'_>, WorldError> {
         if self.chunk_exists(chunk_pos, dimension)? {
             self.get_chunk(chunk_pos, dimension)
         } else {
@@ -86,11 +86,11 @@ impl World {
     }
 
     /// Loads a chunk from the database or cache, or generates it if it doesn't exist. Returns a mutable reference.
-    pub fn get_or_generate_mut<'a>(
-        &'a self,
-        chunk_pos: temper_core::pos::ChunkPos,
+    pub fn get_or_generate_mut(
+        &self,
+        chunk_pos: ChunkPos,
         dimension: Dimension,
-    ) -> Result<MutChunk<'a>, WorldError> {
+    ) -> Result<MutChunk<'_>, WorldError> {
         if self.chunk_exists(chunk_pos, dimension)? {
             self.get_chunk_mut(chunk_pos, dimension)
         } else {

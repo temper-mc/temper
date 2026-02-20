@@ -23,7 +23,6 @@ use rand::RngCore;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::player_identity::{PlayerIdentity, PlayerProperty};
 use temper_components::player::position::Position;
-use temper_components::player::rotation::Rotation;
 use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_protocol::ConnState;
@@ -348,16 +347,11 @@ async fn finish_configuration(
 /// Sends initial play state packets (login_play, abilities, op level).
 fn send_initial_play_packets(
     conn_write: &StreamWriter,
-    state: &GlobalState,
     player_identity: &PlayerIdentity,
+    offline_data: &OfflinePlayerData,
 ) -> Result<(), NetError> {
     // Send login_play
-    let player_data: OfflinePlayerData = state
-        .world
-        .load_player_data(player_identity.uuid)
-        .unwrap_or_default()
-        .unwrap_or_default();
-    let game_mode = player_data.gamemode;
+    let game_mode = offline_data.gamemode;
 
     conn_write.send_packet(LoginPlayPacket::new(
         player_identity.short_uuid,
@@ -365,7 +359,7 @@ fn send_initial_play_packets(
     ))?;
 
     // Send abilities
-    let abilities = player_data.abilities;
+    let abilities = offline_data.abilities;
 
     conn_write.send_packet(PlayerAbilities::from_abilities(&abilities))?;
 
@@ -382,39 +376,15 @@ fn send_initial_play_packets(
 async fn sync_player_position(
     conn_read: &mut EncryptedReader<OwnedReadHalf>,
     conn_write: &StreamWriter,
-    state: &GlobalState,
-    player_identity: &PlayerIdentity,
+    offline_player_data: &OfflinePlayerData,
     compressed: bool,
-) -> Result<Position, NetError> {
+) -> Result<(), NetError> {
     let teleport_id_i32: i32 = (rand::random::<u32>() & 0x3FFF_FFFF) as i32;
-
-    // Get spawn position from cache or use defaults
-    let (spawn_pos, spawn_rotation) = if let Some(data) = state
-        .world
-        .load_player_data::<OfflinePlayerData>(player_identity.uuid)
-        .unwrap_or_else(|err| {
-            error!(
-                "Error loading player data for {}: {:?}",
-                player_identity.username, err
-            );
-            None
-        }) {
-        (data.position.into(), data.rotation)
-    } else {
-        (
-            Position::new(
-                DEFAULT_SPAWN_POSITION.x as f64,
-                DEFAULT_SPAWN_POSITION.y as f64,
-                DEFAULT_SPAWN_POSITION.z as f64,
-            ),
-            Rotation::default(),
-        )
-    };
 
     // Send position sync
     conn_write.send_packet(SynchronizePlayerPositionPacket::from_position_rotation(
-        &spawn_pos,
-        &spawn_rotation,
+        &offline_player_data.position.into(),
+        &offline_player_data.rotation,
         VarInt::new(teleport_id_i32),
     ))?;
 
@@ -435,7 +405,7 @@ async fn sync_player_position(
     let _: SetPlayerPositionAndRotationPacket =
         wait_for_packet(conn_read, compressed, Play, expected_id).await?;
 
-    Ok(spawn_pos)
+    Ok(())
 }
 
 /// Sends player info and game event packets.
@@ -515,6 +485,25 @@ fn send_command_graph(conn_write: &StreamWriter) -> Result<(), NetError> {
     Ok(())
 }
 
+/// Sends the player's inventory contents to the client.
+fn send_inventory_contents(
+    conn_write: &StreamWriter,
+    offline_player_data: &OfflinePlayerData,
+) -> Result<(), NetError> {
+    for (idx, slot) in offline_player_data.inventory.slots.iter().enumerate() {
+        if let Some(item_stack) = slot {
+            let packet = temper_protocol::outgoing::set_container_slot::SetContainerSlot {
+                window_id: 0.into(),
+                state_id: 0.into(),
+                slot_index: idx as i16,
+                slot: item_stack.clone(),
+            };
+            conn_write.send_packet(packet)?;
+        }
+    }
+    Ok(())
+}
+
 // =================================================================================================
 // Main Login Function
 // =================================================================================================
@@ -560,18 +549,33 @@ pub(super) async fn login(
     exchange_known_packs(conn_read, conn_write, compressed).await?;
     finish_configuration(conn_read, conn_write, compressed).await?;
 
+    let offline_data = state
+        .world
+        .load_player_data::<OfflinePlayerData>(player_identity.uuid)
+        .unwrap_or_else(|err| {
+            error!(
+                "Error loading player data for {}: {:?}",
+                player_identity.username, err
+            );
+            None
+        })
+        .unwrap_or(OfflinePlayerData {
+            position: DEFAULT_SPAWN_POSITION.into(),
+            ..Default::default()
+        });
+
     // Phase 3: Play State Setup
-    send_initial_play_packets(conn_write, &state, &player_identity)?;
-    let pos =
-        sync_player_position(conn_read, conn_write, &state, &player_identity, compressed).await?;
+    send_initial_play_packets(conn_write, &player_identity, &offline_data)?;
+    sync_player_position(conn_read, conn_write, &offline_data, compressed).await?;
     send_player_info(conn_write, &player_identity)?;
+    send_inventory_contents(conn_write, &offline_data)?;
     send_initial_chunks(
         conn_write,
         &state,
         config,
         client_info.view_distance,
         compressed,
-        pos,
+        offline_data.position.into(),
     )?;
     send_command_graph(conn_write)?;
 

@@ -43,8 +43,12 @@ pub fn handle(
                 .on_ground(on_ground);
 
             // Update components
-            *pos = new_pos;
-            *rot = new_rot;
+            if pos.coords != new_pos.coords {
+                *pos = new_pos;
+            }
+            if rot.yaw != new_rot.yaw || rot.pitch != new_rot.pitch {
+                *rot = new_rot;
+            }
             *ground = OnGround(on_ground);
 
             // Send movement message for broadcasting

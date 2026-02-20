@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
+use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::position::Position;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
@@ -13,10 +14,10 @@ use tracing::warn;
 pub fn handle(
     ev: Res<PlayerLoadedReceiver>,
     state: Res<GlobalStateResource>,
-    query: Query<(Entity, &Position, &StreamWriter)>,
+    query: Query<(Entity, &Position, &StreamWriter, &PlayerIdentity)>,
 ) {
     for (_, player) in ev.0.try_iter() {
-        let Ok((entity, player_pos, conn)) = query.get(player) else {
+        let Ok((entity, player_pos, conn, identity)) = query.get(player) else {
             warn!("Player position not found in query.");
             continue;
         };
@@ -48,7 +49,7 @@ pub fn handle(
         if match_block!("air", head_block) || match_block!("cave_air", head_block) {
             tracing::info!(
                 "Player {} loaded at position: ({}, {}, {})",
-                player,
+                identity.username,
                 player_pos.x,
                 player_pos.y,
                 player_pos.z
@@ -56,7 +57,7 @@ pub fn handle(
         } else {
             tracing::info!(
                 "Player {} loaded at position: ({}, {}, {}) with head block: {:?}",
-                player,
+                identity.username,
                 player_pos.x,
                 player_pos.y,
                 player_pos.z,

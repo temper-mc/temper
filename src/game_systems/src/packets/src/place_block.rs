@@ -1,4 +1,4 @@
-use bevy_ecs::prelude::{Entity, Query, Res};
+use bevy_ecs::prelude::{Entity, MessageWriter, Query, Res};
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::bounds::CollisionBounds;
@@ -20,6 +20,7 @@ use temper_core::dimension::Dimension;
 use temper_core::mq;
 use temper_inventories::hotbar::Hotbar;
 use temper_inventories::inventory::Inventory;
+use temper_messages::world_change::WorldChange;
 use temper_text::{Color, NamedColor, TextComponentBuilder};
 
 const ITEM_TO_BLOCK_MAPPING_FILE: &str =
@@ -43,6 +44,7 @@ pub fn handle(
     state: Res<GlobalStateResource>,
     query: Query<(Entity, &StreamWriter, &Inventory, &Hotbar, &Position)>,
     pos_q: Query<(&Position, &CollisionBounds)>,
+    mut world_change: MessageWriter<WorldChange>,
 ) {
     'ev_loop: for (event, eid) in receiver.0.try_iter() {
         let Ok((entity, conn, inventory, hotbar, _)) = query.get(eid) else {
@@ -69,10 +71,6 @@ pub fn handle(
                         error!("No block mapping found for item ID: {}", item_id.0);
                         continue 'ev_loop;
                     };
-                    debug!(
-                        "Placing block with item ID: {}, mapped to block state ID: {}",
-                        item_id.0, mapped_block_state_id
-                    );
                     let pos: BlockPos = event.position.into();
                     if pos.pos.y >= 319 {
                         mq::queue(
@@ -148,6 +146,9 @@ pub fn handle(
                     }
 
                     chunk.set_block(offset_pos.chunk_block_pos(), *mapped_block_state_id);
+                    world_change.write(WorldChange {
+                        chunk: Some(offset_pos.chunk()),
+                    });
                     let ack_packet = BlockChangeAck {
                         sequence: event.sequence,
                     };
@@ -171,7 +172,7 @@ pub fn handle(
                     let render_distance = get_global_config().chunk_render_distance as i32;
                     for (_, conn, _, _, pos) in query.iter() {
                         let chunk = pos.chunk();
-                        let (chunk_x, chunk_z) = (chunk.x, chunk.y);
+                        let (chunk_x, chunk_z) = (chunk.x(), chunk.z());
 
                         // Only send block update if the player is within the render distance of the block being updated
                         if (offset_chunk_x - chunk_x).abs() <= render_distance

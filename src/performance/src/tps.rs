@@ -5,6 +5,7 @@ use crate::{
     WINDOW_SECONDS,
 };
 
+#[derive(Debug)]
 pub struct TPSMonitor {
     targetted_tps: u32,
     history: TickHistory,

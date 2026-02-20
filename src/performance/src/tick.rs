@@ -7,7 +7,7 @@ pub struct TickData {
     pub entity_count: u32,
     pub ran_count: usize,
 }
-
+#[derive(Debug)]
 pub(crate) struct TickHistory {
     buffer: VecDeque<TickData>,
     capacity: usize,

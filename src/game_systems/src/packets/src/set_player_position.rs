@@ -35,7 +35,9 @@ pub fn handle(
                 .on_ground(event.on_ground);
 
             // Update components
-            *pos = new_pos;
+            if pos.coords != new_pos.coords {
+                *pos = new_pos;
+            }
             *ground = OnGround(event.on_ground);
 
             // Send movement message for broadcasting

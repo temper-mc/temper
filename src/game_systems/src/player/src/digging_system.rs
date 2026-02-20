@@ -9,6 +9,7 @@ use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_data::blocks::types::Block;
 use temper_messages::player_digging::*;
+use temper_messages::world_change::WorldChange;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::{block_change_ack::BlockChangeAck, block_update::BlockUpdate};
 use temper_state::GlobalStateResource;
@@ -162,6 +163,7 @@ pub fn handle_finish_digging(
     mut player_query: Query<DiggingPlayerQuery>,
     broadcast_query: Query<(Entity, &StreamWriter)>, // For broadcasting the break
     mut block_break_writer: MessageWriter<temper_messages::BlockBrokenEvent>,
+    mut world_change: MessageWriter<WorldChange>,
 ) {
     for event in events.read() {
         let Ok((_player_entity, writer, digging_opt)) = player_query.get_mut(event.player) else {
@@ -258,6 +260,7 @@ pub fn handle_finish_digging(
                 &broadcast_query,
                 &event.position,
                 &mut block_break_writer,
+                &mut world_change,
             )
         }
 
@@ -281,6 +284,7 @@ fn break_block(
     broadcast_query: &Query<(Entity, &StreamWriter)>,
     position: &temper_codec::net_types::network_position::NetworkPosition,
     block_break_writer: &mut MessageWriter<temper_messages::BlockBrokenEvent>,
+    world_change: &mut MessageWriter<WorldChange>,
 ) {
     let pos: BlockPos = position.clone().into();
     let mut chunk = state
@@ -293,6 +297,9 @@ fn break_block(
     // Send block broken event for un-grounding system
     debug!("Sending BlockBrokenEvent for block at {:?}", pos.pos);
     block_break_writer.write(temper_messages::BlockBrokenEvent { position: pos });
+    world_change.write(WorldChange {
+        chunk: Some(pos.chunk()),
+    });
 
     // Broadcast the block break to all players
     let block_update_packet = BlockUpdate {

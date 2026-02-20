@@ -7,6 +7,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use temper_codec::encode::NetEncode;
 use temper_codec::encode::NetEncodeOpts;
+use temper_codec::net_types::NetTypesError;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_encryption::read::EncryptedReader;
@@ -385,7 +386,7 @@ pub async fn handle_connection(
                         packet_skele = packet;
                     },
                     Err(err) => {
-                        if let PacketError::DroppedConnection = err {
+                        if let PacketError::DroppedConnection | PacketError::NetTypeError(NetTypesError::ConnectionDropped) = err {
                             trace!("Connection dropped for entity {:?}", entity);
                             running.store(false, Ordering::Relaxed);
                             state.players.disconnect(entity, None);
