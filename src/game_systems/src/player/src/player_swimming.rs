@@ -13,7 +13,7 @@ use temper_messages::world_change::WorldChange;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use temper_state::GlobalStateResource;
-use tracing::{debug, error};
+use tracing::error;
 
 /// Height of player's eyes from feet (blocks)
 const PLAYER_EYE_HEIGHT: f64 = 1.62;

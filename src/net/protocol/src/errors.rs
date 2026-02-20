@@ -1,6 +1,6 @@
 use crate::ConnState;
 use std::error::Error;
-use std::io::ErrorKind::{ConnectionAborted, ConnectionReset, UnexpectedEof};
+use std::io::ErrorKind::UnexpectedEof;
 use std::sync::Arc;
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::encode::errors::NetEncodeError;
@@ -31,7 +31,7 @@ pub enum PacketError {
     },
 
     #[error("NetType error: {0}")]
-    NetTypeError(#[from] temper_codec::net_types::NetTypesError),
+    NetTypeError(#[from] NetTypesError),
 
     #[error("Compression error: {0}")]
     CompressionError(#[from] CompressionError),
@@ -89,7 +89,7 @@ pub enum NetError {
     UTF8Error(#[from] std::string::FromUtf8Error),
 
     #[error("VarInt Error: {0}")]
-    TypesError(temper_codec::net_types::NetTypesError),
+    TypesError(NetTypesError),
 
     #[error("ECS Error: {0}")]
     ECSError(bevy_ecs::error::BevyError),
@@ -150,11 +150,10 @@ impl From<std::io::Error> for PacketError {
 
 impl From<NetTypesError> for NetError {
     fn from(err: NetTypesError) -> Self {
-        use std::io::ErrorKind;
         use temper_codec::net_types::NetTypesError;
 
         if let NetTypesError::Io(io_err) = &err
-            && io_err.kind() == ErrorKind::UnexpectedEof
+            && io_err.kind() == UnexpectedEof
         {
             return NetError::ConnectionDropped;
         }

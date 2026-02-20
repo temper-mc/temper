@@ -90,7 +90,7 @@ impl World {
         &self,
         chunk_pos: ChunkPos,
         dimension: Dimension,
-    ) -> Result<MutChunk, WorldError> {
+    ) -> Result<MutChunk<'_>, WorldError> {
         if self.chunk_exists(chunk_pos, dimension)? {
             self.get_chunk_mut(chunk_pos, dimension)
         } else {

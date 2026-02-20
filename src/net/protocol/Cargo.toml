@@ -27,6 +27,7 @@ crossbeam-channel = { workspace = true }
 temper-commands = { workspace = true }
 indexmap = { workspace = true }
 temper-encryption = { path = "../encryption" }
+bevy_math = { workspace = true }
 
 [dev-dependencies]
 indexmap = { workspace = true }

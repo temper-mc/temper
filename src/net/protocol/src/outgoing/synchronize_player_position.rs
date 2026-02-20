@@ -24,11 +24,7 @@ impl Default for SynchronizePlayerPositionPacket {
     fn default() -> Self {
         let default_pos = DEFAULT_SPAWN_POSITION;
         Self::new(
-            (
-                default_pos.x as f64,
-                default_pos.y as f64,
-                default_pos.z as f64,
-            ),
+            (default_pos.x, default_pos.y, default_pos.z),
             (0.0, 0.0, 0.0),
             0.0,
             0.0,

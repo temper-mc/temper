@@ -12,21 +12,21 @@ use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_encryption::read::EncryptedReader;
 use temper_encryption::write::EncryptedWriter;
+use temper_protocol::ConnState::Play;
 use temper_protocol::errors::CompressionError::GenericCompressionError;
 use temper_protocol::errors::NetError::HandshakeTimeout;
 use temper_protocol::errors::PacketError::InvalidPacket;
 use temper_protocol::errors::{NetError, PacketError};
 use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
-use temper_protocol::ConnState::Play;
-use temper_protocol::{handle_packet, PacketSender};
+use temper_protocol::{PacketSender, handle_packet};
 use temper_state::ServerState;
 use tokio::io::AsyncWriteExt;
-use tokio::net::tcp::OwnedWriteHalf;
 use tokio::net::TcpStream;
+use tokio::net::tcp::OwnedWriteHalf;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::sync::oneshot;
 use tokio::time::timeout;
-use tracing::{debug, debug_span, error, trace, warn, Instrument};
+use tracing::{Instrument, debug, debug_span, error, trace, warn};
 
 /// The maximum time allowed for a client to complete its initial handshake.
 /// Connections exceeding this duration will be dropped to avoid resource hogging.

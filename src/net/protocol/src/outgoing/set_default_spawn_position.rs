@@ -1,4 +1,6 @@
+use bevy_math::DVec3;
 use temper_codec::net_types::network_position::NetworkPosition;
+use temper_components::player::position::Position;
 use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode)]
@@ -10,10 +12,12 @@ pub struct SetDefaultSpawnPositionPacket {
 
 // Spawn in chunk (1, 1) at y=100 to ensure spawning above ground, since for some reason the terrain
 // gen can't create land at (0, 0)
-pub const DEFAULT_SPAWN_POSITION: NetworkPosition = NetworkPosition {
-    x: 16,
-    y: 100,
-    z: 16,
+pub const DEFAULT_SPAWN_POSITION: Position = Position {
+    coords: DVec3 {
+        x: 16.0,
+        y: 100.0,
+        z: 16.0,
+    },
 };
 
 const DEFAULT_ANGLE: f32 = 0.0;
@@ -27,7 +31,7 @@ impl Default for SetDefaultSpawnPositionPacket {
 impl SetDefaultSpawnPositionPacket {
     pub fn new() -> Self {
         Self {
-            spawn_position: DEFAULT_SPAWN_POSITION,
+            spawn_position: DEFAULT_SPAWN_POSITION.into(),
             angle: DEFAULT_ANGLE,
         }
     }

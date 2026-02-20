@@ -6,7 +6,7 @@ use temper_components::player::teleport_tracker::TeleportTracker;
 use temper_messages::chunk_calc::ChunkCalc;
 use temper_messages::packet_messages::Movement;
 use temper_protocol::SetPlayerPositionPacketReceiver;
-use tracing::{debug, trace};
+use tracing::trace;
 
 pub fn handle(
     receiver: Res<SetPlayerPositionPacketReceiver>,
