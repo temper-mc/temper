@@ -6,7 +6,7 @@ use temper_components::player::teleport_tracker::TeleportTracker;
 use temper_messages::chunk_calc::ChunkCalc;
 use temper_messages::packet_messages::Movement;
 use temper_protocol::SetPlayerPositionPacketReceiver;
-use tracing::trace;
+use tracing::{debug, trace};
 
 pub fn handle(
     receiver: Res<SetPlayerPositionPacketReceiver>,
@@ -35,7 +35,9 @@ pub fn handle(
                 .on_ground(event.on_ground);
 
             // Update components
-            *pos = new_pos;
+            if pos.coords != new_pos.coords {
+                *pos = new_pos;
+            }
             *ground = OnGround(event.on_ground);
 
             // Send movement message for broadcasting

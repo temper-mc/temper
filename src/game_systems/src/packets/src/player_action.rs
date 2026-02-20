@@ -1,29 +1,37 @@
 use bevy_ecs::prelude::{Entity, MessageWriter, Query, Res};
 use temper_components::player::abilities::PlayerAbilities;
-use temper_messages::BlockBrokenEvent;
 use temper_messages::player_digging::*;
+use temper_messages::BlockBrokenEvent;
 
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_net_runtime::connection::StreamWriter;
-use temper_protocol::PlayerActionReceiver;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
 use temper_protocol::outgoing::block_update::BlockUpdate;
+use temper_protocol::PlayerActionReceiver;
 use temper_state::GlobalStateResource;
 use tracing::{error, warn};
 
+#[expect(clippy::type_complexity)]
 pub fn handle(
     receiver: Res<PlayerActionReceiver>,
     state: Res<GlobalStateResource>,
     broadcast_query: Query<(Entity, &StreamWriter)>,
     player_query: Query<&PlayerAbilities>,
-    (mut start_dig_events, mut cancel_dig_events, mut finish_dig_events, mut block_break_events): (
+    (
+        mut start_dig_events,
+        mut cancel_dig_events,
+        mut finish_dig_events,
+        mut block_break_events,
+        mut world_change,
+    ): (
         MessageWriter<PlayerStartedDigging>,
         MessageWriter<PlayerCancelledDigging>,
         MessageWriter<PlayerFinishedDigging>,
         MessageWriter<BlockBrokenEvent>,
+        MessageWriter<temper_messages::world_change::WorldChange>,
     ),
 ) {
     // https://minecraft.wiki/w/Minecraft_Wiki:Projects/wiki.vg_merge/Protocol?oldid=2773393#Player_Action
@@ -48,6 +56,9 @@ pub fn handle(
                     .get_or_generate_mut(pos.chunk(), Dimension::Overworld)
                     .expect("Failed to load or generate chunk");
                 chunk.set_block(pos.chunk_block_pos(), BlockStateId::default());
+                world_change.write(temper_messages::world_change::WorldChange {
+                    chunk: Some(pos.chunk()),
+                });
 
                 // Send block broken event for un-grounding system
                 block_break_events.write(BlockBrokenEvent { position: pos });

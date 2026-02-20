@@ -1,11 +1,12 @@
 use bevy_ecs::prelude::Component;
-use bevy_math::{DVec3, IVec2};
+use bevy_math::DVec3;
 use std::ops::DerefMut;
 use std::{
     fmt::{Debug, Display, Formatter},
     ops::Deref,
 };
 use temper_codec::net_types::network_position::NetworkPosition;
+use temper_core::pos::ChunkPos;
 
 #[derive(Component, Clone, Copy)]
 pub struct Position {
@@ -81,8 +82,10 @@ impl Position {
         (self.x, self.y, self.z)
     }
 
-    pub fn chunk(&self) -> IVec2 {
-        IVec2::new(self.x.div_euclid(16.0) as _, self.z.div_euclid(16.0) as _)
+    pub fn chunk(&self) -> ChunkPos {
+        let chunk_x = (self.x.floor() as i32) >> 4;
+        let chunk_z = (self.z.floor() as i32) >> 4;
+        ChunkPos::new(chunk_x, chunk_z)
     }
 }
 

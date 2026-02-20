@@ -5,7 +5,7 @@ use temper_core::mq;
 use temper_text::TextComponent;
 use tracing::info;
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Debug)]
 /// A possible command sender.
 pub enum Sender {
     /// A player has sent a command.

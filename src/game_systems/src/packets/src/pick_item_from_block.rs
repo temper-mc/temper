@@ -61,11 +61,7 @@ pub fn handle(
                 continue;
             }
         };
-        let block_state_id = chunk.get_block(ChunkBlockPos::new(
-            pos.coords.x as u8,
-            pos.coords.y as i16,
-            pos.coords.z as u8,
-        ));
+        let block_state_id = chunk.get_block(ChunkBlockPos::from(pos.coords.as_ivec3()));
 
         // 3. Convert `BlockStateId` to `ItemId`
         let item_id = match ItemID::from_block_state(block_state_id) {

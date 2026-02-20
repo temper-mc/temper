@@ -11,10 +11,22 @@ pub mod var_int;
 
 #[derive(Debug, thiserror::Error)]
 pub enum NetTypesError {
-    #[error(transparent)]
-    Io(#[from] std::io::Error),
+    #[error("IO error: {0}")]
+    Io(std::io::Error),
     #[error("Invalid VarInt")]
     InvalidVarInt,
     #[error("I couldn't convert the value into a valid i32")]
     InvalidInputI32,
+    #[error("Connection was dropped")]
+    ConnectionDropped,
+}
+
+impl From<std::io::Error> for NetTypesError {
+    fn from(err: std::io::Error) -> Self {
+        use std::io::ErrorKind::*;
+        match err.kind() {
+            ConnectionAborted | ConnectionReset | UnexpectedEof => NetTypesError::ConnectionDropped,
+            _ => NetTypesError::Io(err),
+        }
+    }
 }

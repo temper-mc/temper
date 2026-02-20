@@ -189,6 +189,8 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     let ctor_fn_name = format_ident!("__{}_register", fn_name);
     let command_name = command_attr.name;
+    let tracing_name = format!("command:{}", command_name);
+    let system_tracing_name = format!("{} handler", tracing_name);
 
     let command_args = args
         .iter()
@@ -226,12 +228,14 @@ pub fn command(attr: TokenStream, item: TokenStream) -> TokenStream {
         #[allow(non_snake_case)]
         #[allow(dead_code)]
         #[doc(hidden)]
+        #[tracing::instrument(name = #tracing_name, skip_all)]
         #input_fn
 
         #[allow(unused_mut)] // required to use mutable queries without clippy screaming bloody murder
         #[allow(non_snake_case)]
         #[allow(unused_variables)]
         #[doc(hidden)]
+        #[tracing::instrument(name = #system_tracing_name, skip_all)]
         fn #system_name(mut messages: bevy_ecs::prelude::MessageMutator<temper_commands::messages::ResolvedCommandDispatched>, #(#system_args)*) {
             for temper_commands::messages::ResolvedCommandDispatched { command: __command, ctx: __ctx, sender } in messages.read() {
                 if __command.name == #command_name {

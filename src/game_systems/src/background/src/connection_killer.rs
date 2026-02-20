@@ -76,7 +76,6 @@ pub fn connection_killer(
                 player_identity.uuid,
                 reason.as_deref().unwrap_or("No reason")
             );
-            debug!("Saving player data to cache...");
 
             // Send disconnect packet
             if conn.running.load(std::sync::atomic::Ordering::Relaxed) {
@@ -123,6 +122,11 @@ pub fn connection_killer(
                 warn!(
                     "Failed to save player data for {}: {:?}",
                     player_identity.username, err
+                );
+            } else {
+                debug!(
+                    "Successfully saved player data for {}",
+                    player_identity.username
                 );
             }
 

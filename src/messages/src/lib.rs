@@ -35,6 +35,7 @@ pub mod cross_chunk_boundary_event;
 pub mod force_player_recount_event;
 pub mod packet_messages;
 pub mod teleport_player;
+pub mod world_change;
 
 use crate::chunk_calc::ChunkCalc;
 use crate::entity_update::SendEntityUpdate;
@@ -44,6 +45,7 @@ use crate::particle::SendParticle;
 use crate::teleport_player::TeleportPlayer;
 pub use block_break::BlockBrokenEvent;
 use temper_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
+use world_change::WorldChange;
 
 pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<Movement>(world);
@@ -69,4 +71,5 @@ pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<SendParticle>(world);
     MessageRegistry::register_message::<BlockBrokenEvent>(world);
     MessageRegistry::register_message::<TeleportPlayer>(world);
+    MessageRegistry::register_message::<WorldChange>(world);
 }

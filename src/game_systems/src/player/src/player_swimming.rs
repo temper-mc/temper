@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::*;
 use bevy_math::DVec3;
+use std::collections::HashSet;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::position::Position;
@@ -8,10 +9,11 @@ use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
 use temper_core::pos::BlockPos;
 use temper_macros::match_block;
+use temper_messages::world_change::WorldChange;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use temper_state::GlobalStateResource;
-use tracing::error;
+use tracing::{debug, error};
 
 /// Height of player's eyes from feet (blocks)
 const PLAYER_EYE_HEIGHT: f64 = 1.62;
@@ -41,12 +43,22 @@ fn is_player_in_water(state: &temper_state::GlobalState, pos: &Position) -> bool
 /// System that detects when players enter/exit water and updates their swimming state
 /// Also broadcasts the swimming pose to all connected clients
 pub fn detect_player_swimming(
-    mut swimmers: Query<(&PlayerIdentity, &Position, &mut SwimmingState)>,
+    mut swimmers: Query<(&PlayerIdentity, Ref<Position>, &mut SwimmingState)>,
     all_connections: Query<(Entity, &StreamWriter)>,
     state: Res<GlobalStateResource>,
+    mut world_change: MessageReader<WorldChange>,
 ) {
+    let mut changed_chunks = HashSet::new();
+    for change in world_change.read() {
+        if let Some(pos) = change.chunk {
+            changed_chunks.insert(pos);
+        }
+    }
     for (identity, pos, mut swimming_state) in swimmers.iter_mut() {
-        let in_water = is_player_in_water(&state.0, pos);
+        if !changed_chunks.contains(&pos.chunk()) && !pos.is_changed() {
+            continue;
+        }
+        let in_water = is_player_in_water(&state.0, &pos);
 
         if in_water && !swimming_state.is_swimming {
             swimming_state.is_swimming = true;

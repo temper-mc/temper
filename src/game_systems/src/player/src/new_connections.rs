@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Commands, Res};
 use std::time::Instant;
+use temper_components::bounds::CollisionBounds;
 use temper_components::player::chunk_receiver::ChunkReceiver;
 use temper_components::player::grounded::OnGround;
 use temper_components::player::keepalive::KeepAliveTracker;
@@ -60,6 +61,14 @@ pub fn accept_new_connections(
             active_effects: player_data.active_effects,
             swimming: SwimmingState::default(),
             sneak: SneakState::default(),
+            collision_bounds: CollisionBounds {
+                x_offset_start: -0.3,
+                x_offset_end: 0.3,
+                y_offset_start: 0.0,
+                y_offset_end: 1.8,
+                z_offset_start: -0.3,
+                z_offset_end: 0.3,
+            },
         };
 
         // --- 3. Spawn the PlayerBundle, then .insert() the network components ---

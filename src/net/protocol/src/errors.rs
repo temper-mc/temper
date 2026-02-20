@@ -1,8 +1,10 @@
 use crate::ConnState;
 use std::error::Error;
+use std::io::ErrorKind::{ConnectionAborted, ConnectionReset, UnexpectedEof};
 use std::sync::Arc;
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::encode::errors::NetEncodeError;
+use temper_codec::net_types::NetTypesError;
 use temper_config::server_config::get_global_config;
 use temper_world_format::errors::WorldError;
 use thiserror::Error;
@@ -35,7 +37,7 @@ pub enum PacketError {
     CompressionError(#[from] CompressionError),
 
     #[error("IO error: {0}")]
-    IoError(#[from] std::io::Error),
+    IoError(std::io::Error),
 
     #[error("Dropped connection")]
     DroppedConnection,
@@ -136,8 +138,18 @@ impl From<std::io::Error> for NetError {
     }
 }
 
-impl From<temper_codec::net_types::NetTypesError> for NetError {
-    fn from(err: temper_codec::net_types::NetTypesError) -> Self {
+impl From<std::io::Error> for PacketError {
+    fn from(err: std::io::Error) -> Self {
+        use std::io::ErrorKind::*;
+        match err.kind() {
+            ConnectionAborted | ConnectionReset | UnexpectedEof => PacketError::DroppedConnection,
+            _ => PacketError::IoError(err),
+        }
+    }
+}
+
+impl From<NetTypesError> for NetError {
+    fn from(err: NetTypesError) -> Self {
         use std::io::ErrorKind;
         use temper_codec::net_types::NetTypesError;
 

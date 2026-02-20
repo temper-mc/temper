@@ -7,25 +7,26 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use temper_codec::encode::NetEncode;
 use temper_codec::encode::NetEncodeOpts;
+use temper_codec::net_types::NetTypesError;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_encryption::read::EncryptedReader;
 use temper_encryption::write::EncryptedWriter;
-use temper_protocol::ConnState::Play;
 use temper_protocol::errors::CompressionError::GenericCompressionError;
 use temper_protocol::errors::NetError::HandshakeTimeout;
 use temper_protocol::errors::PacketError::InvalidPacket;
 use temper_protocol::errors::{NetError, PacketError};
 use temper_protocol::incoming::packet_skeleton::PacketSkeleton;
-use temper_protocol::{PacketSender, handle_packet};
+use temper_protocol::ConnState::Play;
+use temper_protocol::{handle_packet, PacketSender};
 use temper_state::ServerState;
 use tokio::io::AsyncWriteExt;
-use tokio::net::TcpStream;
 use tokio::net::tcp::OwnedWriteHalf;
+use tokio::net::TcpStream;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::sync::oneshot;
 use tokio::time::timeout;
-use tracing::{Instrument, debug, debug_span, error, trace, warn};
+use tracing::{debug, debug_span, error, trace, warn, Instrument};
 
 /// The maximum time allowed for a client to complete its initial handshake.
 /// Connections exceeding this duration will be dropped to avoid resource hogging.
@@ -385,7 +386,7 @@ pub async fn handle_connection(
                         packet_skele = packet;
                     },
                     Err(err) => {
-                        if let PacketError::DroppedConnection = err {
+                        if let PacketError::DroppedConnection | PacketError::NetTypeError(NetTypesError::ConnectionDropped) = err {
                             trace!("Connection dropped for entity {:?}", entity);
                             running.store(false, Ordering::Relaxed);
                             state.players.disconnect(entity, None);
