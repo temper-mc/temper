@@ -20,8 +20,6 @@ pub fn handle_inventory_updates(state: Res<GlobalStateResource>, mut query: Quer
                 };
                 if let Err(err) = writer.send_packet_ref(&packet) {
                     error!("Failed to send inventory update packet: {:?}", err);
-                } else {
-                    debug!("Sent inventory update for player {}", update.entity);
                 }
             } else {
                 error!("Could not find writer for player {}", update.entity);

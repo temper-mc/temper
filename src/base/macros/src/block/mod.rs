@@ -162,8 +162,8 @@ pub fn block(input: TokenStream) -> TokenStream {
 
     if matched.is_empty() {
         let properties = get_properties(&filtered_names);
-        if properties.is_empty() {
-            return syn::Error::new_spanned(
+        return if properties.is_empty() {
+            syn::Error::new_spanned(
                 name_str.clone(),
                 format!(
                     "block '{}' has no properties but the following properties were given: {}",
@@ -172,18 +172,18 @@ pub fn block(input: TokenStream) -> TokenStream {
                 ),
             )
             .to_compile_error()
-            .into();
+            .into()
         } else {
-            return syn::Error::new_spanned(
-                    name_str.clone(),
-                    format!(
-                        "no variant of block '{}' matches the specified properties. Available properties: {}",
-                        name_str.clone(), pretty_print_props(&properties)
-                    ),
-                )
-                    .to_compile_error()
-                    .into();
-        }
+            syn::Error::new_spanned(
+                name_str.clone(),
+                format!(
+                    "no variant of block '{}' matches the specified properties. Available properties: {}",
+                    name_str.clone(), pretty_print_props(&properties)
+                ),
+            )
+                .to_compile_error()
+                .into()
+        };
     }
     if matched.len() > 1 {
         return syn::Error::new_spanned(

@@ -5,49 +5,43 @@ use temper_components::bounds::CollisionBounds;
 use temper_components::player::position::Position;
 use temper_core::pos::BlockPos;
 use temper_net_runtime::connection::StreamWriter;
-use temper_protocol::PlaceBlockReceiver;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
 use temper_protocol::outgoing::block_update::BlockUpdate;
+use temper_protocol::PlaceBlockReceiver;
 use temper_state::GlobalStateResource;
 use tracing::{debug, error, trace};
 
+use bevy_math::DVec3;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::str::FromStr;
+use temper_components::player::rotation::Rotation;
 use temper_config::server_config::get_global_config;
-use temper_core::block_state_id::BlockStateId;
+use temper_core::block_state_id::{BlockStateId, ITEM_TO_BLOCK_MAPPING};
 use temper_core::dimension::Dimension;
 use temper_core::mq;
 use temper_inventories::hotbar::Hotbar;
 use temper_inventories::inventory::Inventory;
+use temper_macros::match_block;
 use temper_messages::world_change::WorldChange;
 use temper_text::{Color, NamedColor, TextComponentBuilder};
-
-const ITEM_TO_BLOCK_MAPPING_FILE: &str =
-    include_str!("../../../../../assets/data/item_to_block_mapping.json");
-static ITEM_TO_BLOCK_MAPPING: Lazy<HashMap<i32, BlockStateId>> = Lazy::new(|| {
-    let str_form: HashMap<String, String> = serde_json::from_str(ITEM_TO_BLOCK_MAPPING_FILE)
-        .expect("Failed to parse item_to_block_mapping.json");
-    str_form
-        .into_iter()
-        .map(|(k, v)| {
-            (
-                i32::from_str(&k).unwrap(),
-                BlockStateId::new(u32::from_str(&v).unwrap()),
-            )
-        })
-        .collect()
-});
 
 pub fn handle(
     receiver: Res<PlaceBlockReceiver>,
     state: Res<GlobalStateResource>,
-    query: Query<(Entity, &StreamWriter, &Inventory, &Hotbar, &Position)>,
+    query: Query<(
+        Entity,
+        &StreamWriter,
+        &Inventory,
+        &Hotbar,
+        &Position,
+        &Rotation,
+    )>,
     pos_q: Query<(&Position, &CollisionBounds)>,
     mut world_change: MessageWriter<WorldChange>,
 ) {
     'ev_loop: for (event, eid) in receiver.0.try_iter() {
-        let Ok((entity, conn, inventory, hotbar, _)) = query.get(eid) else {
+        let Ok((entity, conn, inventory, hotbar, pos, rot)) = query.get(eid) else {
             debug!("Could not get connection for entity {:?}", eid);
             continue;
         };
@@ -66,13 +60,8 @@ pub fn handle(
                         error!("Selected item has no item ID");
                         continue 'ev_loop;
                     };
-                    let Some(mapped_block_state_id) = ITEM_TO_BLOCK_MAPPING.get(&item_id.0.0)
-                    else {
-                        error!("No block mapping found for item ID: {}", item_id.0);
-                        continue 'ev_loop;
-                    };
-                    let pos: BlockPos = event.position.into();
-                    if pos.pos.y >= 319 {
+                    let block_pos: BlockPos = event.position.into();
+                    if block_pos.pos.y >= 319 {
                         mq::queue(
                             TextComponentBuilder::new(
                                 "Build limit is 319! Cannot place block here.".to_string(),
@@ -83,9 +72,9 @@ pub fn handle(
                             true,
                             entity,
                         );
-                        trace!("Block placement out of bounds: {}", pos);
+                        trace!("Block placement out of bounds: {}", block_pos);
                         continue 'ev_loop;
-                    } else if pos.pos.y <= -64 {
+                    } else if block_pos.pos.y <= -64 {
                         mq::queue(
                             TextComponentBuilder::new(
                                 "Cannot place block below Y=-64.".to_string(),
@@ -96,10 +85,10 @@ pub fn handle(
                             true,
                             entity,
                         );
-                        trace!("Block placement out of bounds: {}", pos);
+                        trace!("Block placement out of bounds: {}", block_pos);
                         continue 'ev_loop;
                     }
-                    let offset_pos = pos
+                    let offset_pos = block_pos
                         + match event.face.0 {
                             0 => (0, -1, 0),
                             1 => (0, 1, 0),
@@ -110,13 +99,14 @@ pub fn handle(
                             _ => (0, 0, 0),
                         };
 
-                    let mut chunk = state
-                        .0
-                        .world
-                        .get_or_generate_mut(offset_pos.chunk(), Dimension::Overworld)
-                        .expect("Failed to load or generate chunk");
-                    let block_clicked = chunk.get_block(offset_pos.chunk_block_pos());
-                    trace!("Block clicked: {:?}", block_clicked);
+                    let block_clicked = {
+                        let chunk = state
+                            .0
+                            .world
+                            .get_or_generate_chunk(block_pos.chunk(), Dimension::Overworld)
+                            .expect("Failed to load or generate chunk");
+                        chunk.get_block(block_pos.chunk_block_pos())
+                    };
 
                     // Check if the block collides with any entities
                     let does_collide = {
@@ -145,41 +135,89 @@ pub fn handle(
                         continue 'ev_loop;
                     }
 
-                    chunk.set_block(offset_pos.chunk_block_pos(), *mapped_block_state_id);
-                    world_change.write(WorldChange {
-                        chunk: Some(offset_pos.chunk()),
-                    });
-                    let ack_packet = BlockChangeAck {
-                        sequence: event.sequence,
+                    let block_at_pos = {
+                        let chunk = state
+                            .0
+                            .world
+                            .get_or_generate_chunk(offset_pos.chunk(), Dimension::Overworld)
+                            .expect("Failed to load or generate chunk");
+                        chunk.get_block(offset_pos.chunk_block_pos())
                     };
 
-                    let chunk_packet = BlockUpdate {
-                        location: NetworkPosition {
-                            x: offset_pos.pos.x,
-                            y: offset_pos.pos.y as i16,
-                            z: offset_pos.pos.z,
-                        },
-                        block_state_id: VarInt::from(*mapped_block_state_id),
-                    };
-
-                    if let Err(err) = conn.send_packet_ref(&ack_packet) {
-                        error!("Failed to send block change ack packet: {:?}", err);
+                    if !(match_block!("water", block_at_pos)
+                        || match_block!("lava", block_at_pos)
+                        || match_block!("air", block_at_pos))
+                    {
+                        debug!(
+                            "Block placement failed because the block at the target position is not replaceable"
+                        );
                         continue 'ev_loop;
                     }
 
-                    let offset_chunk = offset_pos.chunk();
-                    let (offset_chunk_x, offset_chunk_z) = (offset_chunk.x(), offset_chunk.z());
-                    let render_distance = get_global_config().chunk_render_distance as i32;
-                    for (_, conn, _, _, pos) in query.iter() {
-                        let chunk = pos.chunk();
-                        let (chunk_x, chunk_z) = (chunk.x(), chunk.z());
+                    let (remove_item, placed_block) = block_placing::place_item(
+                        state.0.clone(),
+                        block_placing::BlockPlaceContext {
+                            block_clicked,
+                            block_position: offset_pos,
+                            face_clicked: match event.face.0 {
+                                0 => block_placing::BlockFace::Bottom,
+                                1 => block_placing::BlockFace::Top,
+                                2 => block_placing::BlockFace::North,
+                                3 => block_placing::BlockFace::South,
+                                4 => block_placing::BlockFace::West,
+                                5 => block_placing::BlockFace::East,
+                                _ => {
+                                    debug!("Invalid block face");
+                                    continue 'ev_loop;
+                                }
+                            },
+                            click_position: DVec3::new(
+                                event.cursor_x as f64,
+                                event.cursor_y as f64,
+                                event.cursor_z as f64,
+                            ),
+                            player_position: *pos,
+                            player_rotation: *rot,
+                        },
+                        item_id,
+                    );
 
-                        // Only send block update if the player is within the render distance of the block being updated
-                        if (offset_chunk_x - chunk_x).abs() <= render_distance
-                            && (offset_chunk_z - chunk_z).abs() <= render_distance
-                            && let Err(err) = conn.send_packet_ref(&chunk_packet)
-                        {
-                            error!("Failed to send block update packet: {:?}", err);
+                    if let Some(placed_block) = placed_block {
+                        world_change.write(WorldChange {
+                            chunk: Some(offset_pos.chunk()),
+                        });
+                        let ack_packet = BlockChangeAck {
+                            sequence: event.sequence,
+                        };
+
+                        let chunk_packet = BlockUpdate {
+                            location: NetworkPosition {
+                                x: offset_pos.pos.x,
+                                y: offset_pos.pos.y as i16,
+                                z: offset_pos.pos.z,
+                            },
+                            block_state_id: placed_block.to_varint(),
+                        };
+
+                        if let Err(err) = conn.send_packet_ref(&ack_packet) {
+                            error!("Failed to send block change ack packet: {:?}", err);
+                            continue 'ev_loop;
+                        }
+
+                        let offset_chunk = offset_pos.chunk();
+                        let (offset_chunk_x, offset_chunk_z) = (offset_chunk.x(), offset_chunk.z());
+                        let render_distance = get_global_config().chunk_render_distance as i32;
+                        for (_, conn, _, _, pos, rot) in query.iter() {
+                            let chunk = pos.chunk();
+                            let (chunk_x, chunk_z) = (chunk.x(), chunk.z());
+
+                            // Only send block update if the player is within the render distance of the block being updated
+                            if (offset_chunk_x - chunk_x).abs() <= render_distance
+                                && (offset_chunk_z - chunk_z).abs() <= render_distance
+                                && let Err(err) = conn.send_packet_ref(&chunk_packet)
+                            {
+                                error!("Failed to send block update packet: {:?}", err);
+                            }
                         }
                     }
                 }
