@@ -8,7 +8,6 @@ edition = "2024"
 temper-core = { workspace = true }
 temper-inventories = { workspace = true }
 temper-net-runtime = { workspace = true }
-temper-plugins = { workspace = true }
 temper-storage = { workspace = true }
 temper-utils = { workspace = true }
 temper-world = { workspace = true }
