@@ -4,7 +4,7 @@ use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::position::Position;
 use temper_config::server_config::get_global_config;
 use temper_core::pos::BlockPos;
-use temper_messages::BlockInteractMessage;
+use temper_messages::{BlockCoords, BlockInteractMessage, BlockToggledEvent};
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
 use temper_protocol::outgoing::block_update::BlockUpdate;
@@ -12,12 +12,13 @@ use temper_state::GlobalStateResource;
 use temper_world::Dimension;
 use tracing::{debug, error};
 
-use crate::block_interactions::{door_other_half_y_offset, try_interact, InteractionResult};
+use crate::block_interactions::{door_other_half_y_offset, is_open, try_interact, InteractionResult};
 
 pub fn handle_block_interact(
     mut events: MessageReader<BlockInteractMessage>,
     state: Res<GlobalStateResource>,
     query: Query<(Entity, &StreamWriter, &Position)>,
+    mut toggled_writer: MessageWriter<BlockToggledEvent>,
 ) {
     for event in events.read() {
         let pos = BlockPos::of(event.position.x, event.position.y, event.position.z);
@@ -89,6 +90,18 @@ pub fn handle_block_interact(
 
         // Drop the chunk lock before sending packets
         drop(chunk);
+
+        // Emit BlockToggledEvent for other systems to react
+        let is_active = is_open(new_state).unwrap_or(false);
+        toggled_writer.write(BlockToggledEvent {
+            player: event.player,
+            position: BlockCoords {
+                x: pos.pos.x,
+                y: pos.pos.y,
+                z: pos.pos.z,
+            },
+            is_active,
+        });
 
         // Send BlockChangeAck to the player
         if let Ok((_, conn, _)) = query.get(event.player) {
