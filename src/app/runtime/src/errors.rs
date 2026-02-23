@@ -2,7 +2,6 @@ use bevy_ecs::query::QueryEntityError;
 use temper_core::errors::CoreError;
 use temper_general_purpose::paths::RootPathError;
 use temper_inventories::errors::InventoryError;
-use temper_plugins::errors::PluginsError;
 use temper_protocol::errors::NetError;
 use temper_storage::errors::StorageError;
 use temper_utils::errors::UtilsError;
@@ -20,9 +19,6 @@ pub enum BinaryError {
 
     #[error("Net error: {0}")]
     Net(#[from] NetError),
-
-    #[error("Plugins error: {0}")]
-    Plugins(#[from] PluginsError),
 
     #[error("Storage error: {0}")]
     Storage(#[from] StorageError),
