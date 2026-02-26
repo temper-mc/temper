@@ -15,7 +15,10 @@ pub fn handle(
 ) {
     for (event, eid) in receiver.0.try_iter() {
         let animation = { if event.hand == 0 { 0 } else { 3 } };
-        let game_id = query.get(eid).expect("Game ID not found");
+        let Ok(game_id) = query.get(eid) else {
+            error!("Game ID not found for entity: {:?}", eid);
+            continue;
+        };
         let packet = EntityAnimationPacket::new(VarInt::new(game_id.short_uuid), animation);
         for (entity, conn) in conn_query.iter() {
             if entity == eid {
