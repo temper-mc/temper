@@ -4,9 +4,22 @@ pub mod entity_identity;
 pub mod health;
 pub mod interaction;
 pub mod player;
+
 // Core entity components based on temper-data
 pub mod combat;
 pub mod last_synced_position;
 pub mod metadata;
 pub mod physical;
 pub mod spawn;
+
+// Interaction components re-exports
+pub use interaction::{
+    // Events
+    BlockPosition,
+    // Capability components
+    Door,
+
+    InteractableBlock,
+    InteractionCooldown,
+    Toggleable,
+};
