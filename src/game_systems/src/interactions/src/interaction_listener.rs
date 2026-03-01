@@ -120,7 +120,7 @@ pub fn handle_block_interact(
 
         for (_, conn, player_pos) in query.iter() {
             let pchunk = player_pos.chunk();
-            let (pcx, pcz) = (pchunk.pos.x, pchunk.pos.y);
+            let (pcx, pcz) = (pchunk.x(), pchunk.z());
 
             if (block_cx - pcx).abs() <= render_distance
                 && (block_cz - pcz).abs() <= render_distance
