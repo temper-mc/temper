@@ -1,5 +1,5 @@
 use bevy_ecs::message::MessageWriter;
-use bevy_ecs::prelude::{DetectChanges, Entity, Query, Res, With};
+use bevy_ecs::prelude::{DetectChanges, Entity, Has, Query, Res, With};
 use bevy_math::bounding::{Aabb3d, BoundingVolume};
 use bevy_math::{IVec3, Vec3A};
 use temper_components::player::grounded::OnGround;
@@ -8,8 +8,10 @@ use temper_components::player::velocity::Velocity;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
-use temper_entities::PhysicalProperties;
+use temper_entities::components::Baby;
+use temper_entities::components::EntityMetadata;
 use temper_entities::markers::HasCollisions;
+use temper_entities::PhysicalRegistry;
 use temper_macros::match_block;
 use temper_messages::entity_update::SendEntityUpdate;
 use temper_state::{GlobalState, GlobalStateResource};
@@ -20,15 +22,20 @@ pub fn handle(
             Entity,
             &mut Velocity,
             &mut Position,
-            &PhysicalProperties,
+            &EntityMetadata,
+            Has<Baby>,
             &mut OnGround,
         ),
         With<HasCollisions>,
     >,
     mut writer: MessageWriter<SendEntityUpdate>,
     state: Res<GlobalStateResource>,
+    registry: Res<PhysicalRegistry>,
 ) {
-    for (eid, mut vel, mut pos, physical, mut grounded) in query {
+    for (eid, mut vel, mut pos, metadata, is_baby, mut grounded) in query {
+        let Some(physical) = registry.get_or_adult(metadata.protocol_id(), is_baby) else {
+            continue;
+        };
         if pos.is_changed() || vel.is_changed() {
             // Figure out where the entity is going to be next tick
             let next_pos = pos.coords.as_vec3a() + **vel;

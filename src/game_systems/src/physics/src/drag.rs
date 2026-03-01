@@ -1,20 +1,25 @@
-use bevy_ecs::prelude::{Query, Res, With};
+use bevy_ecs::prelude::{Has, Query, Res, With};
 use bevy_math::{IVec3, Vec3A};
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::dimension::Dimension;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
-use temper_entities::PhysicalProperties;
+use temper_entities::components::{Baby, EntityMetadata};
 use temper_entities::markers::HasWaterDrag;
+use temper_entities::PhysicalRegistry;
 use temper_macros::match_block;
 use temper_state::GlobalStateResource;
 
 pub fn handle(
-    mut query: Query<(&mut Velocity, &Position, &PhysicalProperties), With<HasWaterDrag>>,
+    mut query: Query<(&mut Velocity, &Position, &EntityMetadata, Has<Baby>), With<HasWaterDrag>>,
     state: Res<GlobalStateResource>,
+    registry: Res<PhysicalRegistry>,
 ) {
-    for (mut vel, pos, physical) in query.iter_mut() {
+    for (mut vel, pos, metadata, is_baby) in query.iter_mut() {
+        let Some(physical) = registry.get_or_adult(metadata.protocol_id(), is_baby) else {
+            continue;
+        };
         let chunk_pos = ChunkPos::from(pos.coords);
         let chunk = state
             .0
