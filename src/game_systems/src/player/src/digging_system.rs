@@ -1,8 +1,9 @@
 use bevy_ecs::prelude::*;
 use std::time::{Duration, Instant};
 
-use temper_codec::net_types::var_int::VarInt;
+use interactions::door_interaction::break_block_with_door_half;
 use temper_codec::net_types::network_position::NetworkPosition;
+use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::abilities::PlayerAbilities;
 use temper_components::player::gameplay_state::digging::PlayerDigging;
 use temper_core::block_state_id::BlockStateId;
@@ -14,7 +15,6 @@ use temper_messages::world_change::WorldChange;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::{block_change_ack::BlockChangeAck, block_update::BlockUpdate};
 use temper_state::GlobalStateResource;
-use interactions::door_interaction::break_block_with_door_half;
 use tracing::{debug, error, warn};
 
 // A query for just the components needed to acknowledge a dig packet
