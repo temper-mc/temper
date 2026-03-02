@@ -13,13 +13,4 @@ pub mod physical;
 pub mod spawn;
 
 // Interaction components re-exports
-pub use interaction::{
-    // Events
-    BlockPosition,
-    // Capability components
-    Door,
-
-    InteractableBlock,
-    InteractionCooldown,
-    Toggleable,
-};
+pub use interaction::{Door, InteractableBlock, InteractionCooldown, Toggleable};
