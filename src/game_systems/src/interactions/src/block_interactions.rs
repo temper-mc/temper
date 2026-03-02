@@ -26,8 +26,6 @@
 use std::collections::BTreeMap;
 use temper_core::block_data::BlockData;
 use temper_core::block_state_id::BlockStateId;
-use temper_core::pos::BlockPos;
-use temper_messages::BlockBrokenEvent;
 use tracing::{debug, warn};
 
 /// Result of attempting to interact with a block.
@@ -147,22 +145,6 @@ pub fn try_interact(block_state_id: BlockStateId) -> InteractionResult {
     InteractionResult::Toggled(new_state_id)
 }
 
-/// Given a block state, if it's a door, returns the Y offset to the other half.
-/// Lower half -> +1, upper half -> -1, not a door -> None.
-pub fn door_other_half_y_offset(block_state_id: BlockStateId) -> Option<i32> {
-    let data = block_state_id.to_block_data()?;
-    if !data.name.ends_with("_door") {
-        return None;
-    }
-    let props = data.properties.as_ref()?;
-    let half = props.get("half")?;
-    match half.as_str() {
-        "lower" => Some(1),
-        "upper" => Some(-1),
-        _ => None,
-    }
-}
-
 /// Checks if a block is interactive without modifying it.
 pub fn is_interactive(block_state_id: BlockStateId) -> bool {
     block_state_id
@@ -170,47 +152,6 @@ pub fn is_interactive(block_state_id: BlockStateId) -> bool {
         .as_ref()
         .and_then(get_interaction_type)
         .is_some()
-}
-
-/// Gets the "open" state of a door/trapdoor/fence gate.
-#[allow(dead_code)]
-pub fn is_open(block_state_id: BlockStateId) -> Option<bool> {
-    let block_data = block_state_id.to_block_data()?;
-    let properties = block_data.properties.as_ref()?;
-    let open_value = properties.get("open")?;
-    Some(open_value == "true")
-}
-
-/// Breaks a block and its door-pair (if applicable).
-/// Sets both positions to air and emits `BlockBrokenEvent` for each.
-/// Returns the list of all positions that were broken (always includes `pos`,
-/// and may include the other door half).
-pub fn break_block_with_door_half(
-    chunk: &mut temper_world::MutChunk,
-    pos: BlockPos,
-    block_break_writer: &mut bevy_ecs::prelude::MessageWriter<BlockBrokenEvent>,
-) -> Vec<BlockPos> {
-    let current_state = chunk.get_block(pos.chunk_block_pos());
-    let other_half = door_other_half_y_offset(current_state).map(|y_off| pos + (0, y_off, 0));
-
-    chunk.set_block(pos.chunk_block_pos(), BlockStateId::default());
-    block_break_writer.write(BlockBrokenEvent { position: pos });
-
-    let mut broken = vec![pos];
-
-    if let Some(other_pos) = other_half {
-        chunk.set_block(other_pos.chunk_block_pos(), BlockStateId::default());
-        block_break_writer.write(BlockBrokenEvent {
-            position: other_pos,
-        });
-        debug!(
-            "Also broke other door half at ({}, {}, {})",
-            other_pos.pos.x, other_pos.pos.y, other_pos.pos.z
-        );
-        broken.push(other_pos);
-    }
-
-    broken
 }
 
 #[cfg(test)]
