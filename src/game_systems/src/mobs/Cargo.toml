@@ -5,5 +5,9 @@ edition = "2024"
 
 [dependencies]
 bevy_ecs = { workspace = true }
+bevy_math = { workspace = true }
+pathfinding = { path = "../pathfinding" }
 temper-components = { workspace = true }
+temper-core = { workspace = true }
 temper-entities = { workspace = true }
+temper-state = { workspace = true }
