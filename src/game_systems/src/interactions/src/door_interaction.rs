@@ -77,7 +77,7 @@ pub fn handle_door_toggled(
     query: Query<(&StreamWriter, &Position)>,
 ) {
     for event in events.read() {
-        let pos = BlockPos::of(event.position.x, event.position.y, event.position.z);
+        let pos = event.position;
 
         let Some(y_offset) = door_other_half_y_offset(event.new_state) else {
             continue;

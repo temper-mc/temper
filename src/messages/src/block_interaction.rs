@@ -1,16 +1,7 @@
 use bevy_ecs::prelude::{Entity, Message};
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::block_state_id::BlockStateId;
-
-/// World coordinates for a block, stored as (x, y, z).
-///
-/// This is a simple coordinate type that avoids Debug issues with BlockPos.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct BlockCoords {
-    pub x: i32,
-    pub y: i32,
-    pub z: i32,
-}
+use temper_core::pos::BlockPos;
 
 /// Message sent when a player right-clicks an interactive block (door, lever, etc.)
 /// and is NOT sneaking.
@@ -19,7 +10,7 @@ pub struct BlockCoords {
 #[derive(Message, Clone, Debug)]
 pub struct BlockInteractMessage {
     pub player: Entity,
-    pub position: BlockCoords,
+    pub position: BlockPos,
     pub sequence: VarInt,
 }
 
@@ -29,13 +20,13 @@ pub struct BlockInteractMessage {
 #[derive(Message, Clone, Debug)]
 pub struct BlockToggledEvent {
     pub player: Entity,
-    pub position: BlockCoords,
+    pub position: BlockPos,
     pub is_active: bool,
 }
 
 /// Emitted when a door block is toggled, so the door system can toggle the other half.
 #[derive(Message, Clone, Debug)]
 pub struct DoorToggledEvent {
-    pub position: BlockCoords,
+    pub position: BlockPos,
     pub new_state: BlockStateId,
 }
