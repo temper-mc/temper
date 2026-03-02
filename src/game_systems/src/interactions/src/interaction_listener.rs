@@ -36,63 +36,64 @@ pub fn handle_block_interact(
             }
         };
 
-        let block_state = chunk.get_block(pos.chunk_block_pos());
+        let (updates, is_active) = {
+            let block_state = chunk.get_block(pos.chunk_block_pos());
 
-        // Try to interact (toggle) the block
-        let new_state = match try_interact(block_state) {
-            InteractionResult::Toggled(new) => new,
-            _ => continue,
-        };
+            // Try to interact (toggle) the block
+            let new_state = match try_interact(block_state) {
+                InteractionResult::Toggled(new) => new,
+                _ => continue,
+            };
 
-        chunk.set_block(pos.chunk_block_pos(), new_state);
-        debug!(
-            "Block interact: toggled ({}, {}, {}) from {} to {}",
-            pos.pos.x,
-            pos.pos.y,
-            pos.pos.z,
-            block_state.raw(),
-            new_state.raw()
-        );
+            chunk.set_block(pos.chunk_block_pos(), new_state);
+            debug!(
+                "Block interact: toggled ({}, {}, {}) from {} to {}",
+                pos.pos.x,
+                pos.pos.y,
+                pos.pos.z,
+                block_state.raw(),
+                new_state.raw()
+            );
 
-        let mut updates: Vec<BlockUpdate> = vec![BlockUpdate {
-            location: NetworkPosition {
-                x: pos.pos.x,
-                y: pos.pos.y as i16,
-                z: pos.pos.z,
-            },
-            block_state_id: VarInt::from(new_state),
-        }];
+            let mut updates: Vec<BlockUpdate> = vec![BlockUpdate {
+                location: NetworkPosition {
+                    x: pos.pos.x,
+                    y: pos.pos.y as i16,
+                    z: pos.pos.z,
+                },
+                block_state_id: VarInt::from(new_state),
+            }];
 
-        // If it's a door, also toggle the other half
-        if let Some(y_offset) = door_other_half_y_offset(new_state) {
-            let other_pos = pos + (0, y_offset, 0);
-            let other_state = chunk.get_block(other_pos.chunk_block_pos());
+            // If it's a door, also toggle the other half
+            if let Some(y_offset) = door_other_half_y_offset(new_state) {
+                let other_pos = pos + (0, y_offset, 0);
+                let other_state = chunk.get_block(other_pos.chunk_block_pos());
 
-            if let InteractionResult::Toggled(other_new) = try_interact(other_state) {
-                chunk.set_block(other_pos.chunk_block_pos(), other_new);
-                debug!(
-                    "Door other half: toggled ({}, {}, {}) to {}",
-                    other_pos.pos.x,
-                    other_pos.pos.y,
-                    other_pos.pos.z,
-                    other_new.raw()
-                );
-                updates.push(BlockUpdate {
-                    location: NetworkPosition {
-                        x: other_pos.pos.x,
-                        y: other_pos.pos.y as i16,
-                        z: other_pos.pos.z,
-                    },
-                    block_state_id: VarInt::from(other_new),
-                });
+                if let InteractionResult::Toggled(other_new) = try_interact(other_state) {
+                    chunk.set_block(other_pos.chunk_block_pos(), other_new);
+                    debug!(
+                        "Door other half: toggled ({}, {}, {}) to {}",
+                        other_pos.pos.x,
+                        other_pos.pos.y,
+                        other_pos.pos.z,
+                        other_new.raw()
+                    );
+                    updates.push(BlockUpdate {
+                        location: NetworkPosition {
+                            x: other_pos.pos.x,
+                            y: other_pos.pos.y as i16,
+                            z: other_pos.pos.z,
+                        },
+                        block_state_id: VarInt::from(other_new),
+                    });
+                }
             }
-        }
 
-        // Drop the chunk lock before sending packets
-        drop(chunk);
+            let is_active = is_open(new_state).unwrap_or(false);
+            (updates, is_active)
+        }; // chunk lock released here
 
         // Emit BlockToggledEvent for other systems to react
-        let is_active = is_open(new_state).unwrap_or(false);
         toggled_writer.write(BlockToggledEvent {
             player: event.player,
             position: BlockCoords {
