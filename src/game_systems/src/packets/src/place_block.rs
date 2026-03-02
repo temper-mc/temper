@@ -7,7 +7,7 @@ use temper_components::player::position::Position;
 use temper_components::{bounds::CollisionBounds, player::sneak::SneakState};
 use temper_core::block_data::BlockData;
 use temper_core::pos::BlockPos;
-use temper_messages::{BlockCoords, BlockInteractMessage};
+use temper_messages::BlockInteractMessage;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlaceBlockReceiver;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
@@ -100,11 +100,7 @@ pub fn handle(
             if !sneak_state.is_sneaking && is_interactive(clicked_block_state) {
                 interact_writer.write(BlockInteractMessage {
                     player: entity,
-                    position: BlockCoords {
-                        x: clicked_pos.pos.x,
-                        y: clicked_pos.pos.y,
-                        z: clicked_pos.pos.z,
-                    },
+                    position: clicked_pos,
                     sequence: event.sequence,
                 });
                 continue 'ev_loop;

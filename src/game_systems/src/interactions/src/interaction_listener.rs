@@ -3,8 +3,7 @@ use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::position::Position;
 use temper_config::server_config::get_global_config;
-use temper_core::pos::BlockPos;
-use temper_messages::{BlockCoords, BlockInteractMessage, BlockToggledEvent, DoorToggledEvent};
+use temper_messages::{BlockInteractMessage, BlockToggledEvent, DoorToggledEvent};
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
 use temper_protocol::outgoing::block_update::BlockUpdate;
@@ -23,7 +22,7 @@ pub fn handle_block_interact(
     mut door_toggled_writer: MessageWriter<DoorToggledEvent>,
 ) {
     for event in events.read() {
-        let pos = BlockPos::of(event.position.x, event.position.y, event.position.z);
+        let pos = event.position;
 
         // Load the chunk and get current block state
         let mut chunk = match temper_world::World::get_or_generate_mut(
@@ -73,11 +72,7 @@ pub fn handle_block_interact(
         // If it's a door, let the door handler toggle the other half
         if door_other_half_y_offset(new_state).is_some() {
             door_toggled_writer.write(DoorToggledEvent {
-                position: BlockCoords {
-                    x: pos.pos.x,
-                    y: pos.pos.y,
-                    z: pos.pos.z,
-                },
+                position: pos,
                 new_state,
             });
         }
@@ -85,11 +80,7 @@ pub fn handle_block_interact(
         // Emit BlockToggledEvent for other systems to react
         toggled_writer.write(BlockToggledEvent {
             player: event.player,
-            position: BlockCoords {
-                x: pos.pos.x,
-                y: pos.pos.y,
-                z: pos.pos.z,
-            },
+            position: pos,
             is_active,
         });
 

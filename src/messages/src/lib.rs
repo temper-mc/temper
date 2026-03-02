@@ -45,7 +45,7 @@ use crate::packet_messages::Movement;
 use crate::particle::SendParticle;
 use crate::teleport_player::TeleportPlayer;
 pub use block_break::BlockBrokenEvent;
-pub use block_interaction::{BlockCoords, BlockInteractMessage, BlockToggledEvent, DoorToggledEvent};
+pub use block_interaction::{BlockInteractMessage, BlockToggledEvent, DoorToggledEvent};
 use temper_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
 use world_change::WorldChange;
 
