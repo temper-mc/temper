@@ -11,7 +11,7 @@ use temper_state::GlobalStateResource;
 use temper_world::Dimension;
 use tracing::{debug, error};
 
-use crate::block_interactions::{try_interact, InteractionResult};
+use crate::block_interactions::{InteractionResult, try_interact};
 use crate::door_interaction::{door_other_half_y_offset, is_open};
 
 pub fn handle_block_interact(

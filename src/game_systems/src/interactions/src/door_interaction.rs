@@ -12,7 +12,7 @@ use temper_state::GlobalStateResource;
 use temper_world::Dimension;
 use tracing::{debug, error};
 
-use crate::block_interactions::{try_interact, InteractionResult};
+use crate::block_interactions::{InteractionResult, try_interact};
 
 /// Given a block state, if it's a door, returns the Y offset to the other half.
 /// Lower half -> +1, upper half -> -1, not a door -> None.
