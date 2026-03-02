@@ -27,6 +27,7 @@ pub fn register_packet_handlers(schedule: &mut Schedule) {
     schedule.add_systems(keep_alive::handle);
     schedule.add_systems(place_block::handle);
     schedule.add_systems(interactions::interaction_listener::handle_block_interact);
+    schedule.add_systems(interactions::door_interaction::handle_door_toggled);
     schedule.add_systems(player_action::handle);
     schedule.add_systems(player_command::handle);
     schedule.add_systems(player_input::handle);

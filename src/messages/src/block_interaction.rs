@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Entity, Message};
 use temper_codec::net_types::var_int::VarInt;
+use temper_core::block_state_id::BlockStateId;
 
 /// World coordinates for a block, stored as (x, y, z).
 ///
@@ -30,4 +31,11 @@ pub struct BlockToggledEvent {
     pub player: Entity,
     pub position: BlockCoords,
     pub is_active: bool,
+}
+
+/// Emitted when a door block is toggled, so the door system can toggle the other half.
+#[derive(Message, Clone, Debug)]
+pub struct DoorToggledEvent {
+    pub position: BlockCoords,
+    pub new_state: BlockStateId,
 }

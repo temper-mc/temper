@@ -4,7 +4,7 @@ use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::position::Position;
 use temper_config::server_config::get_global_config;
 use temper_core::pos::BlockPos;
-use temper_messages::{BlockCoords, BlockInteractMessage, BlockToggledEvent};
+use temper_messages::{BlockCoords, BlockInteractMessage, BlockToggledEvent, DoorToggledEvent};
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
 use temper_protocol::outgoing::block_update::BlockUpdate;
@@ -12,13 +12,15 @@ use temper_state::GlobalStateResource;
 use temper_world::Dimension;
 use tracing::{debug, error};
 
-use crate::block_interactions::{door_other_half_y_offset, is_open, try_interact, InteractionResult};
+use crate::block_interactions::{try_interact, InteractionResult};
+use crate::door_interaction::{door_other_half_y_offset, is_open};
 
 pub fn handle_block_interact(
     mut events: MessageReader<BlockInteractMessage>,
     state: Res<GlobalStateResource>,
     query: Query<(Entity, &StreamWriter, &Position)>,
     mut toggled_writer: MessageWriter<BlockToggledEvent>,
+    mut door_toggled_writer: MessageWriter<DoorToggledEvent>,
 ) {
     for event in events.read() {
         let pos = BlockPos::of(event.position.x, event.position.y, event.position.z);
@@ -36,7 +38,7 @@ pub fn handle_block_interact(
             }
         };
 
-        let (updates, is_active) = {
+        let (updates, is_active, new_state) = {
             let block_state = chunk.get_block(pos.chunk_block_pos());
 
             // Try to interact (toggle) the block
@@ -55,7 +57,7 @@ pub fn handle_block_interact(
                 new_state.raw()
             );
 
-            let mut updates: Vec<BlockUpdate> = vec![BlockUpdate {
+            let updates = vec![BlockUpdate {
                 location: NetworkPosition {
                     x: pos.pos.x,
                     y: pos.pos.y as i16,
@@ -64,34 +66,21 @@ pub fn handle_block_interact(
                 block_state_id: VarInt::from(new_state),
             }];
 
-            // If it's a door, also toggle the other half
-            if let Some(y_offset) = door_other_half_y_offset(new_state) {
-                let other_pos = pos + (0, y_offset, 0);
-                let other_state = chunk.get_block(other_pos.chunk_block_pos());
-
-                if let InteractionResult::Toggled(other_new) = try_interact(other_state) {
-                    chunk.set_block(other_pos.chunk_block_pos(), other_new);
-                    debug!(
-                        "Door other half: toggled ({}, {}, {}) to {}",
-                        other_pos.pos.x,
-                        other_pos.pos.y,
-                        other_pos.pos.z,
-                        other_new.raw()
-                    );
-                    updates.push(BlockUpdate {
-                        location: NetworkPosition {
-                            x: other_pos.pos.x,
-                            y: other_pos.pos.y as i16,
-                            z: other_pos.pos.z,
-                        },
-                        block_state_id: VarInt::from(other_new),
-                    });
-                }
-            }
-
             let is_active = is_open(new_state).unwrap_or(false);
-            (updates, is_active)
+            (updates, is_active, new_state)
         }; // chunk lock released here
+
+        // If it's a door, let the door handler toggle the other half
+        if door_other_half_y_offset(new_state).is_some() {
+            door_toggled_writer.write(DoorToggledEvent {
+                position: BlockCoords {
+                    x: pos.pos.x,
+                    y: pos.pos.y,
+                    z: pos.pos.z,
+                },
+                new_state,
+            });
+        }
 
         // Emit BlockToggledEvent for other systems to react
         toggled_writer.write(BlockToggledEvent {

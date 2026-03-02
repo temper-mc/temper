@@ -14,7 +14,7 @@ use temper_messages::world_change::WorldChange;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::{block_change_ack::BlockChangeAck, block_update::BlockUpdate};
 use temper_state::GlobalStateResource;
-use interactions::block_interactions::break_block_with_door_half;
+use interactions::door_interaction::break_block_with_door_half;
 use tracing::{debug, error, warn};
 
 // A query for just the components needed to acknowledge a dig packet

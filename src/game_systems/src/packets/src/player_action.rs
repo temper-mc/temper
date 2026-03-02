@@ -3,7 +3,7 @@ use temper_components::player::abilities::PlayerAbilities;
 use temper_messages::BlockBrokenEvent;
 use temper_messages::player_digging::*;
 
-use interactions::block_interactions::break_block_with_door_half;
+use interactions::door_interaction::break_block_with_door_half;
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::block_state_id::BlockStateId;
