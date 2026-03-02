@@ -1,13 +1,8 @@
 use bevy_ecs::prelude::*;
-use temper_core::pos::BlockPos;
 
 /// Marker: this block entity is interactive.
 #[derive(Component, Debug, Clone, Copy)]
 pub struct InteractableBlock;
-
-/// Links an ECS entity to a world block position.
-#[derive(Component, Clone, Copy)]
-pub struct BlockPosition(pub BlockPos);
 
 /// Anti-spam cooldown for block interactions.
 #[derive(Component, Debug, Clone)]
