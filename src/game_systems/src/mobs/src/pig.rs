@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::*;
+use temper_components::player::grounded::OnGround;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
@@ -29,11 +30,11 @@ pub struct PigAI {
 
 pub fn tick_pig(
     mut commands: Commands,
-    mut pigs: Query<(Entity, &Position, &mut Velocity, Option<&mut PigAI>), With<Pig>>,
+    mut pigs: Query<(Entity, &Position, &mut Velocity, &OnGround, Option<&mut PigAI>), With<Pig>>,
     players: Query<&Position, With<PlayerIdentity>>,
     state: Res<GlobalStateResource>,
 ) {
-    for (entity, pig_pos, mut velocity, ai) in pigs.iter_mut() {
+    for (entity, pig_pos, mut velocity, grounded, ai) in pigs.iter_mut() {
         let mut ai = match ai {
             Some(ai) => ai,
             None => {
@@ -77,11 +78,9 @@ pub fn tick_pig(
         };
 
         // Jump if the next waypoint is 1 block above and the pig is on the ground.
-        // We check the fractional Y to avoid re-triggering at the peak of the jump
-        // (where velocity.y briefly passes through 0).
-        let frac_y = pig_pos.y - current_block.pos.y as f64;
-        let is_grounded = frac_y < 0.1;
-        if next.pos.y > current_block.pos.y && is_grounded {
+        // We rely on OnGround (set/reset by the collision system each tick) rather than
+        // a fractional-Y heuristic, which would fire mid-air and cause infinite flying.
+        if next.pos.y > current_block.pos.y && grounded.0 {
             velocity.vec.y = JUMP_IMPULSE;
         }
 
