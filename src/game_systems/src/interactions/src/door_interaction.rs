@@ -131,10 +131,10 @@ pub fn handle_door_toggled(
 
             if (block_cx - pcx).abs() <= render_distance
                 && (block_cz - pcz).abs() <= render_distance
-                && let Err(e) = conn.send_packet_ref(&update) {
+                && let Err(e) = conn.send_packet_ref(&update)
+            {
                 error!("Failed to send door half block update: {:?}", e);
             }
-
         }
     }
 }
