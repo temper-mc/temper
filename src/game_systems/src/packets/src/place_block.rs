@@ -208,35 +208,31 @@ pub fn handle(
                     // If it's a door, also place the upper half
                     let upper_half_update = {
                         let mut result = None;
-                        if let Some(data) = mapped_block_state_id.to_block_data() {
-                            if data.name.ends_with("_door") {
-                                if let Some(props) = &data.properties {
-                                    let mut upper_props = props.clone();
-                                    upper_props.insert("half".to_string(), "upper".to_string());
-                                    let upper_data = BlockData {
-                                        name: data.name.clone(),
-                                        properties: Some(upper_props),
-                                    };
-                                    let upper_state = BlockStateId::from_block_data(&upper_data);
-                                    let upper_pos = offset_pos + (0, 1, 0);
-                                    chunk.set_block(upper_pos.chunk_block_pos(), upper_state);
-                                    debug!(
-                                        "Also placed door upper half at ({}, {}, {}) -> {}",
-                                        upper_pos.pos.x,
-                                        upper_pos.pos.y,
-                                        upper_pos.pos.z,
-                                        upper_state
-                                    );
-                                    result = Some(BlockUpdate {
-                                        location: NetworkPosition {
-                                            x: upper_pos.pos.x,
-                                            y: upper_pos.pos.y as i16,
-                                            z: upper_pos.pos.z,
-                                        },
-                                        block_state_id: VarInt::from(upper_state),
-                                    });
-                                }
-                            }
+                        if let Some(data) = mapped_block_state_id.to_block_data()
+                            && data.name.ends_with("_door")
+                            && let Some(props) = &data.properties
+                        {
+                            let mut upper_props = props.clone();
+                            upper_props.insert("half".to_string(), "upper".to_string());
+                            let upper_data = BlockData {
+                                name: data.name.clone(),
+                                properties: Some(upper_props),
+                            };
+                            let upper_state = BlockStateId::from_block_data(&upper_data);
+                            let upper_pos = offset_pos + (0, 1, 0);
+                            chunk.set_block(upper_pos.chunk_block_pos(), upper_state);
+                            debug!(
+                                "Also placed door upper half at ({}, {}, {}) -> {}",
+                                upper_pos.pos.x, upper_pos.pos.y, upper_pos.pos.z, upper_state
+                            );
+                            result = Some(BlockUpdate {
+                                location: NetworkPosition {
+                                    x: upper_pos.pos.x,
+                                    y: upper_pos.pos.y as i16,
+                                    z: upper_pos.pos.z,
+                                },
+                                block_state_id: VarInt::from(upper_state),
+                            });
                         }
                         result
                     };
@@ -269,10 +265,10 @@ pub fn handle(
                         {
                             error!("Failed to send block update packet: {:?}", err);
                         }
-                        if let Some(ref upper_update) = upper_half_update {
-                            if let Err(err) = conn.send_packet_ref(upper_update) {
-                                error!("Failed to send block update packet: {:?}", err);
-                            }
+                        if let Some(ref upper_update) = upper_half_update
+                            && let Err(err) = conn.send_packet_ref(upper_update)
+                        {
+                            error!("Failed to send block update packet: {:?}", err);
                         }
                     }
                 }
