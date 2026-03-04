@@ -4,5 +4,6 @@ pub mod markers;
 
 // Re-exports to facilitate use
 pub use bundles::*;
+pub use components::physical_registry::PhysicalRegistry;
 pub use components::*;
 pub use markers::*;

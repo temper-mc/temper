@@ -8,3 +8,4 @@ bevy_ecs = { workspace = true }
 
 temper-data = { workspace = true }
 temper-components = { workspace = true }
+temper-core = { workspace = true }

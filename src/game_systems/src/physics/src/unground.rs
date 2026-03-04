@@ -1,9 +1,10 @@
 use bevy_ecs::message::MessageReader;
-use bevy_ecs::prelude::{Query, Res, With};
+use bevy_ecs::prelude::{Has, Query, Res, With};
 use bevy_math::IVec3;
 use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
-use temper_entities::PhysicalProperties;
+use temper_entities::PhysicalRegistry;
+use temper_entities::components::{Baby, EntityMetadata};
 use temper_entities::markers::HasCollisions;
 use temper_messages::BlockBrokenEvent;
 use temper_state::GlobalStateResource;
@@ -17,8 +18,12 @@ use super::collisions::is_solid_block;
 /// The main purpose is to re-enable gravity for entities that lose their ground support.
 pub fn handle(
     mut events: MessageReader<BlockBrokenEvent>,
-    mut entities: Query<(&Position, &PhysicalProperties, &mut OnGround), With<HasCollisions>>,
+    mut entities: Query<
+        (&Position, &EntityMetadata, Has<Baby>, &mut OnGround),
+        With<HasCollisions>,
+    >,
     state: Res<GlobalStateResource>,
+    registry: Res<PhysicalRegistry>,
 ) {
     for event in events.read() {
         let broken_block_pos = event.position;
@@ -28,7 +33,10 @@ pub fn handle(
         );
 
         // Check all entities with collisions
-        for (pos, physical, mut grounded) in entities.iter_mut() {
+        for (pos, metadata, is_baby, mut grounded) in entities.iter_mut() {
+            let Some(physical) = registry.get_or_adult(metadata.protocol_id(), is_baby) else {
+                continue;
+            };
             // Skip entities that aren't grounded
             if !grounded.0 {
                 continue;

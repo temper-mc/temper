@@ -10,6 +10,7 @@ temper-net-runtime = { workspace = true }
 crossbeam-channel = { workspace = true }
 temper-state = { workspace = true }
 temper-config = { workspace = true }
+temper-entities = { workspace = true }
 
 [lints]
 workspace = true
