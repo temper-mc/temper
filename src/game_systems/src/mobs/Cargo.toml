@@ -11,3 +11,6 @@ temper-components = { workspace = true }
 temper-core = { workspace = true }
 temper-entities = { workspace = true }
 temper-state = { workspace = true }
+temper-messages = { workspace = true }
+temper-particles = { workspace = true }
+temper-utils = { workspace = true }

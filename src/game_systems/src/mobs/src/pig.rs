@@ -1,10 +1,13 @@
 use bevy_ecs::prelude::*;
+use bevy_math::Vec3A;
 use temper_components::player::grounded::OnGround;
 use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
 use temper_core::pos::BlockPos;
 use temper_entities::markers::entity_types::Pig;
+use temper_messages::particle::SendParticle;
+use temper_particles::ParticleType;
 use temper_state::GlobalStateResource;
 
 /// Pig walk speed in blocks per tick.
@@ -104,6 +107,39 @@ pub fn tick_pig(
         } else {
             velocity.vec.x = 0.0;
             velocity.vec.z = 0.0;
+        }
+    }
+}
+
+pub fn tick_pig_particles(
+    pigs: Query<(Entity, &Position), With<Pig>>,
+    players: Query<&Position, With<PlayerIdentity>>,
+    mut msgs: MessageWriter<SendParticle>,
+) {
+    for pos in pigs.iter() {
+        for player_pos in players.iter() {
+            let distance_sq = player_pos.as_vec3a().distance_squared(pos.1.as_vec3a());
+            // Only spawn particles if a player is within 256 blocks
+            if distance_sq > 16.0 * 256.0 {
+                continue;
+            }
+            // Spawn end rod particles from the pig to the player
+            let steps = temper_utils::maths::step::step_between(
+                pos.1.as_vec3a(),
+                player_pos.coords.as_vec3a(),
+                0.5,
+            );
+            // Limit to 32 particles to avoid spamming (16 blocks with a 0.5 step)
+            for step_pos in steps.iter().take(32) {
+                let particle_message = SendParticle {
+                    particle_type: ParticleType::EndRod,
+                    position: *step_pos,
+                    offset: Vec3A::new(0.0, 0.0, 0.0),
+                    speed: 0.0,
+                    count: 1,
+                };
+                msgs.write(particle_message);
+            }
         }
     }
 }
