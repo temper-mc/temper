@@ -6,10 +6,12 @@ version.workspace = true
 [dependencies]
 background = { path = "./src/background" }
 mobs = { path = "./src/mobs" }
+pathfinding = { path = "./src/pathfinding" }
 packets = { path = "./src/packets" }
 physics = { path = "./src/physics" }
 player = { path = "./src/player" }
 shutdown = { path = "./src/shutdown" }
+interactions = { path = "./src/interactions" }
 
 bevy_ecs = { workspace = true }
 

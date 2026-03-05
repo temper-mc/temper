@@ -1,8 +1,8 @@
 use bevy_ecs::message::MessageWriter;
 use bevy_ecs::prelude::{DetectChanges, Entity, Has, Query, Res, With};
 use bevy_ecs::world::Mut;
+use bevy_math::IVec3;
 use bevy_math::bounding::{Aabb3d, BoundingVolume};
-use bevy_math::{IVec3, Vec3A};
 use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
@@ -37,6 +37,12 @@ pub fn handle(
             continue;
         };
         if pos.is_changed() || vel.is_changed() {
+            // Reset grounded only when the entity is actually moving.
+            // When grounded and at rest, gravity is skipped → vel/pos unchanged → this block
+            // is skipped → grounded keeps its true value, preventing spurious falling.
+            // When the entity jumps or falls, vel/pos change → grounded resets to false here,
+            // then gets set back to true only when the MTV Y-resolution detects a landing.
+            grounded.0 = false;
             // Figure out where the entity is going to be next tick
             let next_pos = pos.coords.as_vec3a() + **vel;
             let mut collided = false;
@@ -69,17 +75,15 @@ pub fn handle(
                         if is_solid_block(&state.0, block_pos) {
                             collided = true;
                             hit_blocks.push(block_pos);
-                            if is_solid_block(&state.0, IVec3::new(x, y - 1, z)) && vel.y <= 0.0 {
-                                grounded.0 = true;
-                            }
                         }
                     }
                 }
             }
-            // If a collision is detected, stop the entity's movement
+            // Resolve collisions using Minimum Translation Vector (MTV):
+            // compute the penetration depth on each axis and push out along the
+            // smallest one, zeroing only that velocity component. This preserves
+            // jump velocity when hitting a wall horizontally.
             if collided {
-                vel.vec = Vec3A::ZERO;
-                // Find the closest hit block to the entity's position
                 hit_blocks.sort_by(|a, b| {
                     let dist_a = (a.as_dvec3() - pos.coords).length_squared();
                     let dist_b = (b.as_dvec3() - pos.coords).length_squared();
@@ -87,36 +91,69 @@ pub fn handle(
                 });
                 let first_hit = hit_blocks.first().expect("At least one hit block expected");
 
-                let block_aabb = Aabb3d {
-                    min: first_hit.as_vec3a(),
-                    max: (first_hit + IVec3::ONE).as_vec3a(),
-                };
+                let entity_min = physical.bounding_box.min + pos.coords.as_vec3a();
+                let entity_max = physical.bounding_box.max + pos.coords.as_vec3a();
+                let block_min = first_hit.as_vec3a();
+                let block_max = (first_hit + IVec3::ONE).as_vec3a();
 
-                let translated_bounding_box = Aabb3d {
-                    min: physical.bounding_box.min + pos.coords.as_vec3a(),
-                    max: physical.bounding_box.max + pos.coords.as_vec3a(),
-                };
+                // Penetration depth on each axis from both sides
+                let ox_pos = entity_max.x - block_min.x; // entity entering from -X
+                let ox_neg = block_max.x - entity_min.x; // entity entering from +X
+                let oy_pos = entity_max.y - block_min.y; // entity entering from below
+                let oy_neg = block_max.y - entity_min.y; // entity entering from above
+                let oz_pos = entity_max.z - block_min.z; // entity entering from -Z
+                let oz_neg = block_max.z - entity_min.z; // entity entering from +Z
 
-                // Get the closest point on the entity's bounding box to the block's AABB
-                let entity_collide_point = translated_bounding_box
-                    .closest_point(block_aabb.center().as_dvec3().as_vec3a());
+                // Only resolve if there is real penetration on all three axes
+                if ox_pos > 0.0
+                    && ox_neg > 0.0
+                    && oy_pos > 0.0
+                    && oy_neg > 0.0
+                    && oz_pos > 0.0
+                    && oz_neg > 0.0
+                {
+                    let mx = ox_pos.min(ox_neg);
+                    let my = oy_pos.min(oy_neg);
+                    let mz = oz_pos.min(oz_neg);
 
-                if entity_collide_point == block_aabb.center().as_dvec3().as_vec3a() {
-                    continue;
+                    if mx <= my && mx <= mz {
+                        let push = if ox_pos < ox_neg { -ox_pos } else { ox_neg };
+                        pos.coords.x += push as f64;
+                        vel.vec.x = 0.0;
+                    } else if my <= mx && my <= mz {
+                        let push = if oy_pos < oy_neg { -oy_pos } else { oy_neg };
+                        pos.coords.y += push as f64;
+                        vel.vec.y = 0.0;
+                        if oy_neg <= oy_pos {
+                            // Entity came from above: it's landing on the block
+                            grounded.0 = true;
+                        }
+                    } else {
+                        let push = if oz_pos < oz_neg { -oz_pos } else { oz_neg };
+                        pos.coords.z += push as f64;
+                        vel.vec.z = 0.0;
+                    }
                 }
+            }
 
-                // Then we get the closest point on the block's AABB to the entity's collide point
-                let block_collide_point = block_aabb.closest_point(entity_collide_point);
-
-                if block_collide_point == entity_collide_point {
-                    continue;
+            // Floor contact check: catches the "exactly at surface" case that the MTV
+            // misses when vel.y = 0. This happens when the entity moves horizontally
+            // while standing: the merged hitbox uses floor(65.0) = 65, so block y=64
+            // is excluded, no collision fires, and grounded stays false. We check the
+            // block just below the entity's feet explicitly.
+            if !grounded.0 && vel.vec.y <= 0.0 {
+                let feet_y = physical.bounding_box.min.y as f64 + pos.coords.y;
+                let floor_block_y = (feet_y - 1e-3).floor() as i32;
+                let cx = pos.coords.x.floor() as i32;
+                let cz = pos.coords.z.floor() as i32;
+                if is_solid_block(&state.0, IVec3::new(cx, floor_block_y, cz)) {
+                    let surface_y = (floor_block_y + 1) as f64;
+                    if (feet_y - surface_y).abs() < 0.05 {
+                        pos.coords.y = surface_y - physical.bounding_box.min.y as f64;
+                        vel.vec.y = 0.0;
+                        grounded.0 = true;
+                    }
                 }
-
-                // The difference between these two points tells us how far apart the 2 colliding objects are
-                let collision_difference = entity_collide_point - block_collide_point;
-
-                // We use this to nudge the entity out of the block along the smallest axis
-                pos.coords -= collision_difference.as_dvec3();
             }
 
             writer.write(SendEntityUpdate(eid));

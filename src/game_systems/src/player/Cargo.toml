@@ -22,5 +22,6 @@ temper-registry = { workspace = true }
 temper-entities = { workspace = true }
 temper-text = { workspace = true }
 temper-macros = { workspace = true }
+interactions = { workspace = true }
 tokio = { workspace = true }
 rand = { workspace = true }

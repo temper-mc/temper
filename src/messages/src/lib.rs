@@ -31,6 +31,7 @@ pub mod particle;
 pub use entity_spawn::{EntityType, SpawnEntityCommand, SpawnEntityEvent};
 
 pub mod block_break;
+pub mod block_interaction;
 pub mod cross_chunk_boundary_event;
 pub mod force_player_recount_event;
 pub mod packet_messages;
@@ -44,6 +45,7 @@ use crate::packet_messages::Movement;
 use crate::particle::SendParticle;
 use crate::teleport_player::TeleportPlayer;
 pub use block_break::BlockBrokenEvent;
+pub use block_interaction::{BlockInteractMessage, BlockToggledEvent, DoorToggledEvent};
 use temper_commands::messages::{CommandDispatched, ResolvedCommandDispatched};
 use world_change::WorldChange;
 
@@ -72,4 +74,7 @@ pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<BlockBrokenEvent>(world);
     MessageRegistry::register_message::<TeleportPlayer>(world);
     MessageRegistry::register_message::<WorldChange>(world);
+    MessageRegistry::register_message::<BlockInteractMessage>(world);
+    MessageRegistry::register_message::<BlockToggledEvent>(world);
+    MessageRegistry::register_message::<DoorToggledEvent>(world);
 }
