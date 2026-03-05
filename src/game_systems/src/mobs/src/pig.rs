@@ -30,7 +30,16 @@ pub struct PigAI {
 
 pub fn tick_pig(
     mut commands: Commands,
-    mut pigs: Query<(Entity, &Position, &mut Velocity, &OnGround, Option<&mut PigAI>), With<Pig>>,
+    mut pigs: Query<
+        (
+            Entity,
+            &Position,
+            &mut Velocity,
+            &OnGround,
+            Option<&mut PigAI>,
+        ),
+        With<Pig>,
+    >,
     players: Query<&Position, With<PlayerIdentity>>,
     state: Res<GlobalStateResource>,
 ) {
@@ -105,9 +114,13 @@ fn stop(velocity: &mut Velocity) {
 }
 
 fn pos_to_block(pos: &Position) -> BlockPos {
+    // Add a small epsilon before flooring to avoid floating-point edge cases where
+    // the entity is at exactly the block surface (e.g. y=64.9999... instead of 65.0),
+    // which would incorrectly place the entity one block too low.
+    const EPSILON: f64 = 1e-4;
     BlockPos::of(
         pos.x.floor() as i32,
-        pos.y.floor() as i32,
+        (pos.y + EPSILON).floor() as i32,
         pos.z.floor() as i32,
     )
 }

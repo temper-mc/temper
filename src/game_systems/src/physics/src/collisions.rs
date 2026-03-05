@@ -33,14 +33,16 @@ pub fn handle(
     registry: Res<PhysicalRegistry>,
 ) {
     for (eid, mut vel, mut pos, metadata, is_baby, mut grounded) in query {
-        // Reset each physics tick; re-set to true below if landing is detected.
-        // Without this, grounded stays true after a jump and suppresses gravity forever.
-        grounded.0 = false;
-
         let Some(physical) = registry.get_or_adult(metadata.protocol_id(), is_baby) else {
             continue;
         };
         if pos.is_changed() || vel.is_changed() {
+            // Reset grounded only when the entity is actually moving.
+            // When grounded and at rest, gravity is skipped → vel/pos unchanged → this block
+            // is skipped → grounded keeps its true value, preventing spurious falling.
+            // When the entity jumps or falls, vel/pos change → grounded resets to false here,
+            // then gets set back to true only when the MTV Y-resolution detects a landing.
+            grounded.0 = false;
             // Figure out where the entity is going to be next tick
             let next_pos = pos.coords.as_vec3a() + **vel;
             let mut collided = false;
@@ -73,9 +75,6 @@ pub fn handle(
                         if is_solid_block(&state.0, block_pos) {
                             collided = true;
                             hit_blocks.push(block_pos);
-                            if is_solid_block(&state.0, IVec3::new(x, y - 1, z)) && vel.y <= 0.0 {
-                                grounded.0 = true;
-                            }
                         }
                     }
                 }
@@ -133,6 +132,26 @@ pub fn handle(
                         let push = if oz_pos < oz_neg { -oz_pos } else { oz_neg };
                         pos.coords.z += push as f64;
                         vel.vec.z = 0.0;
+                    }
+                }
+            }
+
+            // Floor contact check: catches the "exactly at surface" case that the MTV
+            // misses when vel.y = 0. This happens when the entity moves horizontally
+            // while standing: the merged hitbox uses floor(65.0) = 65, so block y=64
+            // is excluded, no collision fires, and grounded stays false. We check the
+            // block just below the entity's feet explicitly.
+            if !grounded.0 && vel.vec.y <= 0.0 {
+                let feet_y = physical.bounding_box.min.y as f64 + pos.coords.y;
+                let floor_block_y = (feet_y - 1e-3).floor() as i32;
+                let cx = pos.coords.x.floor() as i32;
+                let cz = pos.coords.z.floor() as i32;
+                if is_solid_block(&state.0, IVec3::new(cx, floor_block_y, cz)) {
+                    let surface_y = (floor_block_y + 1) as f64;
+                    if (feet_y - surface_y).abs() < 0.05 {
+                        pos.coords.y = surface_y - physical.bounding_box.min.y as f64;
+                        vel.vec.y = 0.0;
+                        grounded.0 = true;
                     }
                 }
             }
