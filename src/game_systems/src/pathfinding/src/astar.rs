@@ -4,7 +4,7 @@ use temper_core::block_state_id::BlockStateId;
 use temper_core::pos::BlockPos;
 use temper_world::Dimension;
 
-use crate::cost::{block_penalty, IMPASSABLE};
+use crate::cost::{IMPASSABLE, block_penalty};
 
 /// A path from start to goal, expressed as block positions (feet position).
 pub struct Path {

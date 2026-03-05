@@ -1,8 +1,8 @@
 use bevy_ecs::message::MessageWriter;
 use bevy_ecs::prelude::{DetectChanges, Entity, Has, Query, Res, With};
 use bevy_ecs::world::Mut;
-use bevy_math::bounding::{Aabb3d, BoundingVolume};
 use bevy_math::IVec3;
+use bevy_math::bounding::{Aabb3d, BoundingVolume};
 use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;

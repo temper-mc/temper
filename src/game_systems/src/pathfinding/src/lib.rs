@@ -1,4 +1,4 @@
 mod astar;
 mod cost;
 
-pub use astar::{find_path, Path};
+pub use astar::{Path, find_path};
