@@ -3,9 +3,11 @@ use ahash::RandomState;
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
 use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::process::exit;
+use std::str::FromStr;
 use temper_codec::net_types::var_int::VarInt;
 use tracing::{error, warn};
 
@@ -109,6 +111,10 @@ impl BlockData {
             .to_block_data()
             .expect("Block state ID not found in block mappings file")
     }
+
+    pub fn try_to_block_state_id(&self) -> Option<BlockStateId> {
+        Some(BlockStateId::from_block_data(self))
+    }
 }
 impl From<BlockData> for BlockStateId {
     fn from(block_data: BlockData) -> Self {
@@ -144,3 +150,19 @@ impl Default for BlockStateId {
         Self(0)
     }
 }
+
+const ITEM_TO_BLOCK_MAPPING_FILE: &str =
+    include_str!("../../../assets/data/item_to_block_mapping.json");
+pub static ITEM_TO_BLOCK_MAPPING: Lazy<HashMap<i32, BlockStateId>> = Lazy::new(|| {
+    let str_form: HashMap<String, String> = serde_json::from_str(ITEM_TO_BLOCK_MAPPING_FILE)
+        .expect("Failed to parse item_to_block_mapping.json");
+    str_form
+        .into_iter()
+        .map(|(k, v)| {
+            (
+                i32::from_str(&k).unwrap(),
+                BlockStateId::new(u32::from_str(&v).unwrap()),
+            )
+        })
+        .collect()
+});

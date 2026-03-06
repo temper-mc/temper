@@ -34,6 +34,8 @@ members = [
     "src/game_systems/src/packets",
     "src/game_systems/src/physics",
     "src/game_systems/src/player",
+    "src/game_systems/src/world",
+    "src/world/block-placing",
     "src/inventories",
     "src/messages",
     "src/net/codec",

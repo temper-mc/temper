@@ -3,7 +3,7 @@ use temper_codec::net_types::var_int::VarInt;
 use temper_inventories::INVENTORY_UPDATES_QUEUE;
 use temper_net_runtime::connection::StreamWriter;
 use temper_state::GlobalStateResource;
-use tracing::{debug, error};
+use tracing::error;
 
 pub fn handle_inventory_updates(state: Res<GlobalStateResource>, mut query: Query<&StreamWriter>) {
     while let Some(update) = INVENTORY_UPDATES_QUEUE.pop() {
@@ -20,8 +20,6 @@ pub fn handle_inventory_updates(state: Res<GlobalStateResource>, mut query: Quer
                 };
                 if let Err(err) = writer.send_packet_ref(&packet) {
                     error!("Failed to send inventory update packet: {:?}", err);
-                } else {
-                    debug!("Sent inventory update for player {}", update.entity);
                 }
             } else {
                 error!("Could not find writer for player {}", update.entity);

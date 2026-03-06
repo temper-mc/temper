@@ -2,7 +2,7 @@ use bevy_ecs::prelude::{Query, Res};
 use temper_inventories::inventory::Inventory;
 use temper_protocol::SetCreativeModeSlotReceiver;
 use temper_state::GlobalStateResource;
-use tracing::{debug, error};
+use tracing::error;
 
 pub fn handle(
     receiver: Res<SetCreativeModeSlotReceiver>,
@@ -10,10 +10,6 @@ pub fn handle(
     mut query: Query<&mut Inventory>,
 ) {
     for (event, entity) in receiver.0.try_iter() {
-        debug!(
-            "Slot {} placed at {} by player {}",
-            event.slot, event.slot_index, entity
-        );
         if state.0.players.is_connected(entity)
             && let Ok(mut inventory) = query.get_mut(entity)
         {
