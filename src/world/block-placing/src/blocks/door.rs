@@ -115,3 +115,129 @@ impl PlacableBlock for PlaceableDoor {
         })
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::BlockPlaceContext;
+    use temper_components::player::rotation::Rotation;
+    use temper_core::dimension::Dimension;
+    use temper_core::pos::BlockPos;
+    use temper_macros::block;
+
+    #[test]
+    fn test_place_door() {
+        let (state, _) = temper_state::create_test_state();
+        let context = BlockPlaceContext {
+            block_clicked: Default::default(),
+            block_position: BlockPos::of(0, 64, 0),
+            face_clicked: BlockFace::Top,
+            click_position: Default::default(),
+            item_used: item!("oak_door"),
+            player_rotation: Rotation {
+                yaw: 90.0,
+                pitch: 0.0,
+            },
+            player_position: Default::default(),
+        };
+        let result = PlaceableDoor::place(context, state.0.clone());
+        assert!(result.is_ok());
+        let placed_blocks = result.unwrap();
+        assert_eq!(placed_blocks.blocks.len(), 2);
+        let bottom_block_id = placed_blocks
+            .blocks
+            .get(&BlockPos::of(0, 64, 0))
+            .expect("Bottom block not placed");
+        let upper_block_id = placed_blocks
+            .blocks
+            .get(&BlockPos::of(0, 65, 0))
+            .expect("Upper block not placed");
+        assert_eq!(
+            state
+                .0
+                .world
+                .get_or_generate_chunk(BlockPos::of(0, 64, 0).chunk(), Dimension::Overworld)
+                .expect("Could not load chunk")
+                .get_block(BlockPos::of(0, 64, 0).chunk_block_pos()),
+            *bottom_block_id
+        );
+        assert_eq!(
+            state
+                .0
+                .world
+                .get_or_generate_chunk(BlockPos::of(0, 65, 0).chunk(), Dimension::Overworld)
+                .expect("Could not load chunk")
+                .get_block(BlockPos::of(0, 65, 0).chunk_block_pos()),
+            *upper_block_id
+        );
+    }
+
+    #[test]
+    fn test_place_door_with_block_above() {
+        let (state, _) = temper_state::create_test_state();
+        // Place a block above the door position
+        {
+            let mut chunk = state
+                .0
+                .world
+                .get_or_generate_mut(BlockPos::of(0, 64, 0).chunk(), Dimension::Overworld)
+                .expect("Could not load chunk");
+            chunk.set_block(BlockPos::of(0, 65, 0).chunk_block_pos(), block!("stone")); // Some solid block
+        }
+        let context = BlockPlaceContext {
+            block_clicked: Default::default(),
+            block_position: BlockPos::of(0, 64, 0),
+            face_clicked: BlockFace::Top,
+            click_position: Default::default(),
+            item_used: item!("oak_door"),
+            player_rotation: Rotation {
+                yaw: 90.0,
+                pitch: 0.0,
+            },
+            player_position: Default::default(),
+        };
+        let result = PlaceableDoor::place(context, state.0.clone());
+        assert!(result.is_ok());
+        let placed_blocks = result.unwrap();
+        assert!(
+            placed_blocks.blocks.is_empty(),
+            "Door should not be placed when there is a block above"
+        );
+    }
+
+    #[test]
+    fn test_place_door_on_invalid_face() {
+        let (state, _) = temper_state::create_test_state();
+        let context = BlockPlaceContext {
+            block_clicked: Default::default(),
+            block_position: BlockPos::of(0, 64, 0),
+            face_clicked: BlockFace::Bottom, // Invalid face for door placement
+            click_position: Default::default(),
+            item_used: item!("oak_door"),
+            player_rotation: Rotation {
+                yaw: 90.0,
+                pitch: 0.0,
+            },
+            player_position: Default::default(),
+        };
+        let result = PlaceableDoor::place(context, state.0.clone());
+        assert!(
+            result.is_err(),
+            "Placing a door on an invalid face should return an error"
+        );
+        match result.err().unwrap() {
+            BlockPlaceError::InvalidBlockFace(face) => assert_eq!(face, BlockFace::Bottom),
+            _ => panic!("Expected InvalidBlockFace error"),
+        }
+        // Check that no blocks were placed
+        let chunk = state
+            .0
+            .world
+            .get_or_generate_chunk(BlockPos::of(0, 64, 0).chunk(), Dimension::Overworld)
+            .expect("Could not load chunk");
+        assert_eq!(
+            chunk.get_block(BlockPos::of(0, 64, 0).chunk_block_pos()),
+            block!("air")
+        );
+    }
+}

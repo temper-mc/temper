@@ -25,7 +25,7 @@ pub trait PlacableBlock {
     ) -> Result<PlacedBlocks, BlockPlaceError>;
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BlockFace {
     Top,
     Bottom,
