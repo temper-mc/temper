@@ -157,6 +157,8 @@ pub fn is_interactive(block_state_id: BlockStateId) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use temper_core::block_state_id::BlockStateId;
+    use temper_macros::block;
 
     #[test]
     fn test_door_detection() {
@@ -174,5 +176,60 @@ mod tests {
             get_interaction_type(&door_data),
             Some(InteractionType::Toggleable("open"))
         ));
+    }
+
+    #[test]
+    fn test_try_interact_opens_door() {
+        // A closed oak door (lower half, north-facing, left hinge, unpowered)
+        let closed_door: BlockStateId = block!("oak_door", { facing: "north", half: "lower", hinge: "left", open: false, powered: false });
+
+        let result = try_interact(closed_door);
+        let InteractionResult::Toggled(new_id) = result else {
+            panic!("Expected Toggled, got {:?}", result);
+        };
+
+        let new_data = new_id
+            .to_block_data()
+            .expect("new state ID should be valid");
+        let props = new_data.properties.expect("door should have properties");
+        assert_eq!(props["open"], "true", "door should be open after interact");
+    }
+
+    #[test]
+    fn test_try_interact_closes_door() {
+        // An already-open oak door
+        let open_door: BlockStateId = block!("oak_door", { facing: "north", half: "lower", hinge: "left", open: true, powered: false });
+
+        let result = try_interact(open_door);
+        let InteractionResult::Toggled(new_id) = result else {
+            panic!("Expected Toggled, got {:?}", result);
+        };
+
+        let new_data = new_id
+            .to_block_data()
+            .expect("new state ID should be valid");
+        let props = new_data.properties.expect("door should have properties");
+        assert_eq!(
+            props["open"], "false",
+            "door should be closed after interact"
+        );
+    }
+
+    #[test]
+    fn test_try_interact_not_interactive() {
+        let stone: BlockStateId = block!("stone");
+        assert!(matches!(
+            try_interact(stone),
+            InteractionResult::NotInteractive
+        ));
+    }
+
+    #[test]
+    fn test_is_interactive() {
+        let door: BlockStateId = block!("oak_door", { facing: "north", half: "lower", hinge: "left", open: false, powered: false });
+        let stone: BlockStateId = block!("stone");
+
+        assert!(is_interactive(door), "door should be interactive");
+        assert!(!is_interactive(stone), "stone should not be interactive");
     }
 }
