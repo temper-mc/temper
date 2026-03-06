@@ -1,9 +1,13 @@
-use bevy_ecs::prelude::{Entity, MessageWriter, Query, Res};
+use bevy_ecs::message::MessageWriter;
+use bevy_ecs::prelude::{Entity, Query, Res};
+use interactions::block_interactions::is_interactive;
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
-use temper_components::bounds::CollisionBounds;
 use temper_components::player::position::Position;
+use temper_components::{bounds::CollisionBounds, player::sneak::SneakState};
+use temper_core::block_data::BlockData;
 use temper_core::pos::BlockPos;
+use temper_messages::BlockInteractMessage;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlaceBlockReceiver;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
@@ -42,12 +46,20 @@ static ITEM_TO_BLOCK_MAPPING: Lazy<HashMap<i32, BlockStateId>> = Lazy::new(|| {
 pub fn handle(
     receiver: Res<PlaceBlockReceiver>,
     state: Res<GlobalStateResource>,
-    query: Query<(Entity, &StreamWriter, &Inventory, &Hotbar, &Position)>,
+    query: Query<(
+        Entity,
+        &StreamWriter,
+        &Inventory,
+        &Hotbar,
+        &Position,
+        &SneakState,
+    )>,
     pos_q: Query<(&Position, &CollisionBounds)>,
     mut world_change: MessageWriter<WorldChange>,
+    mut interact_writer: MessageWriter<BlockInteractMessage>,
 ) {
     'ev_loop: for (event, eid) in receiver.0.try_iter() {
-        let Ok((entity, conn, inventory, hotbar, _)) = query.get(eid) else {
+        let Ok((entity, conn, inventory, hotbar, _, sneak_state)) = query.get(eid) else {
             debug!("Could not get connection for entity {:?}", eid);
             continue;
         };
@@ -55,6 +67,46 @@ pub fn handle(
             trace!("Entity {:?} is not connected", entity);
             continue;
         }
+
+        // Convert network position to block position (the block that was clicked)
+        let clicked_pos: BlockPos = event.position.clone().into();
+
+        // Check if the clicked block is interactive and the player is NOT sneaking
+        {
+            let chunk_result = temper_world::World::get_or_generate_mut(
+                &state.0.world,
+                clicked_pos.chunk(),
+                Dimension::Overworld,
+            );
+            let chunk = match chunk_result {
+                Ok(c) => c,
+                Err(e) => {
+                    error!("Failed to load chunk for interaction check: {:?}", e);
+                    continue 'ev_loop;
+                }
+            };
+
+            let clicked_block_state = chunk.get_block(clicked_pos.chunk_block_pos());
+
+            debug!(
+                "PlaceBlock event: pos=({}, {}, {}), clicked_block_state={} (raw: {})",
+                clicked_pos.pos.x,
+                clicked_pos.pos.y,
+                clicked_pos.pos.z,
+                clicked_block_state,
+                clicked_block_state.raw()
+            );
+
+            if !sneak_state.is_sneaking && is_interactive(clicked_block_state) {
+                interact_writer.write(BlockInteractMessage {
+                    player: entity,
+                    position: clicked_pos,
+                    sequence: event.sequence,
+                });
+                continue 'ev_loop;
+            }
+        }
+
         match event.hand.0 {
             0 => {
                 let Ok(slot) = hotbar.get_selected_item(inventory) else {
@@ -153,6 +205,38 @@ pub fn handle(
                         sequence: event.sequence,
                     };
 
+                    // If it's a door, also place the upper half
+                    let upper_half_update = {
+                        let mut result = None;
+                        if let Some(data) = mapped_block_state_id.to_block_data()
+                            && data.name.ends_with("_door")
+                            && let Some(props) = &data.properties
+                        {
+                            let mut upper_props = props.clone();
+                            upper_props.insert("half".to_string(), "upper".to_string());
+                            let upper_data = BlockData {
+                                name: data.name.clone(),
+                                properties: Some(upper_props),
+                            };
+                            let upper_state = BlockStateId::from_block_data(&upper_data);
+                            let upper_pos = offset_pos + (0, 1, 0);
+                            chunk.set_block(upper_pos.chunk_block_pos(), upper_state);
+                            debug!(
+                                "Also placed door upper half at ({}, {}, {}) -> {}",
+                                upper_pos.pos.x, upper_pos.pos.y, upper_pos.pos.z, upper_state
+                            );
+                            result = Some(BlockUpdate {
+                                location: NetworkPosition {
+                                    x: upper_pos.pos.x,
+                                    y: upper_pos.pos.y as i16,
+                                    z: upper_pos.pos.z,
+                                },
+                                block_state_id: VarInt::from(upper_state),
+                            });
+                        }
+                        result
+                    };
+
                     let chunk_packet = BlockUpdate {
                         location: NetworkPosition {
                             x: offset_pos.pos.x,
@@ -170,7 +254,7 @@ pub fn handle(
                     let offset_chunk = offset_pos.chunk();
                     let (offset_chunk_x, offset_chunk_z) = (offset_chunk.x(), offset_chunk.z());
                     let render_distance = get_global_config().chunk_render_distance as i32;
-                    for (_, conn, _, _, pos) in query.iter() {
+                    for (_, conn, _, _, pos, _) in query.iter() {
                         let chunk = pos.chunk();
                         let (chunk_x, chunk_z) = (chunk.x(), chunk.z());
 
@@ -178,6 +262,11 @@ pub fn handle(
                         if (offset_chunk_x - chunk_x).abs() <= render_distance
                             && (offset_chunk_z - chunk_z).abs() <= render_distance
                             && let Err(err) = conn.send_packet_ref(&chunk_packet)
+                        {
+                            error!("Failed to send block update packet: {:?}", err);
+                        }
+                        if let Some(ref upper_update) = upper_half_update
+                            && let Err(err) = conn.send_packet_ref(upper_update)
                         {
                             error!("Failed to send block update packet: {:?}", err);
                         }

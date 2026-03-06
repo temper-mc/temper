@@ -10,6 +10,7 @@ packets = { path = "./src/packets" }
 physics = { path = "./src/physics" }
 player = { path = "./src/player" }
 shutdown = { path = "./src/shutdown" }
+interactions = { path = "./src/interactions" }
 
 bevy_ecs = { workspace = true }
 
