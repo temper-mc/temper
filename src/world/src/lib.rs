@@ -11,7 +11,7 @@ pub use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_general_purpose::paths::get_root_path;
 use temper_storage::lmdb::LmdbBackend;
-use temper_world_format::errors::WorldError;
+pub use temper_world_format::errors::WorldError;
 use temper_world_format::Chunk;
 use tracing::{error, warn};
 pub use world_db::*;

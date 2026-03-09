@@ -7,3 +7,4 @@ pub use packets::register_packet_handlers;
 pub use physics::register_physics_systems;
 pub use player::{register_player_systems, update_player_ping};
 pub use shutdown::register_shutdown_systems;
+pub use world::register_world_systems;

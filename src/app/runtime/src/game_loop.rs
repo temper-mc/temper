@@ -18,7 +18,8 @@ use temper_config::server_config::get_global_config;
 use temper_game_systems::{
     LanPinger, chunk_unloader, keep_alive_system, register_background_systems,
     register_mob_systems, register_packet_handlers, register_physics_systems,
-    register_player_systems, register_shutdown_systems, update_player_ping, world_sync,
+    register_player_systems, register_shutdown_systems, register_world_systems, update_player_ping,
+    world_sync,
 };
 use temper_messages::register_messages;
 use temper_net_runtime::connection::{NewConnection, handle_connection};
@@ -259,6 +260,7 @@ fn build_timed_scheduler() -> Scheduler {
         register_background_systems(s); // Systems that run in the background (day cycle, chunk sending, etc.)
         register_physics_systems(s); // Physics systems (movement, collision, etc.)
         register_mob_systems(s); // Mob AI and behavior
+        register_world_systems(s); // World updates (block changes, redstone, etc.)
     };
     let tick_period = Duration::from_secs(1) / get_global_config().tps;
     timed.register(

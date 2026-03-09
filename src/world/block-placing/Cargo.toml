@@ -1,0 +1,17 @@
+[package]
+name = "block-placing"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+temper-core = { workspace = true }
+temper-world = { workspace = true }
+bevy_ecs = { workspace = true }
+bevy_math = { workspace = true }
+temper-components = { workspace = true }
+temper-inventories = { workspace = true }
+temper-codec = { workspace = true }
+temper-macros = { workspace = true }
+temper-state = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }

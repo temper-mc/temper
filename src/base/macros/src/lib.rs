@@ -6,6 +6,7 @@ use proc_macro::TokenStream;
 mod block;
 mod commands;
 mod helpers;
+mod item;
 mod misc;
 mod nbt;
 mod net;
@@ -154,4 +155,19 @@ pub fn match_block(input: TokenStream) -> TokenStream {
 #[proc_macro_derive(Discriminant)]
 pub fn enum_discriminant(input: TokenStream) -> TokenStream {
     misc::discriminant::enum_discriminant_derive(input)
+}
+
+/// A macro to lookup item IDs at compile time.
+/// Feed in the item name as a string literal, and it will output a [`temper_inventories::item::ItemID`] struct with the correct ID for that item.
+/// Usage:
+/// ```ignore
+/// # use temper_inventories::item::ItemID;
+/// # use temper_macros::item;
+/// let item_id = item!("apple");
+/// assert_eq!(item_id, ItemID::new(temper_codec::VarInt::new(857)));
+/// ```
+/// The `minecraft:` namespace is optional and will be added automatically if not present.
+#[proc_macro]
+pub fn item(input: TokenStream) -> TokenStream {
+    item::item(input)
 }
