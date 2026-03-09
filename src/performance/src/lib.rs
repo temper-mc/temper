@@ -1,4 +1,3 @@
-use bevy_ecs::resource::Resource;
 use tracing::warn;
 
 use crate::{memory::MemoryUsage, tps::TPSMonitor};

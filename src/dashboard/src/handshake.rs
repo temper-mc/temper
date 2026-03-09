@@ -43,8 +43,13 @@ impl Handshake {
 
         let cpu_cores = System::physical_core_count().unwrap_or(1);
         let cpu_threads = sys.cpus().len();
-        
-        let os = format!("{} {} {}", System::name().unwrap_or_default(), System::os_version().unwrap_or_default(), System::kernel_version().unwrap_or_default());
+
+        let os = format!(
+            "{} {} {}",
+            System::name().unwrap_or_default(),
+            System::os_version().unwrap_or_default(),
+            System::kernel_version().unwrap_or_default()
+        );
 
         let system = SystemData {
             cpu_model,

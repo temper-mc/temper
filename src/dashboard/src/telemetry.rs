@@ -1,6 +1,5 @@
 use crate::handshake::Handshake;
 use serde::Serialize;
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
 use sysinfo::{Pid, ProcessesToUpdate, System};
