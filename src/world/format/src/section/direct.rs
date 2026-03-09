@@ -4,13 +4,14 @@ use crate::section::{AIR, CHUNK_SECTION_LENGTH};
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
 use temper_core::block_state_id::BlockStateId;
+use type_hash::TypeHash;
 
 // Currently there are less block state ids than u16::MAX, so we can store ids as u16s to cut down on memory usage
 type CompactBlockStateId = u16;
 
 const AIR_COMPACT: CompactBlockStateId = AIR.raw() as CompactBlockStateId;
 
-#[derive(Clone, DeepSizeOf, Encode, Decode)]
+#[derive(Clone, DeepSizeOf, Encode, Decode, TypeHash)]
 pub struct DirectSection(pub(crate) Box<[CompactBlockStateId]>, u16);
 
 impl Default for DirectSection {

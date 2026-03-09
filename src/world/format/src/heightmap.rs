@@ -5,14 +5,15 @@ use deepsize::DeepSizeOf;
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_codec::net_types::var_int::VarInt;
 use temper_macros::NetEncode;
+use type_hash::TypeHash;
 
-#[derive(Default, Clone, DeepSizeOf, Encode, Decode)]
+#[derive(Default, Clone, DeepSizeOf, Encode, Decode, TypeHash)]
 pub struct Heightmaps {
     pub world_surface: ChunkHeightmap,
     pub motion_blocking: ChunkHeightmap,
 }
 
-#[derive(Clone, DeepSizeOf, Encode, Decode)]
+#[derive(Clone, DeepSizeOf, Encode, Decode, TypeHash)]
 pub struct ChunkHeightmap {
     data: Box<[i16]>,
 }

@@ -8,8 +8,9 @@ use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_codec::net_types::var_int::VarInt;
 use temper_core::block_state_id::BlockStateId;
 use tokio::io::{AsyncRead, AsyncWrite};
+use type_hash::TypeHash;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Decode, Encode)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Decode, Encode, TypeHash)]
 pub struct ItemID(pub VarInt);
 
 impl Display for ItemID {

@@ -10,8 +10,11 @@ use std::io::{Read, Write};
 use tokio::io::AsyncRead;
 use tokio::io::AsyncWriteExt;
 use tokio::io::{AsyncReadExt, AsyncWrite};
+use type_hash::TypeHash;
 
-#[derive(Debug, Encode, Decode, Clone, DeepSizeOf, PartialEq, Eq, PartialOrd, Ord, Copy, Hash)]
+#[derive(
+    Debug, Encode, Decode, Clone, DeepSizeOf, PartialEq, Eq, PartialOrd, Ord, Copy, Hash, TypeHash,
+)]
 pub struct VarInt(pub i32);
 
 mod adapters {

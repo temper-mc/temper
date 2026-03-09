@@ -1,7 +1,8 @@
 use bevy_ecs::prelude::Component;
 use bitcode_derive::{Decode, Encode};
+use type_hash::TypeHash;
 
-#[derive(Component, Debug, Clone, Copy, Default, Decode, Encode)]
+#[derive(Component, Debug, Clone, Copy, Default, Decode, Encode, TypeHash)]
 pub struct Experience {
     /// 0.0-1.0 progress to next level
     pub progress: f32,

@@ -1,4 +1,4 @@
-mod launch;
+mod setup;
 
 use crate::errors::BinaryError;
 use std::sync::Arc;
@@ -22,7 +22,8 @@ pub fn entry(start_time: Instant, no_tui: bool) -> Result<(), BinaryError> {
         .world
         .chunk_exists(ChunkPos::new(0, 0), Dimension::Overworld)?
     {
-        launch::generate_spawn_chunks(global_state.clone())?;
+        setup::generate_spawn_chunks(global_state.clone())?;
+        setup::setup_db(global_state.clone())?;
     }
 
     if no_tui {

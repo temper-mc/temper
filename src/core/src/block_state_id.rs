@@ -10,6 +10,7 @@ use std::process::exit;
 use std::str::FromStr;
 use temper_codec::net_types::var_int::VarInt;
 use tracing::{error, warn};
+use type_hash::TypeHash;
 
 // The number of block entries in the mappings file
 // Go to the .etc/blockstates.json file, see what the last ID is, and add 1 to it.
@@ -49,7 +50,7 @@ lazy_static! {
 ///
 /// This should be used over `BlockData` in most cases, as it's much more efficient to store and pass around.
 /// You can also generate a block's id at runtime with the [temper_macros::block!] macro.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode, DeepSizeOf)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Encode, Decode, DeepSizeOf, TypeHash)]
 pub struct BlockStateId(u32);
 
 impl BlockStateId {

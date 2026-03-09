@@ -1,10 +1,12 @@
 mod check_chunks;
+mod check_players;
 
 pub fn validate() -> Result<(), String> {
     let state = temper_state::create_state(std::time::Instant::now());
     check_chunks::check_chunks(&state)?;
-
-    println!("Validation completed successfully. All chunks are valid.");
+    println!("Chunks validated successfully.");
+    check_players::check_players(&state)?;
+    println!("Players validated successfully.");
 
     Ok(())
 }

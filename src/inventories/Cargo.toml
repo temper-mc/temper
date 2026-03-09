@@ -17,6 +17,7 @@ bitcode_derive = { workspace = true }
 temper-data = { workspace = true }
 temper-core = { workspace = true }
 tracing = { workspace = true }
+type_hash = { workspace = true }
 
 [lints]
 workspace = true

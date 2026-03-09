@@ -1,9 +1,10 @@
 use bitcode_derive::{Decode, Encode};
 use deepsize::DeepSizeOf;
+use type_hash::TypeHash;
 
 pub mod network;
 
-#[derive(Default, Clone, DeepSizeOf, Encode, Decode)]
+#[derive(Default, Clone, DeepSizeOf, Encode, Decode, TypeHash)]
 pub(crate) enum LightStorage {
     #[default]
     Empty,
@@ -13,7 +14,7 @@ pub(crate) enum LightStorage {
     },
 }
 
-#[derive(Clone, DeepSizeOf, Encode, Decode)]
+#[derive(Clone, DeepSizeOf, Encode, Decode, TypeHash)]
 pub struct SectionLightData {
     sky_light: LightStorage,
     block_light: LightStorage,

@@ -1,7 +1,8 @@
 use bevy_ecs::prelude::Component;
 use bitcode_derive::{Decode, Encode};
+use type_hash::TypeHash;
 
-#[derive(Component, Debug, Clone, Copy, Decode, Encode)]
+#[derive(Component, Debug, Clone, Copy, Decode, Encode, TypeHash)]
 pub struct Hunger {
     /// 0-20 (half-shanks)
     pub level: u8,

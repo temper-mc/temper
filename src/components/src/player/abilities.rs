@@ -2,8 +2,9 @@ use super::gamemode::GameMode;
 use bevy_ecs::prelude::Component;
 use bitcode_derive::{Decode, Encode};
 use temper_config::server_config::get_global_config;
+use type_hash::TypeHash;
 
-#[derive(Component, Debug, Clone, Copy, Encode, Decode)]
+#[derive(Component, Debug, Clone, Copy, Encode, Decode, TypeHash)]
 pub struct PlayerAbilities {
     pub invulnerable: bool,
     pub flying: bool,

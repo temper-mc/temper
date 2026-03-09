@@ -17,3 +17,4 @@ temper-data = { workspace = true }
 bevy_math = { workspace = true }
 uuid = { workspace = true }
 temper-core = { workspace = true }
+type_hash = { workspace = true }

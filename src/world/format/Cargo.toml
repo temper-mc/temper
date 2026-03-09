@@ -21,3 +21,4 @@ temper-nbt = { workspace = true }
 serde = { workspace = true }
 bytemuck = { workspace = true }
 tokio = { workspace = true }
+type_hash = { workspace = true }

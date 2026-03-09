@@ -1,8 +1,9 @@
 use bevy_ecs::prelude::Component;
 use bitcode_derive::{Decode, Encode};
 use std::fmt::Debug;
+use type_hash::TypeHash;
 
-#[derive(Component, Clone, Copy, Default, Decode, Encode)]
+#[derive(Component, Clone, Copy, Default, Decode, Encode, TypeHash)]
 pub struct Rotation {
     pub yaw: f32,
     pub pitch: f32,

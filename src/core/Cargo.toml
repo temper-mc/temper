@@ -22,3 +22,4 @@ temper-macros = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 once_cell = { workspace = true }
+type_hash = { workspace = true }

@@ -5,8 +5,9 @@ use std::io::Write;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_config::server_config::get_global_config;
+use type_hash::TypeHash;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Decode, Encode)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Decode, Encode, TypeHash)]
 #[repr(u8)]
 pub enum GameMode {
     Survival = 0,
