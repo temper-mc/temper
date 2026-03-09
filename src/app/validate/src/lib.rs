@@ -1,12 +1,14 @@
+use tracing::info;
+
 mod check_chunks;
 mod check_players;
 
 pub fn validate() -> Result<(), String> {
     let state = temper_state::create_state(std::time::Instant::now());
     check_chunks::check_chunks(&state)?;
-    println!("Chunks validated successfully.");
+    info!("Chunks validated successfully.");
     check_players::check_players(&state)?;
-    println!("Players validated successfully.");
+    info!("Players validated successfully.");
 
     Ok(())
 }

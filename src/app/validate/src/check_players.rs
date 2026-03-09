@@ -5,6 +5,7 @@ use std::process::exit;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_state::ServerState;
 use temper_storage::string_to_u128;
+use tracing::{error, warn};
 use type_hash::TypeHash;
 use uuid::Uuid;
 
@@ -22,7 +23,7 @@ pub fn check_players(state: &ServerState) -> Result<(), String> {
                     .expect("Player format hash should be 8 bytes"),
             );
             if player_format_hash_u64 != OfflinePlayerData::type_hash() {
-                eprintln!(
+                error!(
                     "Player format hash mismatch. Expected {}, got {}. This likely means that the player data format has changed since saving. \
                     If you have recently updated Temper you will have to go back to the older version until a world format converter is implemented.)",
                     OfflinePlayerData::type_hash(),
@@ -31,45 +32,45 @@ pub fn check_players(state: &ServerState) -> Result<(), String> {
                 exit(1);
             }
         } else {
-            eprintln!(
+            error!(
                 "Could not find 'player-format-hash' in metadata. This likely means that the world was saved with an older version of Temper that did not include this metadata, or that the metadata is corrupted."
             );
-            eprintln!(
+            error!(
                 "If you have recently updated Temper you will have to go back to the older version until a world format converter is implemented.)"
             );
             exit(1);
         }
     } else {
-        eprintln!(
+        error!(
             "Metadata database not found. This likely means that the world is empty and has no player data, so there is nothing to validate."
         );
-        eprintln!(
+        error!(
             "Check that the world path is correct and that the world has been generated or used by a player at least once."
         );
         exit(1);
     }
 
     let Ok(db_opt) = env.open_database::<U128<BigEndian>, Bytes>(&txn, Some("player_data")) else {
-        eprintln!(
+        error!(
             "Player data database not found. This likely means that the world is empty and has no player data, so there is nothing to validate."
         );
-        eprintln!(
+        error!(
             "Check that the world path is correct and that the world has been generated or used by a player at least once."
         );
         exit(1);
     };
     let Some(db) = db_opt else {
-        eprintln!(
+        warn!(
             "Player data database not found. This likely means that the world has no player data to validate."
         );
-        eprintln!(
+        warn!(
             "Check that the world path is correct and that players have been saved at least once."
         );
-        eprintln!("Player data validation will be skipped.");
+        warn!("Player data validation will be skipped.");
         return Ok(());
     };
     let Ok(db_len) = db.len(&txn) else {
-        eprintln!(
+        error!(
             "Failed to get the number of player entries in the database. This likely means that the database is corrupted."
         );
         exit(1);
@@ -77,7 +78,7 @@ pub fn check_players(state: &ServerState) -> Result<(), String> {
 
     let progress_bar = indicatif::ProgressBar::new(db_len);
     let progress_style = ProgressStyle::default_bar()
-        .template("[{elapsed_precise}/{eta_precise} eta] {bar:40.cyan/blue} {percent}% {pos}/{len} players validated")
+        .template("[{elapsed_precise}/{eta_precise} eta] {bar:40.magenta} {percent}% {pos}/{len} players validated")
         .unwrap();
     progress_bar.set_style(progress_style);
 
@@ -88,15 +89,15 @@ pub fn check_players(state: &ServerState) -> Result<(), String> {
         let (key, value) = kv.expect("Failed to read key-value pair from 'player_data' database");
         let player_uuid = Uuid::from_u128(key);
         if value.is_empty() {
-            eprintln!("Player {} has empty data, skipping.", player_uuid);
+            warn!("Player {} has empty data, skipping.", player_uuid);
             progress_bar.inc(1);
             continue;
         }
 
         if let Err(e) = bitcode::decode::<OfflinePlayerData>(value) {
             progress_bar.finish();
-            eprintln!("Player {} failed to decode: {}", player_uuid, e);
-            eprintln!(
+            error!("Player {} failed to decode: {}", player_uuid, e);
+            error!(
                 "This generally means that the player data format has changed since saving. If you have \
                 recently updated Temper you will have to go back to the older version until a world format converter is implemented.)"
             );

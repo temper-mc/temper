@@ -6,6 +6,7 @@ use temper_core::pos::ChunkPos;
 use temper_state::ServerState;
 use temper_storage::string_to_u128;
 use temper_world_format::Chunk;
+use tracing::{error, warn};
 use type_hash::TypeHash;
 
 pub fn check_chunks(state: &ServerState) -> Result<(), String> {
@@ -22,7 +23,7 @@ pub fn check_chunks(state: &ServerState) -> Result<(), String> {
                     .expect("Chunk format hash should be 8 bytes"),
             );
             if chunk_format_hash_str != Chunk::type_hash() {
-                eprintln!(
+                error!(
                     "Chunk format hash mismatch. Expected {}, got {}. This likely means that the chunk format has changed since saving. If you have \
                     recently updated Temper you will have to go back to the older version until a world format converter is implemented.)",
                     Chunk::type_hash(),
@@ -31,42 +32,42 @@ pub fn check_chunks(state: &ServerState) -> Result<(), String> {
                 exit(1);
             }
         } else {
-            eprintln!(
+            error!(
                 "Could not find 'chunk-format-hash' in metadata. This likely means that the world was saved with an older version of Temper that did not include this metadata, or that the metadata is corrupted."
             );
-            eprintln!(
+            error!(
                 "If you have recently updated Temper you will have to go back to the older version until a world format converter is implemented.)"
             );
             exit(1);
         }
     } else {
-        eprintln!(
+        error!(
             "Metadata database not found. This likely means that the world is empty and has no chunks, so there is nothing to validate."
         );
-        eprintln!(
+        error!(
             "Check that the world path is correct and that the world has been generated with at least one chunk."
         );
         exit(1);
     }
 
     let Ok(Some(db)) = env.open_database::<U128<BigEndian>, Bytes>(&txn, Some("chunks")) else {
-        eprintln!(
+        error!(
             "Could not open 'chunks' table. This likely means that the world is empty and has no chunks, so there is nothing to validate."
         );
-        eprintln!(
+        error!(
             "Check that the world path is correct and that the world has been generated with at least one chunk."
         );
         exit(1);
     };
     let Ok(db_len) = db.len(&txn) else {
-        eprintln!(
+        error!(
             "Failed to get the number of chunks in the database. This likely means that the database is corrupted."
         );
         exit(1);
     };
     let progress_bar = indicatif::ProgressBar::new(db_len);
     let progress_style = ProgressStyle::default_bar()
-        .template("[{elapsed_precise}/{eta_precise} eta] {bar:40.cyan/blue} {percent}% {pos}/{len} chunks validated")
+        .template("[{elapsed_precise}/{eta_precise} eta] {bar:40.magenta} {percent}% {pos}/{len} chunks validated")
         .unwrap();
     progress_bar.set_style(progress_style);
     for kv in db
@@ -76,13 +77,13 @@ pub fn check_chunks(state: &ServerState) -> Result<(), String> {
         let (key, value) = kv.expect("Failed to read key-value pair from 'chunks' database");
         let decoded_key = get_coords_from_key(key);
         if value.is_empty() {
-            eprintln!("Chunk {} has empty data, skipping.", decoded_key);
+            warn!("Chunk {} has empty data, skipping.", decoded_key);
             progress_bar.inc(1);
             continue;
         }
         let Ok((data, checksum)) = yazi::decompress(value, yazi::Format::Zlib) else {
             progress_bar.finish();
-            eprintln!(
+            error!(
                 "Chunk {} could not be decompressed. This likely means that the chunk data is corrupted.",
                 decoded_key
             );
@@ -92,7 +93,7 @@ pub fn check_chunks(state: &ServerState) -> Result<(), String> {
             let real_checksum = yazi::Adler32::from_buf(data.as_slice()).finish();
             if real_checksum != expected_checksum {
                 progress_bar.finish();
-                eprintln!(
+                error!(
                     "Chunk {} failed checksum verification. Expected {}, got {}. This likely means that the chunk data is corrupted.",
                     decoded_key, expected_checksum, real_checksum
                 );
@@ -101,8 +102,8 @@ pub fn check_chunks(state: &ServerState) -> Result<(), String> {
         }
         if let Err(e) = bitcode::decode::<Chunk>(&data) {
             progress_bar.finish();
-            eprintln!("Chunk {} failed to decode: {}", decoded_key, e);
-            eprintln!(
+            error!("Chunk {} failed to decode: {}", decoded_key, e);
+            error!(
                 "This generally means that the chunk format has changed since saving. If you have \
                 recently updated Temper you will have to go back to the older version until a world format converter is implemented.)"
             );

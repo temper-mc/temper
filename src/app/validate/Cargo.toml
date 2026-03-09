@@ -15,3 +15,4 @@ temper-storage = { workspace = true }
 type_hash = { workspace = true }
 temper-components = { workspace = true }
 uuid = { workspace = true }
+tracing = { workspace = true }
