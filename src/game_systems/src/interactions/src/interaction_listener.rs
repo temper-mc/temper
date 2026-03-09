@@ -1,8 +1,12 @@
 use bevy_ecs::prelude::*;
+use std::collections::HashMap;
+use std::time::{Duration, Instant};
 use temper_codec::net_types::network_position::NetworkPosition;
 use temper_codec::net_types::var_int::VarInt;
+use temper_components::interaction::InteractionCooldown;
 use temper_components::player::position::Position;
 use temper_config::server_config::get_global_config;
+use temper_core::pos::BlockPos;
 use temper_messages::{BlockInteractMessage, BlockToggledEvent, DoorToggledEvent};
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
@@ -20,9 +24,29 @@ pub fn handle_block_interact(
     query: Query<(Entity, &StreamWriter, &Position)>,
     mut toggled_writer: MessageWriter<BlockToggledEvent>,
     mut door_toggled_writer: MessageWriter<DoorToggledEvent>,
+    mut cooldowns: Local<HashMap<BlockPos, Instant>>,
 ) {
+    let cooldown_duration = Duration::from_millis(InteractionCooldown::default().cooldown_ms);
+
     for event in events.read() {
         let pos = event.position;
+
+        // Ignore rapid repeated interactions on the same block
+        if cooldowns
+            .get(&pos)
+            .is_some_and(|t| t.elapsed() < cooldown_duration)
+        {
+            if let Ok((_, conn, _)) = query.get(event.player) {
+                let ack = BlockChangeAck {
+                    sequence: event.sequence,
+                };
+                if let Err(e) = conn.send_packet_ref(&ack) {
+                    error!("Failed to send BlockChangeAck (cooldown): {:?}", e);
+                }
+            }
+            continue;
+        }
+        cooldowns.insert(pos, Instant::now());
 
         // Load the chunk and get current block state
         let mut chunk = match temper_world::World::get_or_generate_mut(
