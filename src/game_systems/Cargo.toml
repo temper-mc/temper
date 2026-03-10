@@ -11,6 +11,7 @@ physics = { path = "./src/physics" }
 player = { path = "./src/player" }
 shutdown = { path = "./src/shutdown" }
 world = { path = "./src/world" }
+interactions = { path = "./src/interactions" }
 
 bevy_ecs = { workspace = true }
 

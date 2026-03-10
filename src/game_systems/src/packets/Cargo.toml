@@ -22,3 +22,5 @@ serde_json = { workspace = true }
 temper-macros = { workspace = true }
 block-placing = { path = "../../../world/block-placing" }
 bevy_math = { workspace = true }
+temper-world = { workspace = true }
+interactions = { workspace = true }

@@ -1,8 +1,12 @@
-use bevy_ecs::prelude::{Entity, MessageWriter, Query, Res};
+use bevy_ecs::message::MessageWriter;
+use bevy_ecs::prelude::{Entity, Query, Res};
+use interactions::block_interactions::is_interactive;
 use temper_codec::net_types::network_position::NetworkPosition;
-use temper_components::bounds::CollisionBounds;
 use temper_components::player::position::Position;
+use temper_components::{bounds::CollisionBounds, player::sneak::SneakState};
 use temper_core::pos::BlockPos;
+use temper_messages::BlockInteractMessage;
+
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlaceBlockReceiver;
 use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
@@ -34,12 +38,14 @@ pub fn handle(
         &Hotbar,
         &Position,
         &Rotation,
+        &SneakState,
     )>,
     pos_q: Query<(&Position, &CollisionBounds)>,
     mut world_change: MessageWriter<WorldChange>,
+    mut block_interact: MessageWriter<BlockInteractMessage>,
 ) {
     'ev_loop: for (event, eid) in receiver.0.try_iter() {
-        let Ok((entity, conn, inventory, hotbar, pos, rot)) = query.get(eid) else {
+        let Ok((entity, conn, inventory, hotbar, pos, rot, sneak)) = query.get(eid) else {
             debug!("Could not get connection for entity {:?}", eid);
             continue;
         };
@@ -47,6 +53,26 @@ pub fn handle(
             trace!("Entity {:?} is not connected", entity);
             continue;
         }
+        // If the clicked block is interactive and the player is not sneaking,
+        // dispatch an interaction and skip block placement entirely.
+        {
+            let clicked_pos: BlockPos = event.position.clone().into();
+            let chunk = state
+                .0
+                .world
+                .get_or_generate_chunk(clicked_pos.chunk(), Dimension::Overworld)
+                .expect("Failed to load chunk for interaction check");
+            let clicked_block = chunk.get_block(clicked_pos.chunk_block_pos());
+            if !sneak.is_sneaking && is_interactive(clicked_block) {
+                block_interact.write(BlockInteractMessage {
+                    player: entity,
+                    position: clicked_pos,
+                    sequence: event.sequence,
+                });
+                continue 'ev_loop;
+            }
+        }
+
         match event.hand.0 {
             0 => {
                 let Ok(slot) = hotbar.get_selected_item(inventory) else {
@@ -204,7 +230,7 @@ pub fn handle(
 
                         let (block_chunk_x, block_chunk_z) = (block_chunk.x(), block_chunk.z());
                         let render_distance = get_global_config().chunk_render_distance as i32;
-                        for (_, conn, _, _, pos, _) in query.iter() {
+                        for (_, conn, _, _, pos, _, _) in query.iter() {
                             let chunk = pos.chunk();
                             let (chunk_x, chunk_z) = (chunk.x(), chunk.z());
 

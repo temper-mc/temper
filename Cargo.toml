@@ -31,6 +31,7 @@ members = [
     "src/game_systems",
     "src/game_systems/src/background",
     "src/game_systems/src/mobs",
+    "src/game_systems/src/interactions",
     "src/game_systems/src/packets",
     "src/game_systems/src/physics",
     "src/game_systems/src/player",
@@ -148,6 +149,7 @@ temper-physics = { path = "src/physics" }
 temper-particles = { path = "src/particles" }
 temper-resources = { path = "src/resources" }
 temper-game-systems = { path = "src/game_systems" }
+interactions = { path = "src/game_systems/src/interactions" }
 
 # Asynchronous
 tokio = { version = "1.50.0", features = [
