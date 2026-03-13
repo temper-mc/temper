@@ -112,8 +112,20 @@ fn from_key((x, y, z): (i32, i32, i32)) -> BlockPos {
     BlockPos::of(x, y, z)
 }
 
+/// Heuristic using octile distance (accounts for diagonal movement).
+/// Returns cost estimate scaled to match movement costs (cardinal=10, diagonal=14).
 fn heuristic(a: BlockPos, b: BlockPos) -> i32 {
-    (a.pos.x - b.pos.x).abs() + (a.pos.y - b.pos.y).abs() + (a.pos.z - b.pos.z).abs()
+    let dx = (a.pos.x - b.pos.x).abs();
+    let dy = (a.pos.y - b.pos.y).abs();
+    let dz = (a.pos.z - b.pos.z).abs();
+
+    // Octile distance on XZ plane + vertical distance
+    let min_xz = dx.min(dz);
+    let max_xz = dx.max(dz);
+
+    // Diagonal moves cost 14, cardinal moves cost 10
+    // min_xz diagonals + (max_xz - min_xz) cardinals + dy vertical
+    min_xz * COST_DIAGONAL + (max_xz - min_xz) * COST_CARDINAL + dy * COST_CARDINAL
 }
 
 fn reconstruct_path(came_from: PosMap<PosKey>, target: PosKey, start: PosKey) -> Path {
@@ -127,46 +139,96 @@ fn reconstruct_path(came_from: PosMap<PosKey>, target: PosKey, start: PosKey) ->
     Path { nodes }
 }
 
+/// Cardinal directions (cost multiplier: 10).
 const CARDINALS: [(i32, i32); 4] = [(1, 0), (-1, 0), (0, 1), (0, -1)];
 
-/// Maximum number of neighbors per node (one per cardinal direction).
-const MAX_NEIGHBORS: usize = 4;
+/// Diagonal directions (cost multiplier: 14, approximation of 10 * sqrt(2)).
+const DIAGONALS: [(i32, i32); 4] = [(1, 1), (1, -1), (-1, 1), (-1, -1)];
+
+/// Base movement cost for cardinal directions.
+const COST_CARDINAL: i32 = 10;
+
+/// Base movement cost for diagonal directions (approx. 10 * sqrt(2)).
+const COST_DIAGONAL: i32 = 14;
+
+/// Extra cost for stepping up one block.
+const COST_STEP_UP: i32 = 10;
+
+/// Maximum number of neighbors per node (4 cardinal + 4 diagonal).
+const MAX_NEIGHBORS: usize = 8;
 
 /// Generate passable neighbors for a 1-block-tall land mob (e.g. pig, height=0.9).
 /// Handles flat walking, stepping up 1 block, and stepping down 1 block.
+/// Supports both cardinal and diagonal movement.
 fn neighbors(
     world: &temper_world::World,
     pos: BlockPos,
 ) -> ArrayVec<(BlockPos, i32), MAX_NEIGHBORS> {
     let mut result = ArrayVec::new();
 
+    // Cardinal directions
     for (dx, dz) in CARDINALS {
-        let nx = pos.pos.x + dx;
-        let nz = pos.pos.z + dz;
-
-        // Walk flat
-        if let Some(cost) = can_stand_at(world, nx, pos.pos.y, nz) {
-            result.push((BlockPos::of(nx, pos.pos.y, nz), cost + 1));
-            continue;
+        if let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_CARDINAL) {
+            result.push((dest, cost));
         }
+    }
 
-        // Step up 1 block — need the block directly above current feet to be clear
-        if block_penalty(get_block(world, pos.pos.x, pos.pos.y + 1, pos.pos.z)) != IMPASSABLE {
-            if let Some(cost) = can_stand_at(world, nx, pos.pos.y + 1, nz) {
-                result.push((BlockPos::of(nx, pos.pos.y + 1, nz), cost + 2));
-                continue;
-            }
-        }
+    // Diagonal directions (require both adjacent cardinal directions to be passable)
+    for (dx, dz) in DIAGONALS {
+        // Check corner-cutting: both adjacent cells must be passable at feet level
+        let side1_passable =
+            block_penalty(get_block(world, pos.pos.x + dx, pos.pos.y, pos.pos.z)) != IMPASSABLE;
+        let side2_passable =
+            block_penalty(get_block(world, pos.pos.x, pos.pos.y, pos.pos.z + dz)) != IMPASSABLE;
 
-        // Step down 1 block — neighbor column must be open at current height
-        if block_penalty(get_block(world, nx, pos.pos.y, nz)) != IMPASSABLE {
-            if let Some(cost) = can_stand_at(world, nx, pos.pos.y - 1, nz) {
-                result.push((BlockPos::of(nx, pos.pos.y - 1, nz), cost + 1));
+        if side1_passable && side2_passable {
+            if let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_DIAGONAL) {
+                result.push((dest, cost));
             }
         }
     }
 
     result
+}
+
+/// Try to move from `pos` in direction `(dx, dz)` with base cost `base_cost`.
+/// Returns the destination and total movement cost if the move is valid.
+fn try_move(
+    world: &temper_world::World,
+    pos: BlockPos,
+    dx: i32,
+    dz: i32,
+    base_cost: i32,
+) -> Option<(BlockPos, i32)> {
+    let nx = pos.pos.x + dx;
+    let nz = pos.pos.z + dz;
+
+    // Walk flat
+    if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y, nz) {
+        return Some((BlockPos::of(nx, pos.pos.y, nz), base_cost + terrain_cost));
+    }
+
+    // Step up 1 block — need the block directly above current feet to be clear
+    if block_penalty(get_block(world, pos.pos.x, pos.pos.y + 1, pos.pos.z)) != IMPASSABLE {
+        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y + 1, nz) {
+            return Some((
+                BlockPos::of(nx, pos.pos.y + 1, nz),
+                base_cost + COST_STEP_UP + terrain_cost,
+            ));
+        }
+    }
+
+    // Step down 1 block — neighbor column must be open at current height
+    if block_penalty(get_block(world, nx, pos.pos.y, nz)) != IMPASSABLE {
+        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y - 1, nz) {
+            return Some((
+                BlockPos::of(nx, pos.pos.y - 1, nz),
+                base_cost + terrain_cost,
+            ));
+        }
+    }
+
+    None
 }
 
 /// Check if a 1-block-tall mob can stand with feet at (x, y, z):
