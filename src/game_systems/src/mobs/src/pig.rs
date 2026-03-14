@@ -33,19 +33,18 @@ pub struct PigAI {
     repath_cooldown: u32,
 }
 
+type PigQuery<'a> = (
+    Entity,
+    &'a Position,
+    &'a mut Velocity,
+    &'a OnGround,
+    &'a EntityMetadata,
+    Option<&'a mut PigAI>,
+);
+
 pub fn tick_pig(
     mut commands: Commands,
-    mut pigs: Query<
-        (
-            Entity,
-            &Position,
-            &mut Velocity,
-            &OnGround,
-            &EntityMetadata,
-            Option<&mut PigAI>,
-        ),
-        With<Pig>,
-    >,
+    mut pigs: Query<PigQuery, With<Pig>>,
     players: Query<&Position, With<PlayerIdentity>>,
     state: Res<GlobalStateResource>,
     registry: Res<PhysicalRegistry>,
@@ -68,10 +67,11 @@ pub fn tick_pig(
         let current_block = pos_to_block(pig_pos);
 
         // Advance waypoint when the pig reaches it (same X/Z block)
-        if let Some(next) = ai.path.get(ai.waypoint) {
-            if next.pos.x == current_block.pos.x && next.pos.z == current_block.pos.z {
-                ai.waypoint += 1;
-            }
+        if let Some(next) = ai.path.get(ai.waypoint)
+            && next.pos.x == current_block.pos.x
+            && next.pos.z == current_block.pos.z
+        {
+            ai.waypoint += 1;
         }
 
         // Recompute path if cooldown expired or path exhausted

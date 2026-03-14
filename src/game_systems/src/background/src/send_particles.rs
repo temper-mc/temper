@@ -23,10 +23,10 @@ pub fn handle(mut reader: MessageReader<SendParticle>, writers: Query<(&Position
 
         for (pos, writer) in writers.iter() {
             let distance_sq = pos.as_vec3a().distance_squared(msg.position);
-            if distance_sq <= 256.0 * 256.0 {
-                if let Err(e) = writer.send_packet_ref(&packet) {
-                    warn!("Failed to send particle packet: {:?}", e);
-                }
+            if distance_sq <= 256.0 * 256.0
+                && let Err(e) = writer.send_packet_ref(&packet)
+            {
+                warn!("Failed to send particle packet: {:?}", e);
             }
         }
     }

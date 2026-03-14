@@ -196,10 +196,11 @@ fn neighbors(
         let side2_passable =
             block_penalty(get_block(world, pos.pos.x, pos.pos.y, pos.pos.z + dz)) != IMPASSABLE;
 
-        if side1_passable && side2_passable {
-            if let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_DIAGONAL, dims) {
-                result.push((dest, cost));
-            }
+        if side1_passable
+            && side2_passable
+            && let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_DIAGONAL, dims)
+        {
+            result.push((dest, cost));
         }
     }
 
@@ -225,23 +226,23 @@ fn try_move(
     }
 
     // Step up 1 block — need space above current position for the full entity height
-    if is_clear_above(world, pos.pos.x, pos.pos.y, pos.pos.z, dims.height_blocks) {
-        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y + 1, nz, dims) {
-            return Some((
-                BlockPos::of(nx, pos.pos.y + 1, nz),
-                base_cost + COST_STEP_UP + terrain_cost,
-            ));
-        }
+    if is_clear_above(world, pos.pos.x, pos.pos.y, pos.pos.z, dims.height_blocks)
+        && let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y + 1, nz, dims)
+    {
+        return Some((
+            BlockPos::of(nx, pos.pos.y + 1, nz),
+            base_cost + COST_STEP_UP + terrain_cost,
+        ));
     }
 
     // Step down 1 block — neighbor column must be open at current height
-    if block_penalty(get_block(world, nx, pos.pos.y, nz)) != IMPASSABLE {
-        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y - 1, nz, dims) {
-            return Some((
-                BlockPos::of(nx, pos.pos.y - 1, nz),
-                base_cost + terrain_cost,
-            ));
-        }
+    if block_penalty(get_block(world, nx, pos.pos.y, nz)) != IMPASSABLE
+        && let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y - 1, nz, dims)
+    {
+        return Some((
+            BlockPos::of(nx, pos.pos.y - 1, nz),
+            base_cost + terrain_cost,
+        ));
     }
 
     None
@@ -266,7 +267,7 @@ fn can_stand_at(
 
     // Check all blocks occupied by the body
     let mut total_penalty = 0;
-    for dy in 0..dims.height_blocks as i32 {
+    for dy in 0..i32::from(dims.height_blocks) {
         let body_penalty = block_penalty(get_block(world, x, y + dy, z));
         if body_penalty == IMPASSABLE {
             return None;
@@ -280,7 +281,7 @@ fn can_stand_at(
 /// Check if there's enough vertical clearance above a position.
 /// Used for step-up checks where the entity needs headroom.
 fn is_clear_above(world: &temper_world::World, x: i32, y: i32, z: i32, height: u8) -> bool {
-    for dy in 1..=height as i32 {
+    for dy in 1..=i32::from(height) {
         if block_penalty(get_block(world, x, y + dy, z)) == IMPASSABLE {
             return false;
         }
