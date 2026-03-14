@@ -1,0 +1,14 @@
+[package]
+name = "pathfinding"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+temper-core = { workspace = true }
+temper-world = { workspace = true }
+temper-components = { workspace = true }
+rustc-hash = "2"
+arrayvec = "0.7"
+
+[lints]
+workspace = true
