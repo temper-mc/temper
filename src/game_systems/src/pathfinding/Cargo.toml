@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 temper-core = { workspace = true }
 temper-world = { workspace = true }
+temper-components = { workspace = true }
 rustc-hash = "2"
 arrayvec = "0.7"
 

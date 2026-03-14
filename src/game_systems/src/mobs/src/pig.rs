@@ -5,6 +5,8 @@ use temper_components::player::player_identity::PlayerIdentity;
 use temper_components::player::position::Position;
 use temper_components::player::velocity::Velocity;
 use temper_core::pos::BlockPos;
+use temper_entities::PhysicalRegistry;
+use temper_entities::components::EntityMetadata;
 use temper_entities::markers::entity_types::Pig;
 use temper_messages::particle::SendParticle;
 use temper_particles::ParticleType;
@@ -39,14 +41,20 @@ pub fn tick_pig(
             &Position,
             &mut Velocity,
             &OnGround,
+            &EntityMetadata,
             Option<&mut PigAI>,
         ),
         With<Pig>,
     >,
     players: Query<&Position, With<PlayerIdentity>>,
     state: Res<GlobalStateResource>,
+    registry: Res<PhysicalRegistry>,
 ) {
-    for (entity, pig_pos, mut velocity, grounded, ai) in pigs.iter_mut() {
+    for (entity, pig_pos, mut velocity, grounded, metadata, ai) in pigs.iter_mut() {
+        let Some(physical) = registry.get(metadata.protocol_id(), false) else {
+            continue;
+        };
+
         let mut ai = match ai {
             Some(ai) => ai,
             None => {
@@ -77,9 +85,15 @@ pub fn tick_pig(
             };
 
             let goal = pos_to_block(target_pos);
-            ai.path = pathfinding::find_path(&state.0.world, current_block, goal, MAX_PATH_NODES)
-                .map(|p| p.nodes)
-                .unwrap_or_default();
+            ai.path = pathfinding::find_path(
+                &state.0.world,
+                current_block,
+                goal,
+                MAX_PATH_NODES,
+                physical,
+            )
+            .map(|p| p.nodes)
+            .unwrap_or_default();
             ai.waypoint = 1; // node 0 is the current position
             ai.repath_cooldown = REPATH_INTERVAL;
         }

@@ -2,6 +2,7 @@ use std::collections::BinaryHeap;
 
 use arrayvec::ArrayVec;
 use rustc_hash::FxHashMap;
+use temper_components::physical::PhysicalProperties;
 use temper_core::block_state_id::BlockStateId;
 use temper_core::pos::BlockPos;
 use temper_world::Dimension;
@@ -38,16 +39,41 @@ impl PartialOrd for Candidate {
     }
 }
 
-/// Find a path for a 1-block-tall land mob using weighted A*.
+/// Entity dimensions for pathfinding, computed from PhysicalProperties.
+#[derive(Clone, Copy)]
+struct EntityDimensions {
+    /// Height in blocks (rounded up). E.g. pig=1, zombie=2, enderman=3.
+    height_blocks: u8,
+    /// Half-width in blocks (rounded up). E.g. 0.45 -> 1 block.
+    /// TODO: Use this for wider entities like spiders that occupy multiple blocks horizontally.
+    #[allow(dead_code)]
+    half_width_blocks: u8,
+    // TODO: Use fire_immune from PhysicalProperties to avoid lava/fire penalties
+    // for entities like blazes, striders, etc.
+}
+
+impl EntityDimensions {
+    fn from_physical(props: &PhysicalProperties) -> Self {
+        Self {
+            height_blocks: props.bounding_box.height().ceil() as u8,
+            half_width_blocks: (props.bounding_box.width() / 2.0).ceil() as u8,
+        }
+    }
+}
+
+/// Find a path for a land mob using weighted A*.
 ///
 /// `start` and `goal` are the block positions of the mob's feet.
+/// `physical` provides the entity's dimensions for collision checking.
 /// Returns `None` if no path is found within `max_nodes` node expansions.
 pub fn find_path(
     world: &temper_world::World,
     start: BlockPos,
     goal: BlockPos,
     max_nodes: usize,
+    physical: &PhysicalProperties,
 ) -> Option<Path> {
+    let dims = EntityDimensions::from_physical(physical);
     let start_key = to_key(start);
     let goal_key = to_key(goal);
 
@@ -82,7 +108,7 @@ pub fn find_path(
         }
 
         let current = from_key(pos);
-        for (neighbor, move_cost) in neighbors(world, current) {
+        for (neighbor, move_cost) in neighbors(world, current, dims) {
             let neighbor_key = to_key(neighbor);
             let tentative_g = real_cost + move_cost;
 
@@ -157,18 +183,19 @@ const COST_STEP_UP: i32 = 10;
 /// Maximum number of neighbors per node (4 cardinal + 4 diagonal).
 const MAX_NEIGHBORS: usize = 8;
 
-/// Generate passable neighbors for a 1-block-tall land mob (e.g. pig, height=0.9).
+/// Generate passable neighbors for a land mob.
 /// Handles flat walking, stepping up 1 block, and stepping down 1 block.
 /// Supports both cardinal and diagonal movement.
 fn neighbors(
     world: &temper_world::World,
     pos: BlockPos,
+    dims: EntityDimensions,
 ) -> ArrayVec<(BlockPos, i32), MAX_NEIGHBORS> {
     let mut result = ArrayVec::new();
 
     // Cardinal directions
     for (dx, dz) in CARDINALS {
-        if let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_CARDINAL) {
+        if let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_CARDINAL, dims) {
             result.push((dest, cost));
         }
     }
@@ -182,7 +209,7 @@ fn neighbors(
             block_penalty(get_block(world, pos.pos.x, pos.pos.y, pos.pos.z + dz)) != IMPASSABLE;
 
         if side1_passable && side2_passable {
-            if let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_DIAGONAL) {
+            if let Some((dest, cost)) = try_move(world, pos, dx, dz, COST_DIAGONAL, dims) {
                 result.push((dest, cost));
             }
         }
@@ -199,18 +226,19 @@ fn try_move(
     dx: i32,
     dz: i32,
     base_cost: i32,
+    dims: EntityDimensions,
 ) -> Option<(BlockPos, i32)> {
     let nx = pos.pos.x + dx;
     let nz = pos.pos.z + dz;
 
     // Walk flat
-    if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y, nz) {
+    if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y, nz, dims) {
         return Some((BlockPos::of(nx, pos.pos.y, nz), base_cost + terrain_cost));
     }
 
-    // Step up 1 block — need the block directly above current feet to be clear
-    if block_penalty(get_block(world, pos.pos.x, pos.pos.y + 1, pos.pos.z)) != IMPASSABLE {
-        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y + 1, nz) {
+    // Step up 1 block — need space above current position for the full entity height
+    if is_clear_above(world, pos.pos.x, pos.pos.y, pos.pos.z, dims.height_blocks) {
+        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y + 1, nz, dims) {
             return Some((
                 BlockPos::of(nx, pos.pos.y + 1, nz),
                 base_cost + COST_STEP_UP + terrain_cost,
@@ -220,7 +248,7 @@ fn try_move(
 
     // Step down 1 block — neighbor column must be open at current height
     if block_penalty(get_block(world, nx, pos.pos.y, nz)) != IMPASSABLE {
-        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y - 1, nz) {
+        if let Some(terrain_cost) = can_stand_at(world, nx, pos.pos.y - 1, nz, dims) {
             return Some((
                 BlockPos::of(nx, pos.pos.y - 1, nz),
                 base_cost + terrain_cost,
@@ -231,22 +259,45 @@ fn try_move(
     None
 }
 
-/// Check if a 1-block-tall mob can stand with feet at (x, y, z):
+/// Check if an entity can stand with feet at (x, y, z):
 /// - solid block at (x, y-1, z) as floor
-/// - passable at (x, y, z) for the body
+/// - passable blocks for the full body height at (x, y, z) to (x, y+height-1, z)
 ///
 /// Returns `Some(terrain_cost)` if valid, `None` if not.
-fn can_stand_at(world: &temper_world::World, x: i32, y: i32, z: i32) -> Option<i32> {
+fn can_stand_at(
+    world: &temper_world::World,
+    x: i32,
+    y: i32,
+    z: i32,
+    dims: EntityDimensions,
+) -> Option<i32> {
+    // Check for solid floor
     if block_penalty(get_block(world, x, y - 1, z)) != IMPASSABLE {
         return None; // no solid floor
     }
 
-    let body_penalty = block_penalty(get_block(world, x, y, z));
-    if body_penalty == IMPASSABLE {
-        return None;
+    // Check all blocks occupied by the body
+    let mut total_penalty = 0;
+    for dy in 0..dims.height_blocks as i32 {
+        let body_penalty = block_penalty(get_block(world, x, y + dy, z));
+        if body_penalty == IMPASSABLE {
+            return None;
+        }
+        total_penalty += body_penalty.max(0);
     }
 
-    Some(body_penalty.max(0))
+    Some(total_penalty)
+}
+
+/// Check if there's enough vertical clearance above a position.
+/// Used for step-up checks where the entity needs headroom.
+fn is_clear_above(world: &temper_world::World, x: i32, y: i32, z: i32, height: u8) -> bool {
+    for dy in 1..=height as i32 {
+        if block_penalty(get_block(world, x, y + dy, z)) == IMPASSABLE {
+            return false;
+        }
+    }
+    true
 }
 
 fn get_block(world: &temper_world::World, x: i32, y: i32, z: i32) -> BlockStateId {
@@ -256,5 +307,5 @@ fn get_block(world: &temper_world::World, x: i32, y: i32, z: i32) -> BlockStateI
         .get_cache()
         .get(&(pos.chunk(), Dimension::Overworld))
         .map(|chunk| chunk.get_block(pos.chunk_block_pos()))
-        .unwrap_or_default() // unloaded chunk = air; pig won't path there (no solid floor)
+        .unwrap_or_default() // unloaded chunk = air; mob won't path there (no solid floor)
 }
