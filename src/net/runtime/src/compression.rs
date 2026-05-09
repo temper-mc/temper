@@ -150,27 +150,6 @@ mod tests {
             writer.write_all(&inner)?;
             Ok(())
         }
-
-        async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-            &self,
-            writer: &mut W,
-            _opts: &NetEncodeOpts,
-        ) -> Result<(), NetEncodeError> {
-            use tokio::io::AsyncWriteExt;
-            // Normally packet id is provided by the macro, but here we manually encode it
-            let mut buffer = Cursor::new(Vec::new());
-            VarInt(99).encode(&mut buffer, &NetEncodeOpts::None)?;
-            self.test_vi.encode(&mut buffer, &NetEncodeOpts::None)?;
-            buffer.write_all(&self.body).await?;
-            let inner = buffer.into_inner();
-            // Write the length prefix
-            VarInt::new(inner.len() as i32)
-                .encode_async(writer, &NetEncodeOpts::None)
-                .await?;
-            // Write the actual data
-            writer.write_all(&inner).await?;
-            Ok(())
-        }
     }
 
     #[test]
