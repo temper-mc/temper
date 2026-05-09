@@ -21,12 +21,15 @@ temper-state = { workspace = true }
 temper-resources = { workspace = true }
 temper-entities = { workspace = true }
 temper-permissions = { workspace = true }
-
-ctor = { workspace = true }
 tracing = { workspace = true }
 bevy_ecs = { workspace = true }
 uuid = { workspace = true }
 rand = { workspace = true }
+ctor = { workspace = true }
 
 [lints]
 workspace = true
+
+[lib]
+test = false
+doctest = false

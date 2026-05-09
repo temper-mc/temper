@@ -5,9 +5,11 @@ version.workspace = true
 
 [dependencies]
 bevy_ecs = { workspace = true }
-tracing = { workspace = true }
 bitcode = { workspace = true }
 type_hash = { workspace = true }
 
 [lints]
 workspace = true
+
+[lib]
+doctest = false

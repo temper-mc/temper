@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bitcode_derive = { workspace = true }
 bitcode = { workspace = true, features = ["serde"] }
 temper-codec = { workspace = true }
 temper-macros = { workspace = true }
@@ -20,7 +19,6 @@ temper-general-purpose = { workspace = true }
 temper-nbt = { workspace = true }
 serde = { workspace = true }
 bytemuck = { workspace = true }
-tokio = { workspace = true }
 type_hash = { workspace = true }
 uuid = { workspace = true }
 temper-entities = { workspace = true }
@@ -37,3 +35,6 @@ harness = false
 
 [lints]
 workspace = true
+
+[lib]
+doctest = false

@@ -5,10 +5,8 @@ version.workspace = true
 
 [dependencies]
 bevy_ecs = { workspace = true }
-temper-performance = { workspace = true }
 temper-net-runtime = { workspace = true }
 temper-state = { workspace = true }
-temper-config = { workspace = true }
 temper-entities = { workspace = true }
 temper-text = {workspace = true}
 temper-macros = {workspace = true}
@@ -19,3 +17,7 @@ uuid = { workspace = true }
 
 [lints]
 workspace = true
+
+[lib]
+test = false
+doctest = false

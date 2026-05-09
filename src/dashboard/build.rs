@@ -69,7 +69,7 @@ fn main() -> Result<()> {
             // Extract all files
             for i in 0..archive.len() {
                 let mut file = archive.by_index(i)?;
-                let outpath = dest_dir.join(file.mangled_name());
+                let outpath = dest_dir.join(file.mangled_name()?);
 
                 if file.is_dir() {
                     fs::create_dir_all(&outpath)?;
