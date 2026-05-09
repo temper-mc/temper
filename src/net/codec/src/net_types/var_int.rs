@@ -169,14 +169,6 @@ impl NetDecode for VarInt {
     fn decode<R: Read>(reader: &mut R, _opts: &NetDecodeOpts) -> Result<Self, NetDecodeError> {
         VarInt::read(reader).map_err(|e| NetDecodeError::ExternalError(e.into()))
     }
-    async fn decode_async<R: AsyncRead + Unpin>(
-        reader: &mut R,
-        _opts: &NetDecodeOpts,
-    ) -> Result<Self, NetDecodeError> {
-        VarInt::read_async(reader)
-            .await
-            .map_err(|e| NetDecodeError::ExternalError(e.into()))
-    }
 }
 
 impl NetEncode for VarInt {
@@ -186,16 +178,6 @@ impl NetEncode for VarInt {
         _opts: &NetEncodeOpts,
     ) -> Result<(), NetEncodeError> {
         self.write(writer)
-            .map_err(|e| NetEncodeError::ExternalError(e.into()))
-    }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        _opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        self.write_async(writer)
-            .await
             .map_err(|e| NetEncodeError::ExternalError(e.into()))
     }
 }

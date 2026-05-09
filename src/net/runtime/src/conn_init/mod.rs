@@ -21,6 +21,7 @@ use temper_protocol::outgoing::login_disconnect::LoginDisconnectPacket;
 use temper_state::GlobalState;
 use temper_text::{ComponentBuilder, NamedColor, TextComponent};
 use tokio::net::tcp::OwnedReadHalf;
+use tokio::task::spawn_blocking;
 use tracing::{error, trace};
 
 /// Represents the result of a login attempt after the handshake process.
@@ -90,7 +91,7 @@ pub async fn handle_handshake(
     }
 
     // Decode the handshake packet (protocol version, server address, next state, etc.).
-    let hs_packet = Handshake::decode_async(&mut skel.data, &NetDecodeOpts::None).await?;
+    let hs_packet = spawn_blocking(move || Handshake::decode(&mut skel.data, &NetDecodeOpts::None)).await.expect("Could not spawn task")?;
 
     // If protocol version is mismatched, handle gracefully or disconnect client.
     if hs_packet.protocol_version.0 != PROTOCOL_VERSION_1_21_8 {

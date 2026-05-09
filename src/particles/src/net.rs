@@ -55,13 +55,6 @@ impl NetEncode for ParticleType {
             _ => Ok(()),
         }
     }
-    async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        _: &mut W,
-        _: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        unreachable!()
-    }
 }
 
 impl NetEncode for &VibrationSource {
@@ -81,12 +74,5 @@ impl NetEncode for &VibrationSource {
                 Ok(())
             }
         }
-    }
-    async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        _: &mut W,
-        _: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        unreachable!()
     }
 }

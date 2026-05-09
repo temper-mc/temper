@@ -198,12 +198,4 @@ impl NetEncode for BossbarPacket {
         }
         Ok(())
     }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        _: &mut W,
-        _: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        unreachable!()
-    }
 }

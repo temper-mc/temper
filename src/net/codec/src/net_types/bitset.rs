@@ -62,22 +62,6 @@ impl NetEncode for BitSet {
         ))?;
         Ok(())
     }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        VarInt::from(self.0.len())
-            .encode_async(writer, opts)
-            .await?;
-        writer
-            .write_all(&temper_general_purpose::simd::arrays::u64_slice_to_u8_be(
-                &self.0,
-            ))
-            .await?;
-        Ok(())
-    }
 }
 
 impl Not for BitSet {

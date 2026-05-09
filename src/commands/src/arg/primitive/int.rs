@@ -32,23 +32,6 @@ impl NetEncode for IntArgumentFlags {
         self.min.encode(writer, opts)?;
         self.max.encode(writer, opts)
     }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        let mut flags = 0u8;
-        if self.min.is_some() {
-            flags |= 0x01;
-        }
-        if self.max.is_some() {
-            flags |= 0x02;
-        }
-        flags.encode_async(writer, opts).await?;
-        self.min.encode_async(writer, opts).await?;
-        self.max.encode_async(writer, opts).await
-    }
 }
 
 // Not using wrapper! here because of the complex generics

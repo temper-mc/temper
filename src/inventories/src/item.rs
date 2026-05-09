@@ -72,27 +72,11 @@ impl NetDecode for ItemID {
         let id = VarInt::decode(reader, opts)?;
         Ok(Self(id))
     }
-
-    async fn decode_async<R: AsyncRead + Unpin>(
-        reader: &mut R,
-        opts: &NetDecodeOpts,
-    ) -> Result<Self, NetDecodeError> {
-        let id = VarInt::decode_async(reader, opts).await?;
-        Ok(Self(id))
-    }
 }
 
 impl NetEncode for ItemID {
     fn encode<W: Write>(&self, writer: &mut W, opts: &NetEncodeOpts) -> Result<(), NetEncodeError> {
         self.0.encode(writer, opts)
-    }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        self.0.encode_async(writer, opts).await
     }
 }
 

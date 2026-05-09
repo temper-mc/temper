@@ -63,16 +63,6 @@ impl NetEncode for GameMode {
         writer.write_all(&[*self as u8])?;
         Ok(())
     }
-
-    async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        _opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        use tokio::io::AsyncWriteExt;
-        writer.write_all(&[*self as u8]).await?;
-        Ok(())
-    }
 }
 
 /// The component storing a player's current gamemode.

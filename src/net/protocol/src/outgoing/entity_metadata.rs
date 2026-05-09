@@ -158,14 +158,6 @@ mod index_type {
         ) -> Result<(), NetEncodeError> {
             self.index().encode(writer, opts)
         }
-
-        async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-            &self,
-            writer: &mut W,
-            opts: &NetEncodeOpts,
-        ) -> Result<(), NetEncodeError> {
-            self.index().encode_async(writer, opts).await
-        }
     }
 }
 
@@ -325,14 +317,6 @@ mod extra_data_types {
             opts: &NetEncodeOpts,
         ) -> Result<(), NetEncodeError> {
             self.index().encode(writer, opts)
-        }
-
-        async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-            &self,
-            writer: &mut W,
-            opts: &NetEncodeOpts,
-        ) -> Result<(), NetEncodeError> {
-            self.index().encode_async(writer, opts).await
         }
     }
 }

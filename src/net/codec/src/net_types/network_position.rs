@@ -37,30 +37,12 @@ impl NetEncode for NetworkPosition {
         writer.write_all(self.as_u64().to_be_bytes().as_ref())?;
         Ok(())
     }
-    async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        _: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        writer
-            .write_all(self.as_u64().to_be_bytes().as_ref())
-            .await?;
-        Ok(())
-    }
 }
 
 impl NetDecode for NetworkPosition {
     fn decode<R: Read>(reader: &mut R, _: &NetDecodeOpts) -> Result<Self, NetDecodeError> {
         let mut buf = [0u8; 8];
         reader.read_exact(&mut buf)?;
-        Ok(NetworkPosition::from_u64(u64::from_be_bytes(buf)))
-    }
-    async fn decode_async<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-        _: &NetDecodeOpts,
-    ) -> Result<Self, NetDecodeError> {
-        let mut buf = [0u8; 8];
-        reader.read_exact(&mut buf).await?;
         Ok(NetworkPosition::from_u64(u64::from_be_bytes(buf)))
     }
 }

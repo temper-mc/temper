@@ -15,6 +15,7 @@ use temper_protocol::outgoing::ping_response::PongPacket;
 use temper_protocol::outgoing::status_response::StatusResponse;
 use temper_state::GlobalState;
 use tokio::net::tcp::OwnedReadHalf;
+use tokio::task::spawn_blocking;
 use tracing::warn;
 
 /// Handles the Minecraft server "status" state of the handshake.
@@ -59,8 +60,8 @@ pub(super) async fn status(
     }
 
     // Parse the incoming status request (no fields, acts as a trigger)
-    let _status_req =
-        StatusRequestPacket::decode_async(&mut skel.data, &NetDecodeOpts::None).await?;
+    let _status_req = spawn_blocking(move ||
+        StatusRequestPacket::decode(&mut skel.data, &NetDecodeOpts::None)).await.expect("Could not spawn task")?;
 
     // ---- Phase 2: Send Status Response ----
 
@@ -87,7 +88,7 @@ pub(super) async fn status(
     }
 
     // Parse ping request containing a payload (usually current timestamp)
-    let ping_req = PingPacket::decode_async(&mut skel.data, &NetDecodeOpts::None).await?;
+    let ping_req = spawn_blocking(move || PingPacket::decode(&mut skel.data, &NetDecodeOpts::None)).await.expect("Failed to decode PingPacket")?;
 
     // Respond with Pong containing the same payload (echo test)
     let pong_packet = PongPacket {

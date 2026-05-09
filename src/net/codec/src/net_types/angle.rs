@@ -63,14 +63,6 @@ impl NetEncode for NetAngle {
         writer.write_all(&[self.0])?;
         Ok(())
     }
-    async fn encode_async<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        _: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        writer.write_all(&[self.0]).await?;
-        Ok(())
-    }
 }
 
 #[cfg(test)]

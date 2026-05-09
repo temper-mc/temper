@@ -12,14 +12,6 @@ impl<T: NetEncode> NetEncode for AdHocID<T> {
         writer.write_all(&[0])?;
         self.inner.encode(writer, opts)
     }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        _writer: &mut W,
-        _opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        unreachable!()
-    }
 }
 
 impl<T> From<T> for AdHocID<T>

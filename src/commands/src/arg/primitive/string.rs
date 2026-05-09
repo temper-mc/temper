@@ -27,16 +27,6 @@ impl NetEncode for StringArgumentType {
     fn encode<W: Write>(&self, writer: &mut W, opts: &NetEncodeOpts) -> Result<(), NetEncodeError> {
         VarInt::new(i32::from(self.ordinal())).encode(writer, opts)
     }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        VarInt::new(i32::from(self.ordinal()))
-            .encode_async(writer, opts)
-            .await
-    }
 }
 
 wrapper! {

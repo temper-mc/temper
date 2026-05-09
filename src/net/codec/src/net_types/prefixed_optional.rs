@@ -26,23 +26,6 @@ impl<T: NetEncode> NetEncode for PrefixedOptional<T> {
         }
         Ok(())
     }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        match self {
-            PrefixedOptional::None => {
-                false.encode_async(writer, opts).await?;
-            }
-            PrefixedOptional::Some(value) => {
-                true.encode_async(writer, opts).await?;
-                value.encode_async(writer, opts).await?;
-            }
-        }
-        Ok(())
-    }
 }
 
 impl<T> PrefixedOptional<T> {
@@ -90,19 +73,6 @@ impl<T: NetDecode> NetDecode for PrefixedOptional<T> {
             Ok(PrefixedOptional::None)
         } else {
             let value = T::decode(reader, opts)?;
-            Ok(PrefixedOptional::Some(value))
-        }
-    }
-
-    async fn decode_async<R: AsyncRead + Unpin>(
-        reader: &mut R,
-        opts: &NetDecodeOpts,
-    ) -> Result<Self, NetDecodeError> {
-        let exists = bool::decode_async(reader, opts).await?;
-        if !exists {
-            Ok(PrefixedOptional::None)
-        } else {
-            let value = T::decode_async(reader, opts).await?;
             Ok(PrefixedOptional::Some(value))
         }
     }

@@ -8,7 +8,7 @@ use syn::{parse_macro_input, DeriveInput, Fields};
 // Generate packet ID encoding snippets
 fn generate_packet_id_snippets(
     packet_id: Option<u8>,
-) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+) -> proc_macro2::TokenStream {
     let sync_snippet = if let Some(id) = packet_id {
         quote! {
             <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode(&#id.into(), writer, &temper_codec::encode::NetEncodeOpts::None)?;
@@ -17,15 +17,7 @@ fn generate_packet_id_snippets(
         quote! {}
     };
 
-    let async_snippet = if let Some(id) = packet_id {
-        quote! {
-            <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode_async(&#id.into(), writer, &temper_codec::encode::NetEncodeOpts::None).await?;
-        }
-    } else {
-        quote! {}
-    };
-
-    (sync_snippet, async_snippet)
+    sync_snippet
 }
 
 // Generate field encoding expressions for structs
@@ -40,22 +32,11 @@ fn generate_field_encoders(fields: &syn::Fields) -> proc_macro2::TokenStream {
     quote! { #(#encode_fields)* }
 }
 
-fn generate_async_field_encoders(fields: &syn::Fields) -> proc_macro2::TokenStream {
-    let encode_fields = fields.iter().map(|field| {
-        let field_name = field.ident.as_ref().unwrap();
-        let field_ty = &field.ty;
-        quote! {
-            <#field_ty as temper_codec::encode::NetEncode>::encode_async(&self.#field_name, writer, &temper_codec::encode::NetEncodeOpts::None).await?;
-        }
-    });
-    quote! { #(#encode_fields)* }
-}
-
 // Generate enum variant encoding using static dispatch
 fn generate_enum_encoders(
     data: &syn::DataEnum,
-) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
-    let variants = data.variants.iter().map(|variant| {
+) -> proc_macro2::TokenStream {
+    let variants: Vec<_> = data.variants.iter().map(|variant| {
         let variant_ident = &variant.ident;
 
         match &variant.fields {
@@ -71,13 +52,6 @@ fn generate_enum_encoders(
                     Self::#variant_ident { #(#field_idents),* } => {
                         #(
                             <#field_tys as temper_codec::encode::NetEncode>::encode(#field_idents, writer, &temper_codec::encode::NetEncodeOpts::None)?;
-                        )*
-                    }
-                },
-                 quote! {
-                    Self::#variant_ident { #(#field_idents),* } => {
-                        #(
-                            <#field_tys as temper_codec::encode::NetEncode>::encode_async(#field_idents, writer, &temper_codec::encode::NetEncodeOpts::None).await?;
                         )*
                     }
                 })
@@ -96,112 +70,64 @@ fn generate_enum_encoders(
                             <#field_tys as temper_codec::encode::NetEncode>::encode(#field_names, writer, &temper_codec::encode::NetEncodeOpts::None)?;
                         )*
                     }
-                },
-                 quote! {
-                    Self::#variant_ident(#(#field_names),*) => {
-                        #(
-                            <#field_tys as temper_codec::encode::NetEncode>::encode_async(#field_names, writer, &temper_codec::encode::NetEncodeOpts::None).await?;
-                        )*
-                    }
                 })
             }
-            Fields::Unit => (
-                quote! {
-                    Self::#variant_ident => {}
-                },
-                quote! {
-                    Self::#variant_ident => {}
-                }
-            ),
+            Fields::Unit => quote! {
+                Self::#variant_ident => {}
+            },
         }
-    }).unzip::<_, _, Vec<_>, Vec<_>>();
+    }).collect();
 
-    let (sync_variants, async_variants) = variants;
-
-    (
-        quote! {
-            match self {
-                #(#sync_variants)*
-            }
-        },
-        quote! {
-            match self {
-                #(#async_variants)*
-            }
-        },
-    )
+    quote! {
+        match self {
+            #(#variants)*
+        }
+    }
 }
 
 pub(crate) fn derive(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
     let packet_attr = get_derive_attributes(&input, "packet");
-    let (packet_id_snippet, async_packet_id_snippet) = generate_packet_id_snippets(
+    let packet_id_snippet = generate_packet_id_snippets(
         get_packet_details_from_attributes(packet_attr.as_slice(), PacketBoundiness::Clientbound)
             .unzip()
             .1,
     );
 
-    let (sync_impl, async_impl) = match &input.data {
+    let sync_impl = match &input.data {
         syn::Data::Struct(data) => {
             let field_encoders = generate_field_encoders(&data.fields);
-            let async_field_encoders = generate_async_field_encoders(&data.fields);
 
-            (
-                quote! {
-                    fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
-                        match opts {
-                            temper_codec::encode::NetEncodeOpts::None => {
-                                #packet_id_snippet
-                                #field_encoders
-                            }
-                            temper_codec::encode::NetEncodeOpts::WithLength => {
-                                let actual_writer = writer;
-                                let mut writer = Vec::new();
-                                let mut writer = &mut writer;
-
-                                #packet_id_snippet
-                                #field_encoders
-
-                                let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
-                                <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None)?;
-                                actual_writer.write_all(writer)?;
-                            }
-                            e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
+            quote! {
+                fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
+                    match opts {
+                        temper_codec::encode::NetEncodeOpts::None => {
+                            #packet_id_snippet
+                            #field_encoders
                         }
-                        Ok(())
-                    }
-                },
-                quote! {
-                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
-                        match opts {
-                            temper_codec::encode::NetEncodeOpts::None => {
-                                #async_packet_id_snippet
-                                #async_field_encoders
-                            }
-                            temper_codec::encode::NetEncodeOpts::WithLength => {
-                                let actual_writer = writer;
-                                let mut writer = Vec::new();
-                                let mut writer = &mut writer;
+                        temper_codec::encode::NetEncodeOpts::WithLength => {
+                            let actual_writer = writer;
+                            let mut writer = Vec::new();
+                            let mut writer = &mut writer;
 
-                                #async_packet_id_snippet
-                                #field_encoders
+                            #packet_id_snippet
+                            #field_encoders
 
-                                let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
-                                <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode_async(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None).await?;
-                                <W as tokio::io::AsyncWriteExt>::write_all(actual_writer, writer).await?;
-                            }
-                            e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
+                            let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
+                            <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None)?;
+                            actual_writer.write_all(writer)?;
                         }
-                        Ok(())
+                        e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
                     }
-                },
-            )
+                    Ok(())
+                }
+            }
         }
         syn::Data::Enum(data) => {
-            let (sync_enum_encoder, async_enum_encoder) = generate_enum_encoders(data);
+            let sync_enum_encoder = generate_enum_encoders(data);
 
-            (
+            
                 quote! {
                     fn encode<W: std::io::Write>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
                         match opts {
@@ -225,32 +151,8 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
                         }
                         Ok(())
                     }
-                },
-                quote! {
-                    async fn encode_async<W: tokio::io::AsyncWrite + std::marker::Unpin>(&self, writer: &mut W, opts: &temper_codec::encode::NetEncodeOpts) -> Result<(),  temper_codec::encode::errors::NetEncodeError> {
-                        match opts {
-                            temper_codec::encode::NetEncodeOpts::None => {
-                                #async_packet_id_snippet
-                                #async_enum_encoder
-                            }
-                            temper_codec::encode::NetEncodeOpts::WithLength => {
-                                let actual_writer = writer;
-                                let mut writer = Vec::new();
-                                let mut writer = &mut writer;
-
-                                #async_packet_id_snippet
-                                #sync_enum_encoder
-
-                                let len: temper_codec::net_types::var_int::VarInt = writer.len().into();
-                                <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode_async(&len, actual_writer, &temper_codec::encode::NetEncodeOpts::None).await?;
-                                <W as tokio::io::AsyncWriteExt>::write_all(actual_writer, writer).await?;
-                            }
-                            e => unimplemented!("Unsupported option for NetEncode: {:?}", e),
-                        }
-                        Ok(())
-                    }
-                },
-            )
+                }
+            
         }
         _ => unimplemented!("NetEncode can only be derived for structs and enums"),
     };
@@ -267,7 +169,6 @@ pub(crate) fn derive(input: TokenStream) -> TokenStream {
     TokenStream::from(quote! {
         impl #impl_generics temper_codec::encode::NetEncode for #struct_name #ty_generics #where_clause {
             #sync_impl
-            #async_impl
         }
     })
 }

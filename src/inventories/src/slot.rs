@@ -85,13 +85,6 @@ impl NetDecode for InventorySlot {
             })
         }
     }
-
-    async fn decode_async<R: AsyncRead + Unpin>(
-        _reader: &mut R,
-        _opts: &NetDecodeOpts,
-    ) -> Result<Self, NetDecodeError> {
-        todo!()
-    }
 }
 
 impl NetEncode for InventorySlot {
@@ -147,14 +140,6 @@ impl NetEncode for InventorySlot {
         }
 
         Ok(())
-    }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        _writer: &mut W,
-        _opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        todo!()
     }
 }
 

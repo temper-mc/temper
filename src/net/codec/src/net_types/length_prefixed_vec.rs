@@ -48,20 +48,6 @@ where
 
         Ok(())
     }
-
-    async fn encode_async<W: AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-        opts: &NetEncodeOpts,
-    ) -> Result<(), NetEncodeError> {
-        self.length.encode_async(writer, opts).await?;
-
-        for item in &self.data {
-            item.encode_async(writer, opts).await?;
-        }
-
-        Ok(())
-    }
 }
 impl<T> NetDecode for LengthPrefixedVec<T>
 where
@@ -73,20 +59,6 @@ where
         let mut data = Vec::new();
         for _ in 0..length.0 {
             data.push(T::decode(reader, opts)?);
-        }
-
-        Ok(Self { length, data })
-    }
-
-    async fn decode_async<R: AsyncRead + Unpin>(
-        reader: &mut R,
-        opts: &NetDecodeOpts,
-    ) -> Result<Self, NetDecodeError> {
-        let length = VarInt::decode_async(reader, opts).await?;
-
-        let mut data = Vec::new();
-        for _ in 0..length.0 {
-            data.push(T::decode_async(reader, opts).await?);
         }
 
         Ok(Self { length, data })
