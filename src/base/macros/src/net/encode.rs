@@ -7,8 +7,6 @@ use syn::{parse_macro_input, DeriveInput, Fields};
 
 // Generate packet ID encoding snippets
 fn generate_packet_id_snippets(packet_id: Option<u8>) -> proc_macro2::TokenStream {
-    
-
     if let Some(id) = packet_id {
         quote! {
             <temper_codec::net_types::var_int::VarInt as temper_codec::encode::NetEncode>::encode(&#id.into(), writer, &temper_codec::encode::NetEncodeOpts::None)?;
@@ -50,7 +48,7 @@ fn generate_enum_encoders(data: &syn::DataEnum) -> proc_macro2::TokenStream {
                             <#field_tys as temper_codec::encode::NetEncode>::encode(#field_idents, writer, &temper_codec::encode::NetEncodeOpts::None)?;
                         )*
                     }
-                } 
+                }
             }
             Fields::Unnamed(fields) => {
                 let field_names: Vec<_> = (0..fields.unnamed.len())
@@ -66,7 +64,7 @@ fn generate_enum_encoders(data: &syn::DataEnum) -> proc_macro2::TokenStream {
                             <#field_tys as temper_codec::encode::NetEncode>::encode(#field_names, writer, &temper_codec::encode::NetEncodeOpts::None)?;
                         )*
                     }
-                } 
+                }
             }
             Fields::Unit => quote! {
                 Self::#variant_ident => {}
