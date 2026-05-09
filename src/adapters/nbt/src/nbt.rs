@@ -6,7 +6,6 @@ use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
-use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite};
 
 pub struct NBT<T> {
     inner: T,

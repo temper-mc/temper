@@ -1,7 +1,6 @@
 use std::io::Write;
 
 use temper_codec::encode::{NetEncode, NetEncodeOpts, errors::NetEncodeError};
-use tokio::io::AsyncWrite;
 
 use crate::{
     arg::{CommandArgument, ParserResult, utils::error},

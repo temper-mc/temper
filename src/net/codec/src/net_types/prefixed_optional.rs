@@ -5,7 +5,6 @@ use crate::encode::{NetEncode, NetEncodeOpts};
 use bitcode::{Decode, Encode};
 use std::fmt::Display;
 use std::io::{Read, Write};
-use tokio::io::{AsyncRead, AsyncWrite};
 
 #[derive(Encode, Decode, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PrefixedOptional<T> {

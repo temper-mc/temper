@@ -1,6 +1,5 @@
 use crate::encode::errors::NetEncodeError;
 use std::io::Write;
-use tokio::io::AsyncWrite;
 
 pub mod errors;
 mod primitives;

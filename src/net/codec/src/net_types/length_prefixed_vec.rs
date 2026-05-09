@@ -4,7 +4,6 @@ use crate::encode::errors::NetEncodeError;
 use crate::encode::{NetEncode, NetEncodeOpts};
 use crate::net_types::var_int::VarInt;
 use std::io::{Read, Write};
-use tokio::io::{AsyncRead, AsyncWrite};
 
 #[derive(Debug, Clone)]
 pub struct LengthPrefixedVec<T> {

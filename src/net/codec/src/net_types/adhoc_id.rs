@@ -1,7 +1,6 @@
 use crate::encode::errors::NetEncodeError;
 use crate::encode::{NetEncode, NetEncodeOpts};
 use std::io::Write;
-use tokio::io::AsyncWrite;
 
 pub struct AdHocID<T: NetEncode> {
     pub inner: T,

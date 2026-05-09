@@ -4,7 +4,6 @@ use std::io::Write;
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_general_purpose::simd::arrays;
-use tokio::io::AsyncWrite;
 
 #[repr(u8)]
 #[derive(Debug, PartialEq, Clone)]

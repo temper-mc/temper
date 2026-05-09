@@ -5,7 +5,6 @@ use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_macros::{NetDecode, packet};
-use tokio::io::AsyncRead;
 use tracing::warn;
 use typename::TypeName;
 

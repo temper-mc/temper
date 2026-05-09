@@ -3,7 +3,6 @@ use crate::encode::{NetEncode, NetEncodeOpts};
 use crate::net_types::var_int::VarInt;
 use std::borrow::Cow;
 use std::io::Write;
-use tokio::io::AsyncWrite;
 
 pub struct NetworkArray<'data, T: NetEncode + ToOwned + Clone>(Cow<'data, [T]>);
 

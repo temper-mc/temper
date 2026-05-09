@@ -5,7 +5,6 @@ use temper_codec::net_types::var_int::VarInt;
 use temper_macros::{Discriminant, NetEncode, packet};
 use temper_nbt::NBT;
 use temper_text::TextComponent;
-use tokio::io::AsyncWrite;
 
 #[derive(NetEncode, Discriminant)]
 pub enum BossbarAction {

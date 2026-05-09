@@ -91,7 +91,9 @@ pub async fn handle_handshake(
     }
 
     // Decode the handshake packet (protocol version, server address, next state, etc.).
-    let hs_packet = spawn_blocking(move || Handshake::decode(&mut skel.data, &NetDecodeOpts::None)).await.expect("Could not spawn task")?;
+    let hs_packet = spawn_blocking(move || Handshake::decode(&mut skel.data, &NetDecodeOpts::None))
+        .await
+        .expect("Could not spawn task")?;
 
     // If protocol version is mismatched, handle gracefully or disconnect client.
     if hs_packet.protocol_version.0 != PROTOCOL_VERSION_1_21_8 {

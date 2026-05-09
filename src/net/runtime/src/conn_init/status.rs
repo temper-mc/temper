@@ -60,8 +60,10 @@ pub(super) async fn status(
     }
 
     // Parse the incoming status request (no fields, acts as a trigger)
-    let _status_req = spawn_blocking(move ||
-        StatusRequestPacket::decode(&mut skel.data, &NetDecodeOpts::None)).await.expect("Could not spawn task")?;
+    let _status_req =
+        spawn_blocking(move || StatusRequestPacket::decode(&mut skel.data, &NetDecodeOpts::None))
+            .await
+            .expect("Could not spawn task")?;
 
     // ---- Phase 2: Send Status Response ----
 
@@ -88,7 +90,9 @@ pub(super) async fn status(
     }
 
     // Parse ping request containing a payload (usually current timestamp)
-    let ping_req = spawn_blocking(move || PingPacket::decode(&mut skel.data, &NetDecodeOpts::None)).await.expect("Failed to decode PingPacket")?;
+    let ping_req = spawn_blocking(move || PingPacket::decode(&mut skel.data, &NetDecodeOpts::None))
+        .await
+        .expect("Failed to decode PingPacket")?;
 
     // Respond with Pong containing the same payload (echo test)
     let pong_packet = PongPacket {

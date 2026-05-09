@@ -1,7 +1,6 @@
 use std::{io::Write, ops::Deref};
 
 use temper_codec::encode::{NetEncode, NetEncodeOpts, errors::NetEncodeError};
-use tokio::io::AsyncWrite;
 
 use crate::{
     arg::{

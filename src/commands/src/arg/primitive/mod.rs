@@ -20,7 +20,6 @@ use temper_codec::{
     net_types::var_int::VarInt,
 };
 use temper_macros::NetEncode;
-use tokio::io::AsyncWrite;
 
 pub mod bool;
 pub mod char;

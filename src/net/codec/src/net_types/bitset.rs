@@ -3,8 +3,6 @@ use crate::encode::{NetEncode, NetEncodeOpts};
 use crate::net_types::var_int::VarInt;
 use std::io::Write;
 use std::ops::Not;
-use tokio::io::AsyncWrite;
-use tokio::io::AsyncWriteExt;
 
 #[derive(Debug, Clone)]
 pub struct BitSet(Vec<u64>);

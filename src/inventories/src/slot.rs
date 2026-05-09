@@ -7,7 +7,6 @@ use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::encode::errors::NetEncodeError;
 use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_codec::net_types::var_int::VarInt;
-use tokio::io::{AsyncRead, AsyncWrite};
 use type_hash::TypeHash;
 
 #[derive(Debug, Clone, Hash, Default, PartialEq, Decode, Encode, TypeHash)]
