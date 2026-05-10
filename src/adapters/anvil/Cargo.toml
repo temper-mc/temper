@@ -13,6 +13,8 @@ tracing = { workspace = true }
 rayon = { workspace = true }
 fastanvil = "0.31.0"
 criterion = { workspace = true }
+temper-logging = { workspace = true }
+temper-utils = { workspace = true }
 
 [lints]
 workspace = true

@@ -11,6 +11,7 @@ tokio = { workspace = true }
 tracing = { workspace = true }
 yazi = { workspace = true }
 temper-config = { workspace = true }
+temper-core = { workspace = true }
 temper-macros = { workspace = true }
 temper-encryption = { path = "../encryption" }
 temper-state = { workspace = true }
@@ -29,6 +30,3 @@ temper-permissions = { workspace = true }
 
 [lints]
 workspace = true
-
-[lib]
-doctest = false

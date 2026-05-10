@@ -25,7 +25,3 @@ tracy = ["tracing-tracy", "tracy-client"]
 
 [lints]
 workspace = true
-
-[lib]
-test = false
-doctest = false

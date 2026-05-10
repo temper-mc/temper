@@ -16,9 +16,8 @@ temper-state = { workspace = true }
 temper-world = { workspace = true }
 tracing = { workspace = true }
 
+[dev-dependencies]
+temper-macros = { workspace = true }
+
 [lints]
 workspace = true
-
-[lib]
-test = false
-doctest = false

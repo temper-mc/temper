@@ -140,6 +140,7 @@ temper-text = { path = "src/text" }
 temper-threadpool = { path = "src/base/threadpool" }
 temper-utils = { path = "src/utils" }
 temper-world = { path = "src/world" }
+temper-world-gen = { path = "src/world/gen" }
 temper-world-format = { path = "src/world/format" }
 temper-inventories = { path = "src/inventories" }
 temper-data = { path = "src/data" }
@@ -155,7 +156,7 @@ interactions = { path = "src/game_systems/src/interactions" }
 temper-permissions = { path = "src/permissions" }
 
 # Asynchronous
-tokio = { version = "1.52.3", features = [
+tokio = { version = "1.52.1", features = [
     "macros",
     "net",
     "rt",
@@ -212,6 +213,10 @@ craftflow-nbt = "2.1.0"
 figment = { version = "0.10.19", features = ["toml", "env"] }
 simd-json = "0.17.0"
 bytemuck = { version = "1.25.0", features = ["extern_crate_alloc", "derive"] }
+serde_yaml_ng = "0.10.0"
+
+# Bit manipulation
+byteorder = "1.5.0"
 
 # Data types
 dashmap = { version = "7.0.0-rc2", features = ["serde"] }
@@ -223,7 +228,7 @@ arrayvec = "0.7.6"
 # Macros
 lazy_static = "1.5.0"
 quote = "1.0.45"
-syn = { version = "2.0.117", features = ["full"] }
+syn = { version = "2.0.117", features = ["extra-traits"] }
 proc-macro2 = "1.0.106"
 paste = "1.0.15"
 maplit = "1.0.2"
@@ -232,11 +237,12 @@ type_hash = "0.3.0"
 
 # Magic
 dhat = "0.3.3"
-ctor = "1.0.4"
+ctor = "1.0.0"
 
 # Compression/Decompression
 yazi = "0.2.1"
-zip = { version = "9.0.0-pre1", default-features = false, features = ["deflate"] }
+flate2 = "1.1.9"
+zip = { version = "8.6.0", default-features = false, features = ["deflate"] }
 
 
 # Database
@@ -259,11 +265,13 @@ mime_guess = "2.0.5"
 
 ## TUI/CLI
 crossterm = "0.29.0"
+ratatui-core = "0.1.0"
 tui-input = "0.15.3"
 ratatui = "0.30.0"
 tui-logger = { version = "0.18.2", features = ["tracing-support", "crossterm"] }
 clap = { version = "4.6.1", features = ["derive", "env"] }
 indicatif = "0.18.4"
+colored = "3.1.1"
 unicode-width = "0.2.2"
 heck = "0.5.0"
 
@@ -283,7 +291,7 @@ phf_codegen = { version = "0.13.1" }
 axum = { version = "0.8.9", features = ["tokio", "ws"] }
 
 # Stats
-sysinfo = { version = "0.39.0", default-features = false, features = ["system"] }
+sysinfo = { version = "0.38.4", default-features = false, features = ["system"] }
 dir-size = "0.1.1"
 
 # Compression is a real bottleneck that we can do little about, so compiling it with optimizations is needed in dev mode.
