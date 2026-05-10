@@ -7,7 +7,6 @@ edition = "2024"
 thiserror = { workspace = true }
 tracing = { workspace = true }
 dashmap = { workspace = true }
-tokio = { workspace = true }
 temper-text = { workspace = true }
 temper-core = { workspace = true }
 enum-ordinalize = { workspace = true }

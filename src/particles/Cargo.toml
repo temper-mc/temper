@@ -8,7 +8,6 @@ temper-codec = { workspace = true }
 temper-core = { workspace = true }
 temper-inventories = { workspace = true }
 temper-macros = { workspace = true }
-tokio = { workspace = true }
 temper-components = { workspace = true }
 
 [lints]

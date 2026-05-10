@@ -6,7 +6,6 @@ edition = "2024"
 [dependencies]
 temper-codec = { workspace = true }
 temper-macros = { workspace = true }
-tokio = { workspace = true }
 tracing = { workspace = true }
 temper-components = { workspace = true }
 typename = { workspace = true }
@@ -28,6 +27,7 @@ temper-commands = { workspace = true }
 indexmap = { workspace = true }
 temper-encryption = { path = "../encryption" }
 bevy_math = { workspace = true }
+tokio = { workspace = true }
 
 [dev-dependencies]
 indexmap = { workspace = true }

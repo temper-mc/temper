@@ -11,7 +11,6 @@ temper-config = { workspace = true }
 bevy_ecs = { workspace = true }
 temper-core = { workspace = true }
 flate2 = { workspace = true }
-tokio = { workspace = true }
 maplit = { workspace = true }
 
 [lints]

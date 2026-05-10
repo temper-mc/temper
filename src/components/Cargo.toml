@@ -6,7 +6,6 @@ description = "Temper components"
 
 [dependencies]
 bevy_ecs = { workspace = true }
-tokio = { workspace = true }
 
 temper-inventories = { workspace = true }
 temper-codec = { workspace = true }

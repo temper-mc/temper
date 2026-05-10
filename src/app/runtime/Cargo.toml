@@ -32,12 +32,12 @@ tracing = { workspace = true }
 thiserror = { workspace = true }
 bevy_ecs = { workspace = true }
 crossbeam-channel = { workspace = true }
-tokio = { workspace = true }
 tui-input = { workspace = true }
 crossterm = { workspace = true }
 tui-logger = { workspace = true }
 type_hash = { workspace = true }
 reqwest = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

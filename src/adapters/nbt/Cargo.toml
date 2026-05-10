@@ -7,9 +7,9 @@ edition = "2021"
 
 thiserror = { workspace = true }
 temper-codec = { workspace = true }
-tokio = { workspace = true }
 temper-general-purpose = { workspace = true }
 uuid = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

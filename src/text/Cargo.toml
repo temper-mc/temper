@@ -7,7 +7,6 @@ edition = "2021"
 temper-codec = { workspace = true }
 temper-nbt = { workspace = true }
 temper-macros = { workspace = true }
-tokio = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 paste = { workspace = true }

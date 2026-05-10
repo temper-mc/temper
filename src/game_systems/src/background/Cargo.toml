@@ -19,7 +19,6 @@ temper-messages = { workspace = true }
 temper-inventories = { workspace = true }
 temper-resources = { workspace = true }
 rand = { workspace = true }
-tokio = { workspace = true }
 temper-entities = { workspace = true }
 temper-commands = { workspace = true }
 crossbeam-queue = { workspace = true }
@@ -27,6 +26,7 @@ temper-world = { workspace = true }
 temper-nbt = { workspace = true }
 temper-permissions = { workspace = true }
 uuid = {workspace = true}
+tokio = { workspace = true }
 
 [dev-dependencies]
 temper-encryption = { workspace = true }

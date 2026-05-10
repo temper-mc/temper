@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 thiserror = { workspace = true }
-tokio = { workspace = true }
 bitcode = { workspace = true }
 temper-general-purpose = { workspace = true }
 deepsize = { workspace = true }
 type_hash = { workspace = true }
+tokio = { workspace = true }
 
 [lints]
 workspace = true

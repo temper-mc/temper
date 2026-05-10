@@ -7,7 +7,6 @@ edition = "2021"
 
 tracing = { workspace = true }
 axum = { workspace = true }
-tokio = { workspace = true }
 sysinfo = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
@@ -15,6 +14,7 @@ include_dir = { workspace = true }
 mime_guess = { workspace = true }
 dir-size = { workspace = true }
 uuid = { workspace = true, features = ["serde"] }
+tokio = { workspace = true }
 
 # temper local crates
 temper-state = { workspace = true }

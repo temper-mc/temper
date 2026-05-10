@@ -7,7 +7,6 @@ edition = "2024"
 
 temper-codec = { workspace = true }
 bevy_ecs = { workspace = true }
-tokio = { workspace = true }
 crossbeam-queue = { workspace = true }
 once_cell = { workspace = true }
 thiserror = { workspace = true }

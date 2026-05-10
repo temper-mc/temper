@@ -23,7 +23,6 @@ temper-entities = { workspace = true }
 temper-text = { workspace = true }
 temper-macros = { workspace = true }
 interactions = { workspace = true }
-tokio = { workspace = true }
 rand = { workspace = true }
 bitcode = { workspace = true }
 temper-permissions = { workspace = true }
