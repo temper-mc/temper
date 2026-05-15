@@ -33,9 +33,10 @@ impl ItemID {
 
         let id_key = protocol_id.to_string();
 
-        // 1. Call the new compile-time lookup
-        let block_name = temper_registry::lookup_blockstate_name(&id_key)?;
+        // call the registry to get the block name as a string
+        let block_name = temper_registry::blocks::name(block_state_id.raw());
 
+        // feed that shit to the item system
         ItemID::from_name(block_name)
     }
 

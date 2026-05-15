@@ -2,18 +2,10 @@
 name = "temper-registry"
 version = "0.1.0"
 edition = "2024"
-build = "build.rs"
 
 [dependencies]
-phf = { workspace = true }
-
-[dev-dependencies]
-criterion = { workspace = true }
-
-[build-dependencies]
 serde = { workspace = true }
 serde_json = { workspace = true }
-phf_codegen = { workspace = true }
 
 [lints]
 workspace = true

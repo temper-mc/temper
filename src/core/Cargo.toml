@@ -10,6 +10,7 @@ bevy_ecs = { workspace = true }
 bevy_math = { workspace = true }
 temper-text = { workspace = true }
 temper-codec = { workspace = true }
+temper-registry = { workspace = true }
 crossbeam-queue = { workspace = true }
 bitcode = { workspace = true }
 bitcode_derive = { workspace = true }
