@@ -45,7 +45,7 @@ fn main() -> Result<()> {
     // 2. Check cache age to avoid downloading on every single compile.
     let force_download = env::var("TEMPER_FORCE_DASHBOARD_DOWNLOAD").is_ok();
     let index_html = dest_dir.join("index.html");
-    
+
     let has_recent_dashboard = if index_html.exists() {
         if let Ok(metadata) = fs::metadata(&index_html) {
             if let Ok(modified) = metadata.modified() {
@@ -69,7 +69,7 @@ fn main() -> Result<()> {
 
     if should_download {
         println!(
-            "Downloading Dashboard artifact from {}",
+            "cargo:warning=Downloading Dashboard artifact from {}",
             DASHBOARD_URL
         );
 
@@ -111,7 +111,7 @@ fn main() -> Result<()> {
                     }
                 }
 
-                println!("Dashboard extracted to {:?}", dest_dir);
+                println!("cargo:warning=Dashboard extracted to {:?}", dest_dir);
             }
             _ => {
                 // Download failed (no internet, request error, non-success status)
@@ -131,7 +131,7 @@ fn main() -> Result<()> {
         }
     } else {
         println!(
-            "Using cached Dashboard (last downloaded <24h ago). Set TEMPER_FORCE_DASHBOARD_DOWNLOAD=1 to force update."
+            "cargo:warning=Using cached Dashboard (last downloaded <24h ago). Set TEMPER_FORCE_DASHBOARD_DOWNLOAD=1 to force update."
         );
     }
 
