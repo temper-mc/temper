@@ -47,9 +47,15 @@ fn main() -> Result<()> {
     let index_html = dest_dir.join("index.html");
 
     let has_recent_dashboard = 'check: {
-        let Ok(metadata) = fs::metadata(&index_html) else { break 'check false };
-        let Ok(modified) = metadata.modified() else { break 'check false };
-        let Ok(elapsed) = SystemTime::now().duration_since(modified) else { break 'check false };
+        let Ok(metadata) = fs::metadata(&index_html) else {
+            break 'check false;
+        };
+        let Ok(modified) = metadata.modified() else {
+            break 'check false;
+        };
+        let Ok(elapsed) = SystemTime::now().duration_since(modified) else {
+            break 'check false;
+        };
         elapsed.as_secs() < 86_400
     };
 
