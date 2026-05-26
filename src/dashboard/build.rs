@@ -46,23 +46,11 @@ fn main() -> Result<()> {
     let force_download = env::var("TEMPER_FORCE_DASHBOARD_DOWNLOAD").is_ok();
     let index_html = dest_dir.join("index.html");
 
-    let has_recent_dashboard = if index_html.exists() {
-        if let Ok(metadata) = fs::metadata(&index_html) {
-            if let Ok(modified) = metadata.modified() {
-                if let Ok(elapsed) = SystemTime::now().duration_since(modified) {
-                    // Cache threshold: 24 hours (86,400 seconds)
-                    elapsed.as_secs() < 86400
-                } else {
-                    false
-                }
-            } else {
-                false
-            }
-        } else {
-            false
-        }
-    } else {
-        false
+    let has_recent_dashboard = 'check: {
+        let Ok(metadata) = fs::metadata(&index_html) else { break 'check false };
+        let Ok(modified) = metadata.modified() else { break 'check false };
+        let Ok(elapsed) = SystemTime::now().duration_since(modified) else { break 'check false };
+        elapsed.as_secs() < 86_400
     };
 
     let should_download = force_download || !has_recent_dashboard;
@@ -102,13 +90,13 @@ fn main() -> Result<()> {
 
                     if file.is_dir() {
                         fs::create_dir_all(&outpath)?;
-                    } else {
-                        if let Some(parent) = outpath.parent() {
-                            fs::create_dir_all(parent)?;
-                        }
-                        let mut outfile = fs::File::create(&outpath)?;
-                        std::io::copy(&mut file, &mut outfile)?;
+                        continue;
                     }
+                    if let Some(parent) = outpath.parent() {
+                        fs::create_dir_all(parent)?;
+                    }
+                    let mut outfile = fs::File::create(&outpath)?;
+                    std::io::copy(&mut file, &mut outfile)?;
                 }
 
                 println!("cargo:warning=Dashboard extracted to {:?}", dest_dir);
