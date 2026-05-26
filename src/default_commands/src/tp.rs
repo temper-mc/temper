@@ -11,6 +11,10 @@ use temper_components::player::rotation::Rotation;
 use temper_macros::command;
 use temper_messages::teleport_player::TeleportPlayer;
 
+fn is_coordinate(token: &str) -> bool {
+    token.starts_with('~') || token.starts_with('^') || token.parse::<f64>().is_ok()
+}
+
 pub enum TeleportTarget {
     Position(CommandPosition),
     Entity(EntityArgument),
@@ -37,10 +41,6 @@ impl temper_commands::arg::CommandArgument for TpArgument {
             return Err(temper_commands::arg::utils::parser_error(
                 "missing arguments",
             ));
-        }
-
-        fn is_coordinate(token: &str) -> bool {
-            token.starts_with('~') || token.starts_with('^') || token.parse::<f64>().is_ok()
         }
 
         let parse_position = |x_str: &str,
@@ -133,10 +133,6 @@ impl temper_commands::arg::CommandArgument for TpArgument {
 
         let words: Vec<&str> = input_str.split(' ').collect();
 
-        fn is_coordinate(token: &str) -> bool {
-            token.starts_with('~') || token.starts_with('^') || token.parse::<f64>().is_ok()
-        }
-
         let mut suggest_entities = false;
         let mut suggest_coords = false;
 
@@ -192,8 +188,7 @@ impl temper_commands::arg::CommandArgument for TpArgument {
                 },
             ];
 
-            let state = ctx.state.clone();
-            for kv in &state.clone().players.player_list {
+            for kv in &ctx.state.players.player_list {
                 let (_, (uuid, name)) = kv.pair();
                 entity_suggestions.push(temper_commands::Suggestion {
                     content: name.clone(),
