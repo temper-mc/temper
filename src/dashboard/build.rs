@@ -43,7 +43,9 @@ fn main() -> Result<()> {
     }
 
     // 2. Check cache age to avoid downloading on every single compile.
-    let force_download = env::var("TEMPER_FORCE_DASHBOARD_DOWNLOAD").is_ok();
+    let force_download = env::var("TEMPER_FORCE_DASHBOARD_DOWNLOAD")
+        .map(|v| v == "1")
+        .unwrap_or(false);
     let index_html = dest_dir.join("index.html");
 
     let has_recent_dashboard = 'check: {
@@ -67,7 +69,9 @@ fn main() -> Result<()> {
             DASHBOARD_URL
         );
 
-        let client = reqwest::blocking::Client::new();
+        let client = reqwest::blocking::Client::builder()
+            .timeout(std::time::Duration::from_secs(10))
+            .build()?;
         let download_result = client
             .get(DASHBOARD_URL)
             .header("User-Agent", "temper-build-script")
