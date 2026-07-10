@@ -3,6 +3,7 @@ mod credits;
 pub mod echo;
 pub mod gamemode;
 mod kill;
+mod list;
 mod motion;
 pub mod op;
 mod stop;
