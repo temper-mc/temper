@@ -3,6 +3,7 @@ use std::env;
 use std::fs;
 use std::io::{Cursor, Write};
 use std::path::Path;
+use std::time::SystemTime;
 use zip::ZipArchive;
 
 // CONFIGURATION
@@ -15,6 +16,9 @@ fn main() -> Result<()> {
     println!("cargo::rustc-check-cfg=cfg(dashboard_in_out_dir)");
     println!("cargo::rustc-check-cfg=cfg(dashboard_in_manifest_dir)");
     println!("cargo::rustc-check-cfg=cfg(dashboard_build)");
+
+    // Rerun if the force download environment variable changes
+    println!("cargo:rerun-if-env-changed=TEMPER_FORCE_DASHBOARD_DOWNLOAD");
 
     // 1. Determine where to put the files.
     let (dest_dir, use_out_dir) = if let Ok(out_dir) = env::var("OUT_DIR") {
@@ -38,67 +42,95 @@ fn main() -> Result<()> {
         println!("cargo:rustc-cfg=dashboard_in_manifest_dir");
     }
 
-    // 2. Always attempt to download the dashboard
-    println!(
-        "cargo:warning=Downloading Dashboard artifact from {}",
-        DASHBOARD_URL
-    );
+    // 2. Check cache age to avoid downloading on every single compile.
+    let force_download = env::var("TEMPER_FORCE_DASHBOARD_DOWNLOAD")
+        .map(|v| v == "1")
+        .unwrap_or(false);
+    let index_html = dest_dir.join("index.html");
 
-    let client = reqwest::blocking::Client::new();
-    let download_result = client
-        .get(DASHBOARD_URL)
-        .header("User-Agent", "temper-build-script")
-        .send();
+    let has_recent_dashboard = 'check: {
+        let Ok(metadata) = fs::metadata(&index_html) else {
+            break 'check false;
+        };
+        let Ok(modified) = metadata.modified() else {
+            break 'check false;
+        };
+        let Ok(elapsed) = SystemTime::now().duration_since(modified) else {
+            break 'check false;
+        };
+        elapsed.as_secs() < 86_400
+    };
 
-    match download_result {
-        Ok(response) if response.status().is_success() => {
-            // Delete existing directory if it exists
-            if dest_dir.exists() {
-                fs::remove_dir_all(&dest_dir)?;
-            }
+    let should_download = force_download || !has_recent_dashboard;
 
-            let content = response.bytes()?;
+    if should_download {
+        println!(
+            "cargo:warning=Downloading Dashboard artifact from {}",
+            DASHBOARD_URL
+        );
 
-            // Extract the zip file
-            let cursor = Cursor::new(content);
-            let mut archive = ZipArchive::new(cursor)?;
+        let client = reqwest::blocking::Client::builder()
+            .timeout(std::time::Duration::from_secs(10))
+            .build()?;
+        let download_result = client
+            .get(DASHBOARD_URL)
+            .header("User-Agent", "temper-build-script")
+            .send();
 
-            // Create the destination directory
-            fs::create_dir_all(&dest_dir)?;
+        match download_result {
+            Ok(response) if response.status().is_success() => {
+                // Delete existing directory if it exists
+                if dest_dir.exists() {
+                    fs::remove_dir_all(&dest_dir)?;
+                }
 
-            // Extract all files
-            for i in 0..archive.len() {
-                let mut file = archive.by_index(i)?;
-                let outpath = dest_dir.join(file.mangled_name()?);
+                let content = response.bytes()?;
 
-                if file.is_dir() {
-                    fs::create_dir_all(&outpath)?;
-                } else {
+                // Extract the zip file
+                let cursor = Cursor::new(content);
+                let mut archive = ZipArchive::new(cursor)?;
+
+                // Create the destination directory
+                fs::create_dir_all(&dest_dir)?;
+
+                // Extract all files
+                for i in 0..archive.len() {
+                    let mut file = archive.by_index(i)?;
+                    let outpath = dest_dir.join(file.mangled_name()?);
+
+                    if file.is_dir() {
+                        fs::create_dir_all(&outpath)?;
+                        continue;
+                    }
                     if let Some(parent) = outpath.parent() {
                         fs::create_dir_all(parent)?;
                     }
                     let mut outfile = fs::File::create(&outpath)?;
                     std::io::copy(&mut file, &mut outfile)?;
                 }
-            }
 
-            println!("cargo:warning=Dashboard extracted to {:?}", dest_dir);
-        }
-        _ => {
-            // Download failed (no internet, request error, non-success status)
-            if dest_dir.exists() {
-                // Use existing dashboard files
-                println!("cargo:warning=Download failed, using existing dashboard files.");
-            } else {
-                // Create fallback HTML
-                println!(
-                    "cargo:warning=Download failed and no existing dashboard. Creating fallback."
-                );
-                fs::create_dir_all(&dest_dir)?;
-                let mut file = fs::File::create(dest_dir.join("index.html"))?;
-                file.write_all(b"<h1>Dashboard Offline (Build failed to fetch)</h1>")?;
+                println!("cargo:warning=Dashboard extracted to {:?}", dest_dir);
+            }
+            _ => {
+                // Download failed (no internet, request error, non-success status)
+                if dest_dir.exists() {
+                    // Use existing dashboard files
+                    println!("cargo:warning=Download failed, using existing dashboard files.");
+                } else {
+                    // Create fallback HTML
+                    println!(
+                        "cargo:warning=Download failed and no existing dashboard. Creating fallback."
+                    );
+                    fs::create_dir_all(&dest_dir)?;
+                    let mut file = fs::File::create(dest_dir.join("index.html"))?;
+                    file.write_all(b"<h1>Dashboard Offline (Build failed to fetch)</h1>")?;
+                }
             }
         }
+    } else {
+        println!(
+            "cargo:warning=Using cached Dashboard (last downloaded <24h ago). Set TEMPER_FORCE_DASHBOARD_DOWNLOAD=1 to force update."
+        );
     }
 
     // Emit a cfg flag so the main code knows build.rs ran
