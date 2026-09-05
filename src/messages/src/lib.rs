@@ -44,6 +44,7 @@ pub mod world_change;
 
 use crate::chunk_calc::ChunkCalc;
 use crate::cross_chunk_boundary_event::ChunkBoundaryCrossed;
+use crate::damage::DamageEvent;
 use crate::destroy_entity::DestroyEntity;
 use crate::entity_update::SendEntityUpdate;
 use crate::force_player_recount_event::ForcePlayerRecount;
@@ -56,7 +57,6 @@ pub use block_break::BlockBrokenEvent;
 pub use block_interaction::BlockInteractMessage;
 use temper_command_infra::{CommandDispatched, RebuildCommandGraph};
 use world_change::WorldChange;
-use crate::damage::DamageEvent;
 
 pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<Movement>(world);

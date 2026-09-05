@@ -53,10 +53,10 @@ else:
 
 packet_name = input("Packet name: ")
 packets_dir = os.path.join(
-    os.path.join(os.path.dirname(__file__), ".."), "src/lib/net/src/packets"
+    os.path.join(os.path.dirname(__file__), ".."), "src/net/protocol/src"
 )
 handler_dir = os.path.join(
-    os.path.join(os.path.dirname(__file__), ".."), "src/bin/src/packet_handlers/play_packets"
+    os.path.join(os.path.dirname(__file__), ".."), "src/game_systems/src/packets/src"
 )
 
 packet_id = input(

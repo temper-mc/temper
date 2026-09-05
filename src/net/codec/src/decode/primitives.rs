@@ -41,6 +41,40 @@ impl_for_primitives!(
     f64
 );
 
+macro_rules! impl_for_tuples {
+    ($(($($name:ident),+)),+ $(,)?) => {
+        $(
+            impl<$($name),+> NetDecode for ($($name,)+)
+            where
+                $($name: NetDecode),+
+            {
+                fn decode<R: Read>(reader: &mut R, opts: &NetDecodeOpts) -> Result<Self, NetDecodeError> {
+                    Ok((
+                        $(
+                            <$name as NetDecode>::decode(reader, opts)?,
+                        )+
+                    ))
+                }
+            }
+        )+
+    };
+}
+
+impl_for_tuples!(
+    (A),
+    (A, B),
+    (A, B, C),
+    (A, B, C, D),
+    (A, B, C, D, E),
+    (A, B, C, D, E, F),
+    (A, B, C, D, E, F, G),
+    (A, B, C, D, E, F, G, H),
+    (A, B, C, D, E, F, G, H, I),
+    (A, B, C, D, E, F, G, H, I, J),
+    (A, B, C, D, E, F, G, H, I, J, K),
+    (A, B, C, D, E, F, G, H, I, J, K, L),
+);
+
 impl NetDecode for bool {
     fn decode<R: Read>(reader: &mut R, _: &NetDecodeOpts) -> Result<Self, NetDecodeError> {
         Ok(<u8 as NetDecode>::decode(reader, &NetDecodeOpts::None)? != 0)
@@ -109,5 +143,44 @@ impl<const N: usize> NetDecode for [u8; N] {
         let mut buf = [0; N];
         reader.read_exact(&mut buf)?;
         Ok(buf)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::encode::{NetEncode, NetEncodeOpts};
+    use crate::net_types::prefixed_optional::PrefixedOptional;
+    use std::io::Cursor;
+
+    #[test]
+    fn tuple_values_encode_and_decode_in_order() {
+        let value = (1u8, -2i16, 3.5f64);
+        let mut encoded = Vec::new();
+        value.encode(&mut encoded, &NetEncodeOpts::None).unwrap();
+
+        let mut expected = vec![1];
+        expected.extend_from_slice(&(-2i16).to_be_bytes());
+        expected.extend_from_slice(&3.5f64.to_be_bytes());
+        assert_eq!(encoded, expected);
+
+        let mut cursor = Cursor::new(encoded);
+        let decoded =
+            <(u8, i16, f64) as NetDecode>::decode(&mut cursor, &NetDecodeOpts::None).unwrap();
+
+        assert_eq!(decoded, value);
+    }
+
+    #[test]
+    fn prefixed_optional_tuple_round_trips() {
+        let value = PrefixedOptional::Some((1.25f64, 2.5f64, 3.75f64));
+        let mut encoded = Vec::new();
+        value.encode(&mut encoded, &NetEncodeOpts::None).unwrap();
+
+        let mut cursor = Cursor::new(encoded);
+        let decoded =
+            PrefixedOptional::<(f64, f64, f64)>::decode(&mut cursor, &NetDecodeOpts::None).unwrap();
+
+        assert_eq!(decoded, value);
     }
 }
