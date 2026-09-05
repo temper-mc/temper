@@ -31,7 +31,7 @@ pub fn damage_entity(
     mut kill_writer: MessageWriter<KillEntity>,
 ) {
     for message in messages.read() {
-        for (entity, mut health, hunger, stream_writer, is_player, identity, game_id, pos) in
+        for (entity, mut health, hunger, stream_writer, _is_player, identity, game_id, _pos) in
             player_query.iter_mut()
         {
             if entity == message.target {

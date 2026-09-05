@@ -9,6 +9,7 @@ use temper_core::dimension::Dimension::Overworld;
 use temper_entities::MobKind;
 use temper_messages::DespawnMob;
 use temper_messages::kill_entity::KillEntity;
+use temper_nbt::NBT;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::player_death::PlayerDeath;
 use temper_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
@@ -16,7 +17,6 @@ use temper_resources::bossbar::BossBarResource;
 use temper_state::GlobalStateResource;
 use temper_text::{Color, NamedColor, TextComponentBuilder};
 use tracing::trace;
-use temper_nbt::NBT;
 
 pub fn kill_entity_system(
     mut commands: Commands,
@@ -49,14 +49,13 @@ pub fn kill_entity_system(
             bossbar_own,
         )) = query.get(event.entity)
         {
-
             let kill_packet = PlayerDeath {
                 entity_id: game_id.get(),
                 message: NBT::new(event.message.clone().unwrap_or_else(|| {
                     TextComponentBuilder::new("You died :(")
                         .color(Color::Named(NamedColor::Red))
                         .build()
-                }))
+                })),
             };
             if !has_player_marker {
                 destroyed_entities.push(game_id.get());

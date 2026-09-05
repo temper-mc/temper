@@ -22,12 +22,10 @@ pub fn handle_client_command(
     for (message, sender) in events.0.try_iter() {
         match message.action {
             ClientCommandAction::PerformRespawn => {
-                let (conn, gamemode, mut chunk_recv) = query
+                let (conn, gamemode, _chunk_recv) = query
                     .get_mut(sender)
                     .expect("No StreamWriter or GameModeComponent for sender");
-                
 
-                
                 let packet = RespawnPacket {
                     dimension_type: VarInt::new(0),
                     dimension_name: "minecraft:overworld",

@@ -6,7 +6,6 @@ use temper_core::block_state_id::BlockStateId;
 use temper_core::pos::BlockPos;
 use temper_data::damage_types::DamageType;
 use temper_macros::match_block;
-use temper_text::TextComponent;
 
 #[derive(Message)]
 pub struct DamageEvent {

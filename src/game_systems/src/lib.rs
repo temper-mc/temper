@@ -144,7 +144,6 @@ fn register_tick_systems(schedule: &mut Schedule) {
 
     schedule.add_systems(world::particles::handle);
 
-
     schedule.add_systems(bevy_ecs::message::message_update_system);
 }
 
