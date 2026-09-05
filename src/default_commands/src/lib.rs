@@ -1,5 +1,6 @@
 pub mod bossbar;
 mod credits;
+mod damage;
 pub mod echo;
 pub mod gamemode;
 mod kill;

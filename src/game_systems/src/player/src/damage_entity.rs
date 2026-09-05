@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::{Entity, Has, MessageReader, Query};
-use bevy_math::Vec3;
 use temper_codec::net_types::prefixed_optional::PrefixedOptional;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
@@ -40,10 +39,7 @@ pub fn damage_entity(
                     // todo: kill player
                     health.current = health.max;
                     temper_core::mq::queue(
-                        format!(
-                            "You have been killed by {}",
-                            message.source.to_vanilla_source().to_name()
-                        )
+                        "You have been killed".to_string()
                         .into(),
                         false,
                         entity,

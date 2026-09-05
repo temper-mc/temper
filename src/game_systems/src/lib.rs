@@ -95,6 +95,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
     schedule.add_systems(player::player_swimming::detect_player_swimming);
     schedule.add_systems(player::teleport::teleport_entities);
     schedule.add_systems(player::send_inventory_updates::handle_inventory_updates);
+    schedule.add_systems(player::damage_entity::damage_entity);
 
     temper_command_infra::register_command_systems(schedule);
 
