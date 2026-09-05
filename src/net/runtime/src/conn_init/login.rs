@@ -18,6 +18,7 @@ use temper_protocol::outgoing::update_tags::UPDATE_TAGS_PACKET;
 use temper_state::GlobalState;
 
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::gamemode::GameMode;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::player_properties::{PlayerProperties, PlayerProperty};
@@ -225,7 +226,6 @@ async fn send_login_success(
     let player_identity = Identity {
         uuid: Uuid::from_u128(login_start.uuid),
         name: Some(login_start.username.clone()),
-        entity_id: login_start.uuid as i32,
     };
 
     // Wait for Login Acknowledged
@@ -359,7 +359,7 @@ async fn finish_configuration(
 /// Sends initial play state packets (login_play, abilities, op level).
 fn send_initial_play_packets(
     conn_write: &StreamWriter,
-    player_identity: &Identity,
+    player_id: &GameID,
     offline_data: &OfflinePlayerData,
     state: GlobalState,
 ) -> Result<(), NetError> {
@@ -367,7 +367,7 @@ fn send_initial_play_packets(
     let game_mode = offline_data.gamemode;
 
     conn_write.send_packet(LoginPlayPacket::new(
-        player_identity.entity_id,
+        player_id.get().0,
         game_mode as u8,
         &state.config,
     ))?;
@@ -379,7 +379,7 @@ fn send_initial_play_packets(
 
     // Send OP level (TODO: use actual player OP level)
     conn_write.send_packet(EntityStatus {
-        entity_id: player_identity.entity_id,
+        entity_id: player_id.get().0,
         status: 28, // OP level 4
     })?;
 
@@ -551,8 +551,10 @@ pub(super) async fn login(
 
     // Phase 3: Play State Setup
 
+    let player_game_id = GameID::new();
+
     // TODO: at some point this should be moved to the ECS
-    send_initial_play_packets(conn_write, &player_identity, &offline_data, state.clone())?;
+    send_initial_play_packets(conn_write, &player_game_id, &offline_data, state.clone())?;
     sync_player_position(
         conn_read,
         conn_write,
@@ -584,6 +586,7 @@ pub(super) async fn login(
         false,
         LoginResult {
             player_identity: Some(player_identity),
+            game_id: Some(player_game_id),
             compression: compressed,
             client_information_component: Some(client_info.into()),
             player_properties: Some(player_properties),

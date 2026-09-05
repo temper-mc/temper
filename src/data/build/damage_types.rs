@@ -3,10 +3,15 @@ use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use std::{collections::BTreeMap, fs};
 
+#[derive(serde::Deserialize)]
+struct DamageTypeEntry {
+    id: u16,
+}
+
 pub(crate) fn build() -> TokenStream {
     println!("cargo:rerun-if-changed=../../assets/extracted/damage_type.json");
 
-    let damage_types: BTreeMap<String, serde_json::Value> = serde_json::from_str(
+    let damage_types: BTreeMap<String, DamageTypeEntry> = serde_json::from_str(
         &fs::read_to_string("../../assets/extracted/damage_type.json").unwrap(),
     )
     .expect("Failed to parse damage_type.json");
@@ -39,6 +44,30 @@ pub(crate) fn build() -> TokenStream {
         })
         .collect::<TokenStream>();
 
+    let type_from_id = &damage_types
+        .iter()
+        .map(|(damage_type, entry)| {
+            let id = entry.id;
+            let name = format_ident!("{}", damage_type.to_pascal_case());
+
+            quote! {
+                #id => Some(Self::#name),
+            }
+        })
+        .collect::<TokenStream>();
+
+    let type_to_id = &damage_types
+        .iter()
+        .map(|(damage_type, entry)| {
+            let id = entry.id;
+            let name = format_ident!("{}", damage_type.to_pascal_case());
+
+            quote! {
+                Self::#name => #id,
+            }
+        })
+        .collect::<TokenStream>();
+
     quote! {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
         pub enum DamageType {
@@ -55,9 +84,22 @@ pub(crate) fn build() -> TokenStream {
                 }
             }
 
+            pub const fn from_id(id: u16) -> Option<Self> {
+                match id {
+                    #type_from_id
+                    _ => None
+                }
+            }
+
             pub const fn to_name(&self) -> &'static str {
                 match self {
                     #type_to_name
+                }
+            }
+
+            pub const fn to_id(&self) -> u16 {
+                match self {
+                    #type_to_id
                 }
             }
         }

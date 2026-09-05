@@ -138,6 +138,8 @@ macro_rules! define_mob {
                 #[serde(skip)]
                 pub $runtime_field: $runtime_ty,
             )*
+            #[serde(skip)]
+            pub game_id: temper_components::game_id::GameID,
         }
 
         impl $bundle {
@@ -159,6 +161,7 @@ macro_rules! define_mob {
                     $(
                         $runtime_field: <$runtime_ty>::default(),
                     )*
+                    game_id: temper_components::game_id::GameID::new()
                 }
             }
 
@@ -243,6 +246,7 @@ macro_rules! define_mob {
                     $(
                         $runtime_field: <$runtime_ty>::default(),
                     )*
+                    game_id: bundle.game_id,
                 }
             }
 
@@ -262,6 +266,7 @@ macro_rules! define_mob {
                     $(
                         $runtime_field: <$runtime_ty>::default(),
                     )*
+                    game_id: temper_components::game_id::GameID::new(),
                 }
             }
 

@@ -38,6 +38,40 @@ impl_for_primitives!(
     f64
 );
 
+macro_rules! impl_for_tuples {
+    ($(($($name:ident $value:ident),+)),+ $(,)?) => {
+        $(
+            impl<$($name),+> NetEncode for ($($name,)+)
+            where
+                $($name: NetEncode),+
+            {
+                fn encode<W: Write>(&self, writer: &mut W, opts: &NetEncodeOpts) -> Result<(), NetEncodeError> {
+                    let ($($value,)+) = self;
+                    $(
+                        $value.encode(writer, opts)?;
+                    )+
+                    Ok(())
+                }
+            }
+        )+
+    };
+}
+
+impl_for_tuples!(
+    (A a),
+    (A a, B b),
+    (A a, B b, C c),
+    (A a, B b, C c, D d),
+    (A a, B b, C c, D d, E e),
+    (A a, B b, C c, D d, E e, F f),
+    (A a, B b, C c, D d, E e, F f, G g),
+    (A a, B b, C c, D d, E e, F f, G g, H h),
+    (A a, B b, C c, D d, E e, F f, G g, H h, I i),
+    (A a, B b, C c, D d, E e, F f, G g, H h, I i, J j),
+    (A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k),
+    (A a, B b, C c, D d, E e, F f, G g, H h, I i, J j, K k, L l),
+);
+
 impl NetEncode for bool {
     fn encode<W: Write>(&self, writer: &mut W, _: &NetEncodeOpts) -> Result<(), NetEncodeError> {
         u8::from(*self).encode(writer, &NetEncodeOpts::None)

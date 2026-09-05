@@ -64,6 +64,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
     schedule.add_systems(packets::player_abilities::handle);
     schedule.add_systems(packets::change_game_mode::handle);
     schedule.add_systems(packets::pick_item_from_block::handle);
+    schedule.add_systems(packets::client_command::handle_client_command);
 
     schedule.add_systems(player::digging_system::handle_start_digging);
     schedule.add_systems(player::digging_system::handle_finish_digging);
@@ -95,6 +96,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
     schedule.add_systems(player::player_swimming::detect_player_swimming);
     schedule.add_systems(player::teleport::teleport_entities);
     schedule.add_systems(player::send_inventory_updates::handle_inventory_updates);
+    schedule.add_systems(player::damage_entity::damage_entity);
 
     temper_command_infra::register_command_systems(schedule);
 
@@ -116,12 +118,14 @@ fn register_tick_systems(schedule: &mut Schedule) {
     schedule.add_systems(background::server_command::handle);
     schedule.add_systems(
         (
-            background::destroy_entity::destroy_entity_system,
+            background::kill_entity::kill_entity_system,
             mobs::spawn::handle_despawn_mob,
         )
             .chain(),
     );
+    schedule.add_systems(background::bossbar_update::handle);
     schedule.add_systems(background::generate_spawn_positions::generate_spawn_positions);
+    schedule.add_systems(background::death_message::send_death_message);
 
     schedule.add_systems(
         (
@@ -139,8 +143,6 @@ fn register_tick_systems(schedule: &mut Schedule) {
     mobs::register_tick_systems(schedule);
 
     schedule.add_systems(world::particles::handle);
-
-    schedule.add_systems(background::bossbar_update::handle);
 
     schedule.add_systems(bevy_ecs::message::message_update_system);
 }

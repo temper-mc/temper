@@ -39,8 +39,6 @@ pub struct RespawnPacket<'a> {
     pub is_debug: bool,
     /// Whether the world is a superflat world
     pub is_flat: bool,
-    /// Bit flags for what player data to keep (see [`data_kept_flags`])
-    pub data_kept: u8,
     /// Whether there is a death location to send
     pub has_death_location: bool,
     /// Name of the dimension where the player died (if has_death_location)
@@ -51,6 +49,8 @@ pub struct RespawnPacket<'a> {
     pub portal_cooldown: VarInt,
     /// Sea level of the world (affects fog)
     pub sea_level: VarInt,
+    /// Bit flags for what player data to keep (see [`data_kept_flags`])
+    pub data_kept: u8,
 }
 
 impl<'a> RespawnPacket<'a> {

@@ -23,6 +23,7 @@ fn default_commands_register_metadata() {
     assert!(paths.iter().any(|path| path.root == "spawn"));
     assert!(paths.iter().any(|path| path.root == "noise"));
     assert!(paths.iter().any(|path| path.root == "noises"));
+    assert!(paths.iter().any(|path| path.root == "damage"));
 
     let summon = registry
         .commands()

@@ -1,4 +1,5 @@
 pub mod chunk_calculator;
+pub mod damage_entity;
 pub mod digging_system;
 pub mod emit_player_joined;
 pub mod entity_spawn;

@@ -68,3 +68,7 @@ pub mod open_screen;
 pub mod show_dialog;
 
 pub mod boss_event;
+
+pub mod damage_player;
+
+pub mod player_death;

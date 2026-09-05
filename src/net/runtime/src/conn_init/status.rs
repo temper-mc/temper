@@ -115,6 +115,7 @@ pub(super) async fn status(
         true,
         LoginResult {
             player_identity: None,
+            game_id: None,
             compression: false,
             client_information_component: None,
             player_properties: None,

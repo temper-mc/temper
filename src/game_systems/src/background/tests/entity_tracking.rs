@@ -3,6 +3,7 @@ use bevy_ecs::prelude::{Schedule, World};
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, Mutex};
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::chunk_receiver::ChunkReceiver;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::player_marker::PlayerMarker;
@@ -52,7 +53,9 @@ async fn visible_mobs_without_stream_writers_stay_tracked() {
 
     let mut world = World::new();
     let mob_position = Position::new(8.0, 64.0, 8.0);
-    let mob_entity = world.spawn((Identity::new(None), mob_position)).id();
+    let mob_entity = world
+        .spawn((Identity::new(None), GameID::new(), mob_position))
+        .id();
 
     let mut chunk_receiver = ChunkReceiver::default();
     chunk_receiver.loaded.insert(mob_position.chunk());

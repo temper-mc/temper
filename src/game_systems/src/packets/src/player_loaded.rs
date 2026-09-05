@@ -23,7 +23,7 @@ pub fn handle(
             continue;
         }
         tracing::info!(
-            "Player {} loaded at position: ({}, {}, {})",
+            "Player {} loaded at position: ({:.2}, {:.2}, {:.2})",
             identity.name.as_ref().expect("No Player Name"),
             player_pos.x,
             player_pos.y,
