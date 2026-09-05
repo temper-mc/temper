@@ -85,10 +85,12 @@ pub fn send_new_entities(
                 conn.send_packet(packet)
                     .expect("Failed to send spawn entity packet");
                 debug!(
-                    "Sent spawn packet for entity {:#x} with UUID {} to player at position {:?}",
+                    "Sent spawn packet for entity {:#x} with UUID {} to player at position ({:.2} {:.2} {:.2})",
                     game_id.get().0,
                     identity.uuid,
-                    player_pos.xyz()
+                    player_pos.x,
+                    player_pos.y,
+                    player_pos.z,
                 );
                 entity_tracker.tracking.insert(entity);
             } else {

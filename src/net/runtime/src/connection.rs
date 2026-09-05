@@ -154,7 +154,7 @@ impl StreamWriter {
         net_encode_opts: &NetEncodeOpts,
     ) -> Result<(), NetError> {
         if !self.running.load(Ordering::Relaxed) {
-            warn!("Attempted to send packet on closed connection");
+            trace!("Attempted to send packet on closed connection");
             return Ok(());
         }
 
@@ -328,6 +328,9 @@ pub async fn handle_connection(
                     NetError::InvalidState(state) => {
                         warn!("Client sent invalid handshake state: {}", state);
                     }
+                    NetError::ConnectionDropped | NetError::Packet(PacketError::DroppedConnection) => {
+                        debug!("Client dropped connection during handshake");
+                    }
                     _ => {
                         error!("Unhandled handshake error: {}", err);
                     }
@@ -345,6 +348,8 @@ pub async fn handle_connection(
     // Send the new connection data to ECS world
     let (entity_return, entity_recv) = oneshot::channel();
     let (disconnect_return, mut disconnect_receiver) = oneshot::channel();
+    
+    let player_name = login_result.player_identity.clone().map(|id| id.name.unwrap_or_default());
 
     new_join_sender
         .send(NewConnection {
@@ -367,6 +372,14 @@ pub async fn handle_connection(
         Err(err) => {
             error!("Failed to receive entity ID: {:?}", err);
             return Err(NetError::Misc("Failed to receive entity ID".to_string()));
+        }
+    };
+
+    let player_name = match player_name {
+        Some(name) => name,
+        None => {
+            error!("Player identity not found after handshake, using placeholder");
+            format!("player-no-id_{:X}", entity.to_bits())
         }
     };
 
@@ -396,11 +409,11 @@ pub async fn handle_connection(
                     },
                     Err(err) => {
                         if let PacketError::DroppedConnection | PacketError::NetTypeError(NetTypesError::ConnectionDropped) = err {
-                            trace!("Connection dropped for entity {:?}", entity);
+                            trace!("Connection dropped for player {:?}", player_name);
                             running.store(false, Ordering::Relaxed);
                             state.players.disconnect(entity, None);
                         } else {
-                            error!("Failed to read packet skeleton: {:?} for {:?}", err, entity);
+                            error!("Failed to read packet skeleton: {:?} for {:?}", err, player_name);
                             running.store(false, Ordering::Relaxed);
                             state.players.disconnect(entity, None);
                         }
@@ -410,7 +423,7 @@ pub async fn handle_connection(
             }
 
             _ = &mut disconnect_receiver => {
-                debug!("Received disconnect signal for entity {:?}", entity);
+                debug!("Received disconnect signal for player {:?}", player_name);
                 running.store(false, Ordering::Relaxed);
                 break 'recv;
             }
@@ -420,27 +433,28 @@ pub async fn handle_connection(
         match handle_packet(
             packet_skele.id,
             entity,
+            player_name.clone(),
             &mut packet_skele.data,
             packet_sender.clone(),
         )
-        .instrument(debug_span!("eid", %entity))
+        .instrument(debug_span!("player", %player_name))
         .into_inner()
         {
             Ok(()) => {
                 trace!(
-                    "Packet {:02X} successfully handled for entity {:?}",
-                    packet_skele.id, entity
+                    "Packet {:02X} successfully handled for player {:?}",
+                    packet_skele.id, player_name
                 );
             }
             Err(err) => match &err {
                 NetError::Packet(InvalidPacket(id)) => {
                     trace!(
-                        "Unimplemented packet 0x{:02X} received for entity {:?}",
-                        id, entity
+                        "Unimplemented packet 0x{:02X} received for player {:?}",
+                        id, player_name
                     );
                 }
                 _ => {
-                    warn!("Error handling packet for {:?}: {:?}", entity, err);
+                    warn!("Error handling packet for {:?}: {:?}", player_name, err);
                     running.store(false, Ordering::Relaxed);
                     state.players.disconnect(entity, None);
                     break 'recv;
