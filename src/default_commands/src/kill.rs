@@ -41,20 +41,19 @@ impl CommandHandler for KillCommand {
         };
 
         selected_entities.iter().for_each(|e| {
+            let name = query
+                .get(*e)
+                .expect("Entity not found in query")
+                .1
+                .name
+                .clone()
+                .unwrap_or_else(|| "Unknown".into());
             writer.write(KillEntity {
                 entity: *e,
-                message: Some("Killed by command.".into()),
-                source: DivineSmiting { silent: true },
+                message: Some(format!("{} killed by command", name).into()),
+                source: DivineSmiting { silent: false },
             });
         });
-
-        source.send_message(
-            format!(
-                "Killed {} entities (excluding players).",
-                selected_entities.len()
-            )
-            .into(),
-        );
 
         Ok(())
     }

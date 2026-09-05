@@ -12,7 +12,6 @@ use temper_messages::kill_entity::KillEntity;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::player_death::PlayerDeath;
 use temper_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
-use temper_protocol::outgoing::system_message::SystemMessagePacket;
 use temper_resources::bossbar::BossBarResource;
 use temper_state::GlobalStateResource;
 use temper_text::{Color, NamedColor, TextComponentBuilder};
@@ -88,9 +87,6 @@ pub fn kill_entity_system(
                 && let Err(err) = conn.send_packet_ref(&kill_packet)
             {
                 trace!("Failed to send killed message: {}", err);
-            }
-            if let Some(death_message) = &event.message {
-                temper_core::mq::broadcast(death_message.clone(), false);
             }
         }
     }

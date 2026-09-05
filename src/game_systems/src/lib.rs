@@ -123,7 +123,9 @@ fn register_tick_systems(schedule: &mut Schedule) {
         )
             .chain(),
     );
+    schedule.add_systems(background::bossbar_update::handle);
     schedule.add_systems(background::generate_spawn_positions::generate_spawn_positions);
+    schedule.add_systems(background::death_message::send_death_message);
 
     schedule.add_systems(
         (
@@ -142,7 +144,6 @@ fn register_tick_systems(schedule: &mut Schedule) {
 
     schedule.add_systems(world::particles::handle);
 
-    schedule.add_systems(background::bossbar_update::handle);
 
     schedule.add_systems(bevy_ecs::message::message_update_system);
 }
