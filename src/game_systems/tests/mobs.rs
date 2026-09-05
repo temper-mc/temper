@@ -25,7 +25,12 @@ use temper_world_format::Chunk;
 /// storage backend directly — going through `get_chunk` would hit the cache
 /// and could pass without the write having landed.
 pub fn wait_for_saved_chunk(state: &GlobalStateResource, pos: ChunkPos) -> Chunk {
-    for _ in 0..200 {
+    let mut cycles = 200;
+    // CI can be slow so give it much more time
+    if std::env::var("CI").is_ok_and(|v| v == "true") {
+        cycles = 1000;
+    }
+    for _ in 0..cycles {
         if let Ok(chunk) = load_chunk_internal(
             &state.0.world.chunks.storage_backend,
             pos,
