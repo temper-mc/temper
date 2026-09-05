@@ -13,3 +13,4 @@ pub mod player_swimming;
 pub mod send_inventory_updates;
 pub mod teleport;
 pub mod update_player_ping;
+pub mod damage_entity;

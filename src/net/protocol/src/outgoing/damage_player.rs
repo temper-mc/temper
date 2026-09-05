@@ -5,9 +5,9 @@ use temper_macros::{NetEncode, packet};
 #[derive(NetEncode)]
 #[packet(packet_id = "damage_event", state = "play")]
 pub struct DamagePlayer {
-    entity_id: VarInt,
-    source_type_id: VarInt,
-    source_cause_id: VarInt,
-    source_direct_id: VarInt,
-    source_position: PrefixedOptional<(f64, f64, f64)>,
+    pub entity_id: VarInt,
+    pub source_type_id: VarInt,
+    pub source_cause_id: VarInt,
+    pub source_direct_id: VarInt,
+    pub source_position: PrefixedOptional<(f64, f64, f64)>,
 }

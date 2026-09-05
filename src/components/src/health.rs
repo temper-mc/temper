@@ -4,15 +4,15 @@ use type_hash::TypeHash;
 
 #[derive(Component, Debug, Clone, Copy, Decode, Encode, TypeHash)]
 pub struct Health {
-    pub current: f32,
-    pub max: f32,
+    pub current: u16,
+    pub max: u16,
 }
 
 impl Default for Health {
     fn default() -> Self {
         Self {
-            current: 20.0,
-            max: 20.0,
+            current: 20,
+            max: 20,
         }
     }
 }
