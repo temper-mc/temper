@@ -64,6 +64,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
     schedule.add_systems(packets::player_abilities::handle);
     schedule.add_systems(packets::change_game_mode::handle);
     schedule.add_systems(packets::pick_item_from_block::handle);
+    schedule.add_systems(packets::client_command::handle_client_command);
 
     schedule.add_systems(player::digging_system::handle_start_digging);
     schedule.add_systems(player::digging_system::handle_finish_digging);
