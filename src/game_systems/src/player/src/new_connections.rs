@@ -60,6 +60,7 @@ pub fn accept_new_connections(
         // --- 2. Build the PlayerBundle ---
         let player_bundle = PlayerBundle {
             identity: new_connection.player_identity.clone(),
+            game_id: new_connection.game_id,
             abilities: player_data.abilities,
             player_properties: new_connection.player_properties,
             gamemode: GameModeComponent(player_data.gamemode),

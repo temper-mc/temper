@@ -1,6 +1,5 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use temper_codec::net_types::var_int::VarInt;
-use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::SwingArmPacketReceiver;
@@ -10,7 +9,7 @@ use tracing::error;
 
 pub fn handle(
     receiver: Res<SwingArmPacketReceiver>,
-    query: Query<&Identity>,
+    query: Query<&GameID>,
     conn_query: Query<(Entity, &StreamWriter, &EntityTracker)>,
     state: Res<GlobalStateResource>,
 ) {
@@ -20,7 +19,7 @@ pub fn handle(
             error!("Game ID not found for entity: {:?}", eid);
             continue;
         };
-        let packet = EntityAnimationPacket::new(VarInt::new(game_id.entity_id), animation);
+        let packet = EntityAnimationPacket::new(game_id.get(), animation);
         for (entity, conn, tracker) in conn_query.iter() {
             if entity == eid {
                 continue; // Skip sending to the player who triggered the event

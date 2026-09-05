@@ -8,6 +8,7 @@ use std::sync::atomic::Ordering;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_properties::PlayerProperties;
 use temper_encryption::read::EncryptedReader;
@@ -30,6 +31,7 @@ use tracing::{error, trace};
 /// - `compression`: Indicates whether network compression should be enabled for this connection.
 pub(crate) struct LoginResult {
     pub player_identity: Option<Identity>,
+    pub game_id: Option<GameID>,
     pub player_properties: Option<PlayerProperties>,
     pub compression: bool,
     pub client_information_component: Option<ClientInformationComponent>,

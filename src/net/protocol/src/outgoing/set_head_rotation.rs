@@ -10,9 +10,9 @@ pub struct SetHeadRotationPacket {
 }
 
 impl SetHeadRotationPacket {
-    pub fn new(entity_id: i32, head_yaw: NetAngle) -> Self {
+    pub fn new(entity_id: VarInt, head_yaw: NetAngle) -> Self {
         Self {
-            entity_id: VarInt::new(entity_id),
+            entity_id,
             head_yaw,
         }
     }

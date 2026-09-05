@@ -154,7 +154,6 @@ mod tests {
 
     fn identity(name: &str) -> Identity {
         Identity {
-            entity_id: 0,
             uuid: uuid::Uuid::new_v4(),
             name: Some(name.to_string()),
         }

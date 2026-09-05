@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::{Entity, MessageReader, MessageWriter, Query};
-use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
 use temper_components::player::teleport_tracker::TeleportTracker;
@@ -21,7 +21,7 @@ pub fn teleport_entities(
         Option<&mut TeleportTracker>,
     )>,
     player_query: Query<(Entity, &StreamWriter)>,
-    id_query: Query<&Identity>,
+    id_query: Query<&GameID>,
     mut message_reader: MessageReader<TeleportEntity>,
     mut chunk_calc_msg: MessageWriter<ChunkCalc>,
     mut player_update_msg: MessageWriter<SendEntityUpdate>,
@@ -96,7 +96,7 @@ pub fn teleport_entities(
             // This ideally should be handled by the send entity updates system, but it seems to be
             // a bit buggy.
             if let Err(err) = conn.send_packet(TeleportEntityPacket {
-                entity_id: id.entity_id.into(),
+                entity_id: id.get(),
                 x: message.position.x,
                 y: message.position.y,
                 z: message.position.z,
@@ -151,6 +151,7 @@ mod tests {
         let entity = world
             .spawn((
                 Identity::default(),
+                GameID::new(),
                 Position::new(0.0, 64.0, 0.0),
                 Rotation::default(),
                 Velocity::new(1.0, 0.0, 0.0),

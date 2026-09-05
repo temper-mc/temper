@@ -4,6 +4,7 @@ use temper_codec::net_types::angle::NetAngle;
 use temper_codec::net_types::lpvec3::Lpvec3;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
 use temper_components::player::velocity::Velocity;
@@ -31,7 +32,7 @@ impl SpawnEntityPacket {
     /// This is useful when you have the component values directly
     /// rather than needing to query them.
     pub fn new(
-        entity_id: i32,
+        entity_id: VarInt,
         entity_uuid: u128,
         entity_type_id: i32,
         position: &Position,
@@ -42,7 +43,7 @@ impl SpawnEntityPacket {
         let (yaw, pitch) = rotation.yaw_pitch();
 
         Self {
-            entity_id: VarInt::new(entity_id),
+            entity_id,
             entity_uuid,
             r#type: VarInt::new(entity_type_id),
             x,
@@ -66,9 +67,9 @@ impl SpawnEntityPacket {
     pub fn entity(
         entity: Entity,
         entity_type_id: u16,
-        query: Query<(&Identity, &Position, &Rotation, &Velocity)>,
+        query: Query<(&Identity, &Position, &Rotation, &Velocity, &GameID)>,
     ) -> Result<Self, NetError> {
-        let (identity, position, rotation, vel) = query
+        let (identity, position, rotation, vel, game_id) = query
             .get(entity)
             .map_err(|e| NetError::ECSError(e.into()))?;
 
@@ -76,7 +77,7 @@ impl SpawnEntityPacket {
         let (yaw, pitch) = rotation.yaw_pitch();
 
         Ok(Self {
-            entity_id: VarInt::new(identity.entity_id),
+            entity_id: game_id.get(),
             entity_uuid: identity.uuid.as_u128(),
             r#type: VarInt::new(i32::from(entity_type_id)),
             x,

@@ -22,11 +22,11 @@ pub fn handle(
 ) {
     for event in events.read() {
         let left_player = &event.identity;
+        let game_id = event.game_id;
 
         // Create packets once
         let remove_info_packet = PlayerInfoRemovePacket::single(left_player.uuid.as_u128());
-        let remove_entity_packet =
-            RemoveEntitiesPacket::from_entities(std::iter::once(left_player.clone()));
+        let remove_entity_packet = RemoveEntitiesPacket::from_entities(std::iter::once(game_id));
 
         let mut notified_count = 0;
 

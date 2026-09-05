@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::{Entity, MessageReader, Query};
 use temper_codec::net_types::angle::NetAngle;
-use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
@@ -20,7 +20,7 @@ pub fn handle(
         &Velocity,
         &Rotation,
         &mut LastSyncedPosition,
-        &Identity,
+        &GameID,
         &OnGround,
     )>,
     mut player_query: Query<(Entity, &StreamWriter, &EntityTracker)>,
@@ -31,12 +31,12 @@ pub fn handle(
         entities_to_update.push(msg.0);
     }
     for entity in entities_to_update {
-        if let Ok((entity, pos, vel, rot, mut last_synced, identity, grounded)) =
+        if let Ok((entity, pos, vel, rot, mut last_synced, game_id, grounded)) =
             query.get_mut(entity)
         {
             if last_synced.0.distance(pos.coords) >= 8.0 {
                 let packet = TeleportEntityPacket {
-                    entity_id: identity.entity_id.into(),
+                    entity_id: game_id.get(),
                     x: pos.x,
                     y: pos.y,
                     z: pos.z,
@@ -68,7 +68,7 @@ pub fn handle(
                     )
                 };
                 let packet = UpdateEntityPositionAndRotationPacket {
-                    entity_id: identity.entity_id.into(),
+                    entity_id: game_id.get(),
                     delta_x,
                     delta_y,
                     delta_z,

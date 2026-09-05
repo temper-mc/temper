@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlayerCommandPacketReceiver;
@@ -13,21 +13,21 @@ use tracing::trace;
 pub fn handle(
     receiver: Res<PlayerCommandPacketReceiver>,
     conn_query: Query<(Entity, &StreamWriter, &EntityTracker)>,
-    identity_query: Query<&Identity>,
+    identity_query: Query<(&Identity, &GameID)>,
 ) {
     for (event, eid) in receiver.0.try_iter() {
         // Get the sender's identity to use the correct entity ID
-        let Ok(identity) = identity_query.get(eid) else {
+        let Ok((identity, game_id)) = identity_query.get(eid) else {
             continue;
         };
 
-        let entity_id = VarInt::new(identity.entity_id);
+        let entity_id = game_id.get();
 
         trace!(
             "PlayerCommand: {:?} from {} (entity_id={})",
             event.action,
             identity.name.as_ref().expect("No Player Name"),
-            identity.entity_id
+            game_id.get()
         );
 
         match event.action {

@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Entity, Has, Query, Res};
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::player_marker::PlayerMarker;
@@ -17,15 +18,15 @@ const PLAYER_TYPE_ID: u16 = temper_data::generated::entities::EntityType::PLAYER
 
 pub fn send_untracked_entities(
     mut player_query: Query<(&StreamWriter, &mut EntityTracker)>,
-    identity_query: Query<&Identity>,
+    identity_query: Query<&GameID>,
 ) {
     for (conn, entity_tracker) in player_query.iter_mut() {
         while let Some(entity) = entity_tracker.to_untrack.pop() {
-            let Ok(identity) = identity_query.get(entity) else {
+            let Ok(game_id) = identity_query.get(entity) else {
                 continue;
             };
 
-            let packet = RemoveEntitiesPacket::from_entities(std::iter::once(identity.clone()));
+            let packet = RemoveEntitiesPacket::from_entities(std::iter::once(*game_id));
             conn.send_packet(packet)
                 .expect("Failed to send remove entities packet");
         }
@@ -39,18 +40,25 @@ pub fn send_new_entities(
         &Position,
         &ClientInformationComponent,
     )>,
-    entity_query: Query<(Entity, &Identity, &Position, &Rotation, Has<PlayerMarker>)>,
+    entity_query: Query<(
+        Entity,
+        &Identity,
+        &GameID,
+        &Position,
+        &Rotation,
+        Has<PlayerMarker>,
+    )>,
     state: Res<GlobalStateResource>,
 ) {
     for (conn, mut entity_tracker, player_pos, client_info) in player_query.iter_mut() {
         let mut unresolved = Vec::new();
 
         while let Some((uuid, entity_type_id)) = entity_tracker.to_track.pop() {
-            if let Some((entity, identity, entity_pos, rot, is_player)) = entity_query
+            if let Some((entity, identity, game_id, entity_pos, rot, is_player)) = entity_query
                 .iter()
-                .find_map(|(entity, identity, pos, rot, is_player)| {
+                .find_map(|(entity, identity, game_id, pos, rot, is_player)| {
                     if identity.uuid == uuid {
-                        Some((entity, identity, pos, rot, is_player))
+                        Some((entity, identity, game_id, pos, rot, is_player))
                     } else {
                         None
                     }
@@ -74,7 +82,7 @@ pub fn send_new_entities(
                 };
 
                 let packet = SpawnEntityPacket::new(
-                    identity.entity_id,
+                    game_id.get(),
                     identity.uuid.as_u128(),
                     i32::from(entity_type_id),
                     entity_pos,
@@ -84,10 +92,12 @@ pub fn send_new_entities(
                 conn.send_packet(packet)
                     .expect("Failed to send spawn entity packet");
                 debug!(
-                    "Sent spawn packet for entity {} with UUID {} to player at position {:?}",
-                    identity.entity_id,
+                    "Sent spawn packet for entity {:#x} with UUID {} to player at position ({:.2} {:.2} {:.2})",
+                    game_id.get().0,
                     identity.uuid,
-                    player_pos.xyz()
+                    player_pos.x,
+                    player_pos.y,
+                    player_pos.z,
                 );
                 entity_tracker.tracking.insert(entity);
             } else {

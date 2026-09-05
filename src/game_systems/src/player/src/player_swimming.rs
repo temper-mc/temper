@@ -1,8 +1,7 @@
 use bevy_ecs::prelude::*;
 use bevy_math::DVec3;
 use std::collections::HashSet;
-use temper_codec::net_types::var_int::VarInt;
-use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::position::Position;
 use temper_components::player::swimming::SwimmingState;
@@ -44,7 +43,7 @@ fn is_player_in_water(state: &temper_state::GlobalState, pos: &Position) -> bool
 /// System that detects when players enter/exit water and updates their swimming state
 /// Also broadcasts the swimming pose to all connected clients
 pub fn detect_player_swimming(
-    mut swimmers: Query<(Entity, &Identity, Ref<Position>, &mut SwimmingState)>,
+    mut swimmers: Query<(Entity, &GameID, Ref<Position>, &mut SwimmingState)>,
     all_connections: Query<(Entity, &StreamWriter, &EntityTracker)>,
     state: Res<GlobalStateResource>,
     mut world_change: MessageReader<WorldChange>,
@@ -55,7 +54,7 @@ pub fn detect_player_swimming(
             changed_chunks.insert(pos);
         }
     }
-    for (entity, identity, pos, mut swimming_state) in swimmers.iter_mut() {
+    for (entity, game_id, pos, mut swimming_state) in swimmers.iter_mut() {
         if !changed_chunks.contains(&pos.chunk()) && !pos.is_changed() {
             continue;
         }
@@ -64,9 +63,8 @@ pub fn detect_player_swimming(
         if in_water && !swimming_state.is_swimming {
             swimming_state.is_swimming = true;
 
-            let entity_id = VarInt::new(identity.entity_id);
             let packet = EntityMetadataPacket::new(
-                entity_id,
+                game_id.get(),
                 [
                     EntityMetadata::entity_swimming_state(),
                     EntityMetadata::entity_swimming_pose(),
@@ -77,9 +75,8 @@ pub fn detect_player_swimming(
         } else if !in_water && swimming_state.is_swimming {
             swimming_state.is_swimming = false;
 
-            let entity_id = VarInt::new(identity.entity_id);
             let packet = EntityMetadataPacket::new(
-                entity_id,
+                game_id.get(),
                 [
                     EntityMetadata::entity_clear_state(),
                     EntityMetadata::entity_standing(),

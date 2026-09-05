@@ -20,7 +20,7 @@ pub struct NetworkPosition {
 
 impl Display for NetworkPosition {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}, {}, {})", self.x, self.y, self.z)
+        write!(f, "({:.2}, {:.2}, {:.2})", self.x, self.y, self.z)
     }
 }
 

@@ -1,5 +1,6 @@
 use crate::bounds::CollisionBounds;
 use crate::entity_identity::Identity;
+use crate::game_id::GameID;
 use crate::player::bossbar_sender::BossbarSender;
 use crate::player::chunk_receiver::ChunkReceiver;
 use crate::player::entity_tracker::EntityTracker;
@@ -27,6 +28,7 @@ use temper_permissions::player::PlayerPermission;
 pub struct PlayerBundle {
     // Identity
     pub identity: Identity,
+    pub game_id: GameID,
 
     // Core State
     pub abilities: PlayerAbilities,

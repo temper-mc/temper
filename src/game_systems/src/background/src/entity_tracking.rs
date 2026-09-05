@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Entity, Has, Query};
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::chunk_receiver::ChunkReceiver;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::player_marker::PlayerMarker;
@@ -12,6 +13,7 @@ pub fn refresh_visible_entities(
     entity_query: Query<(
         Entity,
         &Identity,
+        &GameID,
         &Position,
         Has<PlayerMarker>,
         Option<&StreamWriter>,
@@ -26,17 +28,19 @@ pub fn refresh_visible_entities(
         for tracked_entity in tracked_entities {
             let should_keep = entity_query
                 .get(tracked_entity)
-                .map(|(entity, _identity, pos, is_player, maybe_writer)| {
-                    if entity == player_entity {
-                        return false;
-                    }
+                .map(
+                    |(entity, _identity, _game_id, pos, is_player, maybe_writer)| {
+                        if entity == player_entity {
+                            return false;
+                        }
 
-                    if is_player && maybe_writer.is_none_or(|writer| !writer.is_running()) {
-                        return false;
-                    }
+                        if is_player && maybe_writer.is_none_or(|writer| !writer.is_running()) {
+                            return false;
+                        }
 
-                    chunk_receiver.loaded.contains(&pos.chunk())
-                })
+                        chunk_receiver.loaded.contains(&pos.chunk())
+                    },
+                )
                 .unwrap_or(false);
 
             if !should_keep {
@@ -45,7 +49,7 @@ pub fn refresh_visible_entities(
             }
         }
 
-        for (entity, identity, pos, is_player, maybe_writer) in entity_query.iter() {
+        for (entity, identity, game_id, pos, is_player, maybe_writer) in entity_query.iter() {
             if entity == player_entity {
                 continue;
             }
@@ -63,8 +67,10 @@ pub fn refresh_visible_entities(
             }
 
             trace!(
-                "Queueing entity {} ({:?}) for player {:?}",
-                identity.entity_id, identity.uuid, player_entity
+                "Queueing entity {:#x} ({:?}) for player {:?}",
+                game_id.get().0,
+                identity.uuid,
+                player_entity
             );
             tracker.to_track.push((identity.uuid, 0));
         }

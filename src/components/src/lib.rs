@@ -8,6 +8,7 @@ pub mod player;
 // Core entity components based on temper-data
 pub mod bossbar;
 pub mod combat;
+pub mod game_id;
 pub mod last_chunk_pos;
 pub mod last_synced_position;
 pub mod metadata;

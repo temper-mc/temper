@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Commands, Entity, MessageWriter, Query, Res};
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
@@ -35,14 +36,12 @@ type PlayerCacheQuery<'a> = (
     &'a EnderChest,
     &'a ActiveEffects,
     &'a PlayerPermission,
+    &'a GameID,
 );
-
-// This query is a "fallback" for half-connected players
-type IdentityQuery<'a> = &'a Identity;
 
 pub fn connection_killer(
     full_player_query: Query<PlayerCacheQuery>,
-    identity_query: Query<IdentityQuery>,
+    identity_query: Query<(&Identity, &GameID)>,
     mut cmd: Commands,
     state: Res<GlobalStateResource>,
     mut leave_events: MessageWriter<PlayerLeft>,
@@ -70,6 +69,7 @@ pub fn connection_killer(
             echest,
             effects,
             permissions,
+            game_id,
         )) = full_player_query.get(disconnecting_entity)
         {
             let username = player_identity.name.as_ref().expect("No Player Name");
@@ -130,6 +130,7 @@ pub fn connection_killer(
             leave_events.write(PlayerLeft {
                 identity: player_identity.clone(),
                 entity: disconnecting_entity,
+                game_id: *game_id,
             });
         } else {
             // --- FAILURE: This is a "half-player" or zombie ---
@@ -139,7 +140,7 @@ pub fn connection_killer(
             );
 
             // Try to get at least the identity to broadcast the leave message
-            if let Ok(player_identity) = identity_query.get(disconnecting_entity) {
+            if let Ok((player_identity, game_id)) = identity_query.get(disconnecting_entity) {
                 warn!(
                     "-> (Half-player had identity: {})",
                     player_identity.name.as_ref().expect("No Player Name")
@@ -147,6 +148,7 @@ pub fn connection_killer(
                 leave_events.write(PlayerLeft {
                     identity: player_identity.clone(),
                     entity: disconnecting_entity,
+                    game_id: *game_id,
                 });
             } else {
                 warn!("-> (Half-player didn't even have an identity component!)");
