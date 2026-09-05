@@ -20,12 +20,7 @@ pub struct TeleportEntityPacket {
 }
 
 impl TeleportEntityPacket {
-    pub fn new(
-        entity_id: &GameID,
-        position: &Position,
-        angle: &Rotation,
-        on_ground: bool,
-    ) -> Self {
+    pub fn new(entity_id: &GameID, position: &Position, angle: &Rotation, on_ground: bool) -> Self {
         // Todo: Add velocity parameters if needed
         Self {
             entity_id: entity_id.get(),

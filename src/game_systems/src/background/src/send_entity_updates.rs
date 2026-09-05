@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Entity, MessageReader, Query};
 use temper_codec::net_types::angle::NetAngle;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
@@ -11,7 +12,6 @@ use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
 use temper_protocol::outgoing::update_entity_position_and_rotation::UpdateEntityPositionAndRotationPacket;
 use tracing::warn;
-use temper_components::game_id::GameID;
 
 pub fn handle(
     mut query: Query<(

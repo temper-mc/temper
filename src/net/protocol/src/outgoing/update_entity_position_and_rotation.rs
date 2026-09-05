@@ -1,6 +1,5 @@
 use temper_codec::net_types::angle::NetAngle;
 use temper_codec::net_types::var_int::VarInt;
-use temper_components::entity_identity::Identity;
 use temper_components::game_id::GameID;
 use temper_components::player::rotation::Rotation;
 use temper_macros::{NetEncode, packet};

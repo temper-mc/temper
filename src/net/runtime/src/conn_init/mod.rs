@@ -8,6 +8,7 @@ use std::sync::atomic::Ordering;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_properties::PlayerProperties;
 use temper_encryption::read::EncryptedReader;
@@ -23,7 +24,6 @@ use temper_text::{ComponentBuilder, NamedColor, TextComponent};
 use tokio::net::tcp::OwnedReadHalf;
 use tokio::task::spawn_blocking;
 use tracing::{error, trace};
-use temper_components::game_id::GameID;
 
 /// Represents the result of a login attempt after the handshake process.
 ///

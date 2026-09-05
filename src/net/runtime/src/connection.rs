@@ -9,6 +9,7 @@ use temper_codec::encode::NetEncode;
 use temper_codec::encode::NetEncodeOpts;
 use temper_codec::net_types::NetTypesError;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::player_properties::PlayerProperties;
 use temper_encryption::read::EncryptedReader;
@@ -29,7 +30,6 @@ use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::sync::oneshot;
 use tokio::time::timeout;
 use tracing::{Instrument, debug, debug_span, error, trace, warn};
-use temper_components::game_id::GameID;
 
 /// The maximum time allowed for a client to complete its initial handshake.
 /// Connections exceeding this duration will be dropped to avoid resource hogging.
@@ -328,7 +328,8 @@ pub async fn handle_connection(
                     NetError::InvalidState(state) => {
                         warn!("Client sent invalid handshake state: {}", state);
                     }
-                    NetError::ConnectionDropped | NetError::Packet(PacketError::DroppedConnection) => {
+                    NetError::ConnectionDropped
+                    | NetError::Packet(PacketError::DroppedConnection) => {
                         debug!("Client dropped connection during handshake");
                     }
                     _ => {
@@ -348,8 +349,11 @@ pub async fn handle_connection(
     // Send the new connection data to ECS world
     let (entity_return, entity_recv) = oneshot::channel();
     let (disconnect_return, mut disconnect_receiver) = oneshot::channel();
-    
-    let player_name = login_result.player_identity.clone().map(|id| id.name.unwrap_or_default());
+
+    let player_name = login_result
+        .player_identity
+        .clone()
+        .map(|id| id.name.unwrap_or_default());
 
     new_join_sender
         .send(NewConnection {

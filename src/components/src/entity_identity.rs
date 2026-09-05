@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 /// Identity component for entities in the game world, including players and non-player entities (mobs, items, etc.).
 #[derive(Debug, Component, Clone, Serialize, Deserialize)]
 pub struct Identity {
-
     /// Unique identifier for this entity.
     /// Generated randomly for each spawned entity.
     /// For players, this is the full UUID from Mojang's authentication system.
@@ -29,10 +28,7 @@ impl Identity {
 
     /// Creates an entity identity with a specific UUID (for loading from disk).
     pub fn with_uuid(uuid: uuid::Uuid, name: Option<String>) -> Self {
-        Self {
-            uuid,
-            name,
-        }
+        Self { uuid, name }
     }
 }
 

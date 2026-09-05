@@ -1,13 +1,12 @@
 use bevy_ecs::prelude::{Entity, Query, Res};
-use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlayerCommandPacketReceiver;
 use temper_protocol::incoming::player_command::PlayerCommandAction;
 use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use tracing::trace;
-use temper_components::game_id::GameID;
 
 /// Handles PlayerCommand packets (sprinting, leave bed, etc.)
 /// Note: Sneaking is handled via PlayerInput packet, NOT here

@@ -4,15 +4,14 @@
 //! NOT via PlayerCommand (which was used in older protocol versions).
 
 use bevy_ecs::prelude::{Entity, Query, Res};
-use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::sneak::SneakState;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlayerInputReceiver;
 use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use tracing::{debug, warn};
-use temper_components::game_id::GameID;
 
 /// PlayerInput flags (1.21.x protocol)
 const FLAG_SNEAK: u8 = 0x20;

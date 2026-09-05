@@ -204,7 +204,6 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
     assert!(has_collisions, "reloaded fox should regain HasCollisions");
     assert!(has_water_drag, "reloaded fox should regain HasWaterDrag");
     assert_eq!(identity.uuid, expected_identity.uuid);
-    assert_eq!(identity.entity_id, expected_identity.entity_id);
     assert_eq!(loaded_position.coords, fox_position.coords);
     assert_eq!(last_chunk.0, fox_chunk);
     assert_eq!(last_synced.0, expected_last_synced.0);

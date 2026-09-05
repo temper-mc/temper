@@ -14,7 +14,6 @@
 
 use bevy_ecs::prelude::{Entity, MessageReader, Query};
 use temper_codec::net_types::angle::NetAngle;
-use temper_components::entity_identity::Identity;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
@@ -26,9 +25,9 @@ use temper_protocol::outgoing::update_entity_position::UpdateEntityPositionPacke
 use temper_protocol::outgoing::update_entity_position_and_rotation::UpdateEntityPositionAndRotationPacket;
 use temper_protocol::outgoing::update_entity_rotation::UpdateEntityRotationPacket;
 
+use temper_components::game_id::GameID;
 use temper_messages::packet_messages::Movement;
 use tracing::error;
-use temper_components::game_id::GameID;
 
 /// Enum to hold all possible movement broadcast packets.
 /// Using an enum with `#[derive(NetEncode)]` allows sending any variant

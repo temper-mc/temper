@@ -7,5 +7,5 @@ use temper_components::game_id::GameID;
 pub struct PlayerLeft {
     pub identity: Identity,
     pub entity: Entity,
-    pub game_id: GameID
+    pub game_id: GameID,
 }

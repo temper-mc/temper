@@ -1,8 +1,7 @@
 use bevy_ecs::prelude::*;
 use bevy_math::DVec3;
 use std::collections::HashSet;
-use temper_codec::net_types::var_int::VarInt;
-use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::position::Position;
 use temper_components::player::swimming::SwimmingState;
@@ -15,7 +14,6 @@ use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use temper_state::GlobalStateResource;
 use tracing::error;
-use temper_components::game_id::GameID;
 
 /// Height of player's eyes from feet (blocks)
 const PLAYER_EYE_HEIGHT: f64 = 1.62;

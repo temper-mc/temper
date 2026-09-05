@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::{Entity, MessageReader, MessageWriter, Query};
-use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
 use temper_components::player::teleport_tracker::TeleportTracker;
@@ -11,7 +11,6 @@ use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
 use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
 use tracing::error;
-use temper_components::game_id::GameID;
 
 pub fn teleport_entities(
     mut target_query: Query<(
@@ -152,6 +151,7 @@ mod tests {
         let entity = world
             .spawn((
                 Identity::default(),
+                GameID::new(),
                 Position::new(0.0, 64.0, 0.0),
                 Rotation::default(),
                 Velocity::new(1.0, 0.0, 0.0),

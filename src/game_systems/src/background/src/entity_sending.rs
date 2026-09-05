@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Entity, Has, Query, Res};
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::player_marker::PlayerMarker;
@@ -11,7 +12,6 @@ use temper_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
 use temper_protocol::outgoing::spawn_entity::SpawnEntityPacket;
 use temper_state::GlobalStateResource;
 use tracing::debug;
-use temper_components::game_id::GameID;
 
 /// Protocol entity type ID for player entities in the current target version.
 const PLAYER_TYPE_ID: u16 = temper_data::generated::entities::EntityType::PLAYER.id;
@@ -40,7 +40,14 @@ pub fn send_new_entities(
         &Position,
         &ClientInformationComponent,
     )>,
-    entity_query: Query<(Entity, &Identity, &GameID, &Position, &Rotation, Has<PlayerMarker>)>,
+    entity_query: Query<(
+        Entity,
+        &Identity,
+        &GameID,
+        &Position,
+        &Rotation,
+        Has<PlayerMarker>,
+    )>,
     state: Res<GlobalStateResource>,
 ) {
     for (conn, mut entity_tracker, player_pos, client_info) in player_query.iter_mut() {

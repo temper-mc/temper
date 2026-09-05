@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Commands, Entity, MessageWriter, Query, Res};
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
@@ -18,7 +19,6 @@ use temper_permissions::player::PlayerPermission;
 use temper_state::GlobalStateResource;
 use temper_text::TextComponent;
 use tracing::{debug, info, trace, warn};
-use temper_components::game_id::GameID;
 
 // This type alias defines all the components of a "full" player
 type PlayerCacheQuery<'a> = (
@@ -36,7 +36,7 @@ type PlayerCacheQuery<'a> = (
     &'a EnderChest,
     &'a ActiveEffects,
     &'a PlayerPermission,
-    &'a GameID
+    &'a GameID,
 );
 
 pub fn connection_killer(
@@ -69,7 +69,7 @@ pub fn connection_killer(
             echest,
             effects,
             permissions,
-            game_id
+            game_id,
         )) = full_player_query.get(disconnecting_entity)
         {
             let username = player_identity.name.as_ref().expect("No Player Name");
@@ -130,7 +130,7 @@ pub fn connection_killer(
             leave_events.write(PlayerLeft {
                 identity: player_identity.clone(),
                 entity: disconnecting_entity,
-                game_id: *game_id
+                game_id: *game_id,
             });
         } else {
             // --- FAILURE: This is a "half-player" or zombie ---
@@ -148,7 +148,7 @@ pub fn connection_killer(
                 leave_events.write(PlayerLeft {
                     identity: player_identity.clone(),
                     entity: disconnecting_entity,
-                    game_id: *game_id
+                    game_id: *game_id,
                 });
             } else {
                 warn!("-> (Half-player didn't even have an identity component!)");

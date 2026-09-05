@@ -1,5 +1,6 @@
 use crate::bounds::CollisionBounds;
 use crate::entity_identity::Identity;
+use crate::game_id::GameID;
 use crate::player::bossbar_sender::BossbarSender;
 use crate::player::chunk_receiver::ChunkReceiver;
 use crate::player::entity_tracker::EntityTracker;
@@ -20,7 +21,6 @@ use crate::{
 use bevy_ecs::prelude::Bundle;
 use temper_inventories::{hotbar::Hotbar, inventory::Inventory};
 use temper_permissions::player::PlayerPermission;
-use crate::game_id::GameID;
 
 /// A Bevy Bundle containing all components required for a player entity.
 /// This groups all 17+ components into a single, spawnable unit.

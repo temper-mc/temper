@@ -18,6 +18,7 @@ use temper_protocol::outgoing::update_tags::UPDATE_TAGS_PACKET;
 use temper_state::GlobalState;
 
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::gamemode::GameMode;
 use temper_components::player::offline_player_data::OfflinePlayerData;
 use temper_components::player::player_properties::{PlayerProperties, PlayerProperty};
@@ -46,7 +47,6 @@ use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPos
 use tokio::net::tcp::OwnedReadHalf;
 use tracing::{debug, error, trace};
 use uuid::Uuid;
-use temper_components::game_id::GameID;
 // =================================================================================================
 // Helper Functions
 // =================================================================================================
@@ -550,7 +550,7 @@ pub(super) async fn login(
         });
 
     // Phase 3: Play State Setup
-    
+
     let player_game_id = GameID::new();
 
     // TODO: at some point this should be moved to the ECS

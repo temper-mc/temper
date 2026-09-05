@@ -26,8 +26,7 @@ pub fn handle(
 
         // Create packets once
         let remove_info_packet = PlayerInfoRemovePacket::single(left_player.uuid.as_u128());
-        let remove_entity_packet =
-            RemoveEntitiesPacket::from_entities(std::iter::once(game_id));
+        let remove_entity_packet = RemoveEntitiesPacket::from_entities(std::iter::once(game_id));
 
         let mut notified_count = 0;
 

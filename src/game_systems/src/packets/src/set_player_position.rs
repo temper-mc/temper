@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Entity, MessageWriter, Query, Res};
 
+use temper_components::entity_identity::Identity;
 use temper_components::player::grounded::OnGround;
 use temper_components::player::position::Position;
 use temper_components::player::teleport_tracker::TeleportTracker;
@@ -7,11 +8,16 @@ use temper_messages::cross_chunk_boundary_event::ChunkBoundaryCrossed;
 use temper_messages::packet_messages::Movement;
 use temper_protocol::SetPlayerPositionPacketReceiver;
 use tracing::trace;
-use temper_components::entity_identity::Identity;
 
 pub fn handle(
     receiver: Res<SetPlayerPositionPacketReceiver>,
-    mut query: Query<(Entity, &mut Position, &mut OnGround, &TeleportTracker, &Identity)>,
+    mut query: Query<(
+        Entity,
+        &mut Position,
+        &mut OnGround,
+        &TeleportTracker,
+        &Identity,
+    )>,
     mut movement_messages: MessageWriter<Movement>,
     mut cross_chunk_border_msg: MessageWriter<ChunkBoundaryCrossed>,
 ) {
@@ -50,7 +56,10 @@ pub fn handle(
 
             trace!(
                 "Updated position for player {}: ({:.2}, {:.2}, {:.2})",
-                identity.name.as_ref().unwrap(), event.x, event.feet_y, event.z
+                identity.name.as_ref().unwrap(),
+                event.x,
+                event.feet_y,
+                event.z
             );
         }
     }
