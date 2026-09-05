@@ -9,7 +9,7 @@ use temper_core::pos::{ChunkBlockPos, ChunkPos};
 use temper_macros::match_block;
 use temper_state::GlobalStateResource;
 use temper_world::RefChunk;
-use tracing::{error, info};
+use tracing::{error, info, trace};
 
 const SPAWN_CENTER: (i32, i32) = (8, 8);
 const SPAWN_SEARCH_BUDGET: Duration = Duration::from_millis(30);
@@ -39,7 +39,7 @@ pub fn generate_spawn_positions(state: Res<GlobalStateResource>) {
 
         for (chunk_x, chunk_z) in chunks {
             if state.0.spawn_positions.is_full() {
-                info!(
+                trace!(
                     "Finished generating {} spawn positions in {:.2} ms",
                     found_coords,
                     start.elapsed().as_secs_f32() * 1000.0

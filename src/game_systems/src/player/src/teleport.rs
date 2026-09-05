@@ -11,6 +11,7 @@ use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
 use temper_protocol::outgoing::synchronize_player_position::SynchronizePlayerPositionPacket;
 use tracing::error;
+use temper_components::game_id::GameID;
 
 pub fn teleport_entities(
     mut target_query: Query<(
@@ -21,7 +22,7 @@ pub fn teleport_entities(
         Option<&mut TeleportTracker>,
     )>,
     player_query: Query<(Entity, &StreamWriter)>,
-    id_query: Query<&Identity>,
+    id_query: Query<&GameID>,
     mut message_reader: MessageReader<TeleportEntity>,
     mut chunk_calc_msg: MessageWriter<ChunkCalc>,
     mut player_update_msg: MessageWriter<SendEntityUpdate>,
@@ -96,7 +97,7 @@ pub fn teleport_entities(
             // This ideally should be handled by the send entity updates system, but it seems to be
             // a bit buggy.
             if let Err(err) = conn.send_packet(TeleportEntityPacket {
-                entity_id: id.entity_id.into(),
+                entity_id: id.get(),
                 x: message.position.x,
                 y: message.position.y,
                 z: message.position.z,

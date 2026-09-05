@@ -15,6 +15,7 @@ pub mod mob_ai;
 pub mod pathfinder;
 pub mod physical;
 pub mod spawn;
+pub mod game_id;
 
 // Interaction components re-exports
 pub use interaction::{Door, InteractableBlock, InteractionCooldown, Toggleable};

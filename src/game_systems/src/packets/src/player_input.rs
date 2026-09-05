@@ -12,6 +12,7 @@ use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::PlayerInputReceiver;
 use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use tracing::{debug, warn};
+use temper_components::game_id::GameID;
 
 /// PlayerInput flags (1.21.x protocol)
 const FLAG_SNEAK: u8 = 0x20;
@@ -21,11 +22,11 @@ const FLAG_SNEAK: u8 = 0x20;
 pub fn handle(
     receiver: Res<PlayerInputReceiver>,
     conn_query: Query<(Entity, &StreamWriter, &EntityTracker)>,
-    identity_query: Query<&Identity>,
+    identity_query: Query<(&Identity, &GameID)>,
     mut sneak_query: Query<&mut SneakState>,
 ) {
     for (event, eid) in receiver.0.try_iter() {
-        let Ok(identity) = identity_query.get(eid) else {
+        let Ok((identity, game_id)) = identity_query.get(eid) else {
             continue;
         };
 
@@ -46,18 +47,17 @@ pub fn handle(
         }
 
         sneak_state.is_sneaking = is_sneaking;
-        let entity_id = VarInt::new(identity.entity_id);
 
         debug!(
             "PlayerInput: sneak={} from {} (entity_id={})",
             is_sneaking,
             identity.name.as_ref().expect("No Player Name"),
-            identity.entity_id
+            game_id.get()
         );
 
         let packet = if is_sneaking {
             EntityMetadataPacket::new(
-                entity_id,
+                game_id.get(),
                 [
                     EntityMetadata::entity_sneaking_flag(),
                     EntityMetadata::entity_sneaking_visual(),
@@ -65,7 +65,7 @@ pub fn handle(
             )
         } else {
             EntityMetadataPacket::new(
-                entity_id,
+                game_id.get(),
                 [
                     EntityMetadata::entity_clear_state(),
                     EntityMetadata::entity_standing(),

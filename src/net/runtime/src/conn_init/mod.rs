@@ -23,6 +23,7 @@ use temper_text::{ComponentBuilder, NamedColor, TextComponent};
 use tokio::net::tcp::OwnedReadHalf;
 use tokio::task::spawn_blocking;
 use tracing::{error, trace};
+use temper_components::game_id::GameID;
 
 /// Represents the result of a login attempt after the handshake process.
 ///
@@ -30,6 +31,7 @@ use tracing::{error, trace};
 /// - `compression`: Indicates whether network compression should be enabled for this connection.
 pub(crate) struct LoginResult {
     pub player_identity: Option<Identity>,
+    pub game_id: Option<GameID>,
     pub player_properties: Option<PlayerProperties>,
     pub compression: bool,
     pub client_information_component: Option<ClientInformationComponent>,

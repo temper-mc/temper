@@ -29,6 +29,7 @@ use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::sync::oneshot;
 use tokio::time::timeout;
 use tracing::{Instrument, debug, debug_span, error, trace, warn};
+use temper_components::game_id::GameID;
 
 /// The maximum time allowed for a client to complete its initial handshake.
 /// Connections exceeding this duration will be dropped to avoid resource hogging.
@@ -235,6 +236,7 @@ impl StreamWriter {
 pub struct NewConnection {
     pub stream: StreamWriter,
     pub player_identity: Identity,
+    pub game_id: GameID,
     pub client_information_component: ClientInformationComponent,
     pub player_properties: PlayerProperties,
     pub permissions: PlayerPermission,
@@ -348,6 +350,7 @@ pub async fn handle_connection(
         .send(NewConnection {
             stream,
             player_identity: login_result.player_identity.unwrap_or_default(),
+            game_id: login_result.game_id.unwrap_or_default(),
             player_properties: login_result.player_properties.unwrap_or_default(),
             entity_return,
             disconnect_handle: disconnect_return,

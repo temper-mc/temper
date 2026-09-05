@@ -28,6 +28,7 @@ use temper_protocol::outgoing::update_entity_rotation::UpdateEntityRotationPacke
 
 use temper_messages::packet_messages::Movement;
 use tracing::error;
+use temper_components::game_id::GameID;
 
 /// Enum to hold all possible movement broadcast packets.
 /// Using an enum with `#[derive(NetEncode)]` allows sending any variant
@@ -53,13 +54,13 @@ const MAX_DELTA: i16 = (7.5 * 4096f32) as i16;
 /// broadcast logic, ensuring consistent handling across all movement packet types.
 pub fn handle_player_move(
     mut movement_msgs: MessageReader<Movement>,
-    query: Query<(&Position, &Rotation, &Identity)>,
+    query: Query<(&Position, &Rotation, &GameID)>,
     broadcast_query: Query<(Entity, &StreamWriter, &EntityTracker)>,
 ) {
     for movement in movement_msgs.read() {
         let sender_entity = movement.entity;
 
-        let Ok((pos, rot, identity)) = query.get(sender_entity) else {
+        let Ok((pos, rot, game_id)) = query.get(sender_entity) else {
             continue;
         };
 
@@ -92,14 +93,14 @@ pub fn handle_player_move(
         // Build the appropriate movement packet
         let movement_packet: Option<BroadcastMovementPacket> = if delta_exceeds_threshold {
             Some(BroadcastMovementPacket::TeleportEntity(
-                TeleportEntityPacket::new(identity, pos, rot, movement.on_ground),
+                TeleportEntityPacket::new(game_id, pos, rot, movement.on_ground),
             ))
         } else {
             match (movement.delta_position, has_rotation) {
                 (Some(delta), true) => {
                     Some(BroadcastMovementPacket::UpdateEntityPositionAndRotation(
                         UpdateEntityPositionAndRotationPacket::new(
-                            identity,
+                            game_id,
                             delta,
                             rot,
                             movement.on_ground,
@@ -107,10 +108,10 @@ pub fn handle_player_move(
                     ))
                 }
                 (Some(delta), false) => Some(BroadcastMovementPacket::UpdateEntityPosition(
-                    UpdateEntityPositionPacket::new(identity, delta, movement.on_ground),
+                    UpdateEntityPositionPacket::new(game_id, delta, movement.on_ground),
                 )),
                 (None, true) => Some(BroadcastMovementPacket::UpdateEntityRotation(
-                    UpdateEntityRotationPacket::new(identity, rot, movement.on_ground),
+                    UpdateEntityRotationPacket::new(game_id, rot, movement.on_ground),
                 )),
                 (None, false) => None,
             }
@@ -119,7 +120,7 @@ pub fn handle_player_move(
         // Build head rotation packet if we have rotation
         let head_rot_packet = if has_rotation {
             Some(SetHeadRotationPacket::new(
-                identity.entity_id,
+                game_id.get(),
                 NetAngle::from_degrees(f64::from(rot.yaw)),
             ))
         } else {

@@ -7,10 +7,11 @@ use temper_protocol::SwingArmPacketReceiver;
 use temper_protocol::outgoing::entity_animation::EntityAnimationPacket;
 use temper_state::GlobalStateResource;
 use tracing::error;
+use temper_components::game_id::GameID;
 
 pub fn handle(
     receiver: Res<SwingArmPacketReceiver>,
-    query: Query<&Identity>,
+    query: Query<&GameID>,
     conn_query: Query<(Entity, &StreamWriter, &EntityTracker)>,
     state: Res<GlobalStateResource>,
 ) {
@@ -20,7 +21,7 @@ pub fn handle(
             error!("Game ID not found for entity: {:?}", eid);
             continue;
         };
-        let packet = EntityAnimationPacket::new(VarInt::new(game_id.entity_id), animation);
+        let packet = EntityAnimationPacket::new(game_id.get(), animation);
         for (entity, conn, tracker) in conn_query.iter() {
             if entity == eid {
                 continue; // Skip sending to the player who triggered the event

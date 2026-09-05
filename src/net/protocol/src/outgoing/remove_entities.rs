@@ -1,6 +1,7 @@
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_macros::{NetEncode, packet};
 
 #[derive(NetEncode)]
@@ -12,11 +13,11 @@ pub struct RemoveEntitiesPacket {
 impl RemoveEntitiesPacket {
     pub fn from_entities<T>(entity_ids: T) -> Self
     where
-        T: IntoIterator<Item = Identity>,
+        T: IntoIterator<Item = GameID>,
     {
         let entity_ids: Vec<VarInt> = entity_ids
             .into_iter()
-            .map(|entity| VarInt::new(entity.entity_id))
+            .map(|entity| entity.get())
             .collect();
         Self {
             entity_ids: LengthPrefixedVec::new(entity_ids),

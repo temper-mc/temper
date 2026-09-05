@@ -15,6 +15,7 @@ use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_metadata::{EntityMetadata, EntityMetadataPacket};
 use temper_state::GlobalStateResource;
 use tracing::error;
+use temper_components::game_id::GameID;
 
 /// Height of player's eyes from feet (blocks)
 const PLAYER_EYE_HEIGHT: f64 = 1.62;
@@ -44,7 +45,7 @@ fn is_player_in_water(state: &temper_state::GlobalState, pos: &Position) -> bool
 /// System that detects when players enter/exit water and updates their swimming state
 /// Also broadcasts the swimming pose to all connected clients
 pub fn detect_player_swimming(
-    mut swimmers: Query<(Entity, &Identity, Ref<Position>, &mut SwimmingState)>,
+    mut swimmers: Query<(Entity, &GameID, Ref<Position>, &mut SwimmingState)>,
     all_connections: Query<(Entity, &StreamWriter, &EntityTracker)>,
     state: Res<GlobalStateResource>,
     mut world_change: MessageReader<WorldChange>,
@@ -55,7 +56,7 @@ pub fn detect_player_swimming(
             changed_chunks.insert(pos);
         }
     }
-    for (entity, identity, pos, mut swimming_state) in swimmers.iter_mut() {
+    for (entity, game_id, pos, mut swimming_state) in swimmers.iter_mut() {
         if !changed_chunks.contains(&pos.chunk()) && !pos.is_changed() {
             continue;
         }
@@ -64,9 +65,8 @@ pub fn detect_player_swimming(
         if in_water && !swimming_state.is_swimming {
             swimming_state.is_swimming = true;
 
-            let entity_id = VarInt::new(identity.entity_id);
             let packet = EntityMetadataPacket::new(
-                entity_id,
+                game_id.get(),
                 [
                     EntityMetadata::entity_swimming_state(),
                     EntityMetadata::entity_swimming_pose(),
@@ -77,9 +77,8 @@ pub fn detect_player_swimming(
         } else if !in_water && swimming_state.is_swimming {
             swimming_state.is_swimming = false;
 
-            let entity_id = VarInt::new(identity.entity_id);
             let packet = EntityMetadataPacket::new(
-                entity_id,
+                game_id.get(),
                 [
                     EntityMetadata::entity_clear_state(),
                     EntityMetadata::entity_standing(),

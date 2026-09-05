@@ -6,12 +6,14 @@ use temper_components::player::player_marker::PlayerMarker;
 use temper_components::player::position::Position;
 use temper_net_runtime::connection::StreamWriter;
 use tracing::trace;
+use temper_components::game_id::GameID;
 
 pub fn refresh_visible_entities(
     mut player_query: Query<(Entity, &StreamWriter, &ChunkReceiver, &mut EntityTracker)>,
     entity_query: Query<(
         Entity,
         &Identity,
+        &GameID,
         &Position,
         Has<PlayerMarker>,
         Option<&StreamWriter>,
@@ -26,7 +28,7 @@ pub fn refresh_visible_entities(
         for tracked_entity in tracked_entities {
             let should_keep = entity_query
                 .get(tracked_entity)
-                .map(|(entity, _identity, pos, is_player, maybe_writer)| {
+                .map(|(entity, _identity, _game_id, pos, is_player, maybe_writer)| {
                     if entity == player_entity {
                         return false;
                     }
@@ -45,7 +47,7 @@ pub fn refresh_visible_entities(
             }
         }
 
-        for (entity, identity, pos, is_player, maybe_writer) in entity_query.iter() {
+        for (entity, identity, game_id, pos, is_player, maybe_writer) in entity_query.iter() {
             if entity == player_entity {
                 continue;
             }
@@ -63,8 +65,8 @@ pub fn refresh_visible_entities(
             }
 
             trace!(
-                "Queueing entity {} ({:?}) for player {:?}",
-                identity.entity_id, identity.uuid, player_entity
+                "Queueing entity {:#x} ({:?}) for player {:?}",
+                game_id.get().0, identity.uuid, player_entity
             );
             tracker.to_track.push((identity.uuid, 0));
         }

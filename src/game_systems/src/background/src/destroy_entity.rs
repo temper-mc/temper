@@ -2,6 +2,7 @@ use bevy_ecs::prelude::{Commands, Entity, Has, MessageReader, MessageWriter, Que
 use temper_codec::net_types::length_prefixed_vec::LengthPrefixedVec;
 use temper_components::bossbar::BossbarOwner;
 use temper_components::entity_identity::Identity;
+use temper_components::game_id::GameID;
 use temper_components::player::player_marker::PlayerMarker;
 use temper_components::player::position::Position;
 use temper_core::dimension::Dimension::Overworld;
@@ -23,6 +24,7 @@ pub fn destroy_entity_system(
         Entity,
         &Position,
         &Identity,
+        &GameID,
         Has<PlayerMarker>,
         Has<MobKind>,
         Option<&StreamWriter>,
@@ -44,11 +46,19 @@ pub fn destroy_entity_system(
     };
 
     for event in destroy_entity_events.read() {
-        if let Ok((_, position, identity, has_player_marker, has_mob_kind, conn_opt, bossbar_own)) =
-            query.get(event.0)
+        if let Ok((
+            _,
+            position,
+            identity,
+            game_id,
+            has_player_marker,
+            has_mob_kind,
+            conn_opt,
+            bossbar_own,
+        )) = query.get(event.0)
         {
             if !has_player_marker {
-                destroyed_entities.push(identity.entity_id.into());
+                destroyed_entities.push(game_id.get());
                 if has_mob_kind {
                     despawn_mobs.write(DespawnMob {
                         entity: event.0,
@@ -68,7 +78,7 @@ pub fn destroy_entity_system(
                 if chunk.entities.remove(&identity.uuid).is_some() {
                     trace!(
                         "Entity {:?} destroyed and removed from chunk",
-                        identity.entity_id
+                        identity.uuid
                     );
                     chunk.mark_dirty();
                 }
@@ -84,7 +94,7 @@ pub fn destroy_entity_system(
         entity_ids: LengthPrefixedVec::new(destroyed_entities),
     };
 
-    for (_, _, _, has_player_marker, _, conn_opt, _) in query.iter() {
+    for (_, _, _, _, has_player_marker, _, conn_opt, _) in query.iter() {
         if has_player_marker
             && let Some(conn) = conn_opt
             && let Err(err) = conn.send_packet_ref(&packet)
