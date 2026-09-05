@@ -4,7 +4,7 @@ pub mod chunk_unloader;
 pub mod connection_killer;
 pub mod cross_chunk_border;
 pub mod day_cycle;
-pub mod destroy_entity;
+pub mod kill_entity;
 pub mod entity_sending;
 pub mod entity_tracking;
 pub mod entity_unloader;

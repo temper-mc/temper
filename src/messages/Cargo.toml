@@ -17,6 +17,7 @@ temper-particles = { workspace = true }
 temper-entities = { workspace = true }
 temper-data = { workspace = true }
 temper-macros = { workspace = true }
+temper-text = { workspace = true }
 
 [lints]
 workspace = true

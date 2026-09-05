@@ -1,4 +1,4 @@
-use bevy_ecs::prelude::{Entity, Has, MessageReader, Query};
+use bevy_ecs::prelude::{Entity, Has, MessageReader, MessageWriter, Query};
 use temper_codec::net_types::prefixed_optional::PrefixedOptional;
 use temper_codec::net_types::var_int::VarInt;
 use temper_components::entity_identity::Identity;
@@ -6,13 +6,15 @@ use temper_components::game_id::GameID;
 use temper_components::health::Health;
 use temper_components::player::hunger::Hunger;
 use temper_components::player::player_marker::PlayerMarker;
+use temper_components::player::position::Position;
 use temper_messages::damage::DamageEvent;
+use temper_messages::damage::DamageSource::DivineSmiting;
+use temper_messages::kill_entity::KillEntity;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::damage_player::DamagePlayer;
+use temper_protocol::outgoing::hurt_animation::HurtAnimationPacket;
 use temper_protocol::outgoing::set_health::SetHealth;
 use tracing::error;
-use temper_components::player::position::Position;
-use temper_protocol::outgoing::hurt_animation::HurtAnimationPacket;
 
 pub fn damage_entity(
     mut messages: MessageReader<DamageEvent>,
@@ -24,8 +26,9 @@ pub fn damage_entity(
         Has<PlayerMarker>,
         &Identity,
         &GameID,
-        &Position
+        &Position,
     )>,
+    mut kill_writer: MessageWriter<KillEntity>,
 ) {
     for message in messages.read() {
         for (entity, mut health, hunger, stream_writer, is_player, identity, game_id, pos) in
@@ -35,15 +38,19 @@ pub fn damage_entity(
                 if health.current > message.damage {
                     health.current -= message.damage;
                 } else {
-                    // health.current = 0;
-                    // todo: kill player
-                    health.current = health.max;
-                    temper_core::mq::queue(
-                        "You have been killed".to_string()
-                        .into(),
-                        false,
+                    health.current = 0;
+                    kill_writer.write(KillEntity {
                         entity,
-                    );
+                        message: Some(
+                            format!(
+                                "{} was killed by {:?}",
+                                identity.name.as_ref().unwrap(),
+                                message.source.to_vanilla_source()
+                            )
+                            .into(),
+                        ),
+                        source: DivineSmiting { silent: false },
+                    });
                 }
 
                 if let Some(stream_writer) = stream_writer {
@@ -59,12 +66,12 @@ pub fn damage_entity(
                             err
                         );
                     }
-                    
+
                     let hurt_animation = HurtAnimationPacket {
                         entity_id: game_id.get(),
-                        yaw: 0.0
+                        yaw: 0.0,
                     };
-                    
+
                     if let Err(err) = stream_writer.send_packet(hurt_animation) {
                         error!(
                             "Failed to send hurt animation packet to player {}: {}",

@@ -8,18 +8,20 @@ use temper_components::player::position::Position;
 use temper_core::dimension::Dimension::Overworld;
 use temper_entities::MobKind;
 use temper_messages::DespawnMob;
-use temper_messages::destroy_entity::DestroyEntity;
+use temper_messages::kill_entity::KillEntity;
 use temper_net_runtime::connection::StreamWriter;
+use temper_protocol::outgoing::player_death::PlayerDeath;
 use temper_protocol::outgoing::remove_entities::RemoveEntitiesPacket;
 use temper_protocol::outgoing::system_message::SystemMessagePacket;
 use temper_resources::bossbar::BossBarResource;
 use temper_state::GlobalStateResource;
 use temper_text::{Color, NamedColor, TextComponentBuilder};
 use tracing::trace;
+use temper_nbt::NBT;
 
-pub fn destroy_entity_system(
+pub fn kill_entity_system(
     mut commands: Commands,
-    mut destroy_entity_events: MessageReader<DestroyEntity>,
+    mut kill_entity_events: MessageReader<KillEntity>,
     query: Query<(
         Entity,
         &Position,
@@ -35,17 +37,8 @@ pub fn destroy_entity_system(
     mut despawn_mobs: MessageWriter<DespawnMob>,
 ) {
     let mut destroyed_entities = Vec::new();
-    let killed_message = SystemMessagePacket {
-        message: temper_nbt::NBT::new(
-            TextComponentBuilder::new("You have been killed. How sad :(")
-                .bold()
-                .color(Color::Named(NamedColor::Red))
-                .build(),
-        ),
-        overlay: false,
-    };
 
-    for event in destroy_entity_events.read() {
+    for event in kill_entity_events.read() {
         if let Ok((
             _,
             position,
@@ -55,19 +48,28 @@ pub fn destroy_entity_system(
             has_mob_kind,
             conn_opt,
             bossbar_own,
-        )) = query.get(event.0)
+        )) = query.get(event.entity)
         {
+
+            let kill_packet = PlayerDeath {
+                entity_id: game_id.get(),
+                message: NBT::new(event.message.clone().unwrap_or_else(|| {
+                    TextComponentBuilder::new("You died :(")
+                        .color(Color::Named(NamedColor::Red))
+                        .build()
+                }))
+            };
             if !has_player_marker {
                 destroyed_entities.push(game_id.get());
                 if has_mob_kind {
                     despawn_mobs.write(DespawnMob {
-                        entity: event.0,
+                        entity: event.entity,
                         remove_from_chunk: true,
                     });
                     continue;
                 }
 
-                commands.entity(event.0).despawn();
+                commands.entity(event.entity).despawn();
                 if let Some(owner) = bossbar_own {
                     bossbar_res.remove_bar(owner.id());
                 }
@@ -83,9 +85,12 @@ pub fn destroy_entity_system(
                     chunk.mark_dirty();
                 }
             } else if let Some(conn) = conn_opt
-                && let Err(err) = conn.send_packet_ref(&killed_message)
+                && let Err(err) = conn.send_packet_ref(&kill_packet)
             {
                 trace!("Failed to send killed message: {}", err);
+            }
+            if let Some(death_message) = &event.message {
+                temper_core::mq::broadcast(death_message.clone(), false);
             }
         }
     }

@@ -5,7 +5,8 @@ use temper_command_infra::{CommandHandler, CommandResult, CommandSource};
 use temper_components::entity_identity::Identity;
 use temper_components::player::player_marker::PlayerMarker;
 use temper_macros::Command;
-use temper_messages::destroy_entity::DestroyEntity;
+use temper_messages::damage::DamageSource::DivineSmiting;
+use temper_messages::kill_entity::KillEntity;
 use temper_permissions::Permissions;
 
 #[derive(Command)]
@@ -18,7 +19,7 @@ enum KillCommand {
 impl CommandHandler for KillCommand {
     type SystemParam<'w, 's> = (
         Query<'w, 's, (Entity, &'static Identity, Option<&'static PlayerMarker>)>,
-        MessageWriter<'w, DestroyEntity>,
+        MessageWriter<'w, KillEntity>,
     );
 
     fn handle(
@@ -40,7 +41,11 @@ impl CommandHandler for KillCommand {
         };
 
         selected_entities.iter().for_each(|e| {
-            writer.write(DestroyEntity(*e));
+            writer.write(KillEntity {
+                entity: *e,
+                message: Some("Killed by command.".into()),
+                source: DivineSmiting { silent: true },
+            });
         });
 
         source.send_message(

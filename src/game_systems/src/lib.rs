@@ -117,7 +117,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
     schedule.add_systems(background::server_command::handle);
     schedule.add_systems(
         (
-            background::destroy_entity::destroy_entity_system,
+            background::kill_entity::kill_entity_system,
             mobs::spawn::handle_despawn_mob,
         )
             .chain(),
