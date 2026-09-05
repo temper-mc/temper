@@ -33,6 +33,7 @@ pub use entity_spawn::{DespawnMob, SpawnMobBundle, SpawnMobCommand};
 pub mod block_break;
 pub mod block_interaction;
 pub mod cross_chunk_boundary_event;
+pub mod damage;
 pub mod destroy_entity;
 pub mod force_player_recount_event;
 pub mod load_chunk_entities;
@@ -55,6 +56,7 @@ pub use block_break::BlockBrokenEvent;
 pub use block_interaction::BlockInteractMessage;
 use temper_command_infra::{CommandDispatched, RebuildCommandGraph};
 use world_change::WorldChange;
+use crate::damage::DamageEvent;
 
 pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<Movement>(world);
@@ -87,4 +89,5 @@ pub fn register_messages(world: &mut World) {
     MessageRegistry::register_message::<SaveChunkEntities>(world);
     MessageRegistry::register_message::<DestroyEntity>(world);
     MessageRegistry::register_message::<ChunkBoundaryCrossed>(world);
+    MessageRegistry::register_message::<DamageEvent>(world);
 }
