@@ -1,0 +1,12 @@
+[package]
+name = "vanilla"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gen-core = { path = "../../core" }
+temper-core = { workspace = true }
+temper-density = { path = "../../../density" }
+include_dir = { workspace = true }
+temper-assets = { workspace = true }
+temper-macros = { workspace = true }

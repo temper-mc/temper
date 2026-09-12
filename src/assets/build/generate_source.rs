@@ -36,6 +36,20 @@ pub fn generate_source(assets_path: PathBuf) {
     write_dir(&mut content, &reports_dir, 1);
     content.push_str("}\n");
 
+    content.push_str(
+        &format!(
+            "#[doc = include_str!(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/src/asset_path_macro.md\"))]\n\
+            #[macro_export]\n\
+            macro_rules! asset_path {{\n\
+                ($($path:expr),* $(,)?) => {{\n\
+                    concat!({:?}, $({:?}, $path),*)\
+                }};\
+            }}",
+            assets_path.join("generated").to_string_lossy(),
+            std::path::MAIN_SEPARATOR_STR,
+        )
+    );
+
     write_if_changed(out_dir.join("generated.rs"), content)
         .expect("Failed to write generated source");
 }

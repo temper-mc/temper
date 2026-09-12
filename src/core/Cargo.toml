@@ -25,6 +25,7 @@ serde_json = { workspace = true }
 once_cell = { workspace = true }
 type_hash = { workspace = true }
 wyhash = { workspace = true }
+md5 = { workspace = true }
 
 [lints]
 workspace = true

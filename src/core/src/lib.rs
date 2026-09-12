@@ -7,5 +7,7 @@ pub mod block_properties;
 pub mod block_state_id;
 pub mod color;
 pub mod dimension;
+pub mod math;
 pub mod mq;
 pub mod pos;
+pub mod random;

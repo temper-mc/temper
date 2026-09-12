@@ -59,7 +59,9 @@ impl World {
         let storage_backend = StorageBackend::initialize(Some(backend_path), map_size)
             .expect("Failed to initialize database");
 
-        let seed = {
+        let seed = if let Ok(seed) = config.world_gen.seed.parse::<u64>() {
+            seed
+        } else {
             let mut hasher = wyhash::WyHasherBuilder::default().build_hasher();
             hasher.write(&config.world_gen.seed.clone().into_bytes());
             hasher.finish()

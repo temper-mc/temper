@@ -62,6 +62,7 @@ members = [
     "src/utils",
     "src/world",
     "src/world/db",
+    "src/world/density",
     "src/world/format",
     "src/world/gen",
     "src/world/gen/core",
@@ -69,7 +70,9 @@ members = [
     "src/world/gen/generators/normal",
     "src/world/gen/generators/skyblock",
     "src/world/gen/generators/superflat",
+    "src/world/gen/generators/vanilla",
     "src/world/gen/structures",
+    "src/world/noise",
     "tests",
 ]
 
@@ -153,6 +156,7 @@ temper-macros = { path = "src/base/macros" }
 temper-messages = { path = "src/messages" }
 temper-nbt = { path = "src/adapters/nbt" }
 temper-net-runtime = { path = "src/net/runtime" }
+temper-noise = { path = "src/world/noise" }
 temper-particles = { path = "src/particles" }
 temper-performance = { path = "src/performance" }
 temper-permissions = { path = "src/permissions" }
@@ -215,6 +219,7 @@ aes = { version = "0.8.4" }
 cfb8 = "0.8.1"
 sha1 = "0.11.0"
 num-bigint = "0.4.6"
+md5 = "0.8.1"
 
 # Encoding/Serialization
 serde = { version = "1.0.229", features = ["derive", "std", "rc"] }

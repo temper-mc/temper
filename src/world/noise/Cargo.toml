@@ -1,0 +1,24 @@
+[package]
+name = "temper-noise"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+temper-core = { workspace = true }
+bevy_math = { workspace = true }
+
+[build-dependencies]
+temper-assets = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+heck = { workspace = true }
+serde_json = { workspace = true }
+quote = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+noise = { workspace = true }
+
+[[bench]]
+name = "benches"
+harness = false
+path = "benches/bench.rs"

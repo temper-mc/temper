@@ -324,6 +324,11 @@ impl Chunk {
         }
     }
 
+    /// Returns the ChunkHeight for this Chunk
+    pub fn height(&self) -> &ChunkHeight {
+        &self.height
+    }
+
     pub fn recalculate_heightmap(&mut self) {
         const COLUMN_COUNT: usize = 16 * 16;
 

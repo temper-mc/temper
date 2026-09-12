@@ -4,7 +4,7 @@ include!(concat!(env!("OUT_DIR"), "/registry_data.rs"));
 
 /// Initializes the game registry.
 /// This is now a no-op (it does nothing) because all data is
-/// loaded at compile time. It's called by main.rs and tests.
+/// loaded at compile time. It's called by main.rs and data.
 pub fn init() {
     // This function is now free!
 }

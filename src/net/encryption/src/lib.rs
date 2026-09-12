@@ -112,7 +112,7 @@ mod tests {
     /// Minecraft's custom implementation of a SHA1 hex digest.
     ///
     /// # Note
-    /// This function is only to be used in tests. The only different between this function and `minecraft_hex_digest`
+    /// This function is only to be used in data. The only different between this function and `minecraft_hex_digest`
     /// is that this function does **NOT** hash the encryption key.
     ///
     /// # Parameters
