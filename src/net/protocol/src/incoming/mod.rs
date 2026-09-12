@@ -45,3 +45,5 @@ pub mod close_container;
 pub mod encryption_response;
 pub mod interact;
 pub mod use_item;
+
+pub mod sign_update;

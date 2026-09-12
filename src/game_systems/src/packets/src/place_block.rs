@@ -4,12 +4,12 @@ use temper_codec::net_types::network_position::NetworkPosition;
 use temper_components::player::position::Position;
 use temper_components::{bounds::CollisionBounds, player::sneak::SneakState};
 use temper_core::pos::BlockPos;
-use temper_messages::BlockInteractMessage;
+use temper_messages::{BlockEntityPlaced, BlockInteractMessage};
 
 use bevy_math::{DVec3, IVec3};
 use temper_blocks::BlockDispatch;
 use temper_components::player::rotation::Rotation;
-use temper_core::block_state_id::ITEM_TO_BLOCK_MAPPING;
+use temper_core::block_state_id::{BlockStateId, ITEM_TO_BLOCK_MAPPING};
 use temper_core::dimension::Dimension;
 use temper_core::mq;
 use temper_inventories::hotbar::Hotbar;
@@ -21,6 +21,7 @@ use temper_protocol::outgoing::block_change_ack::BlockChangeAck;
 use temper_protocol::outgoing::block_update::BlockUpdate;
 use temper_state::GlobalStateResource;
 use temper_text::{Color, NamedColor, TextComponentBuilder};
+use temper_world_format::{BlockEntityData, BlockEntityKind, SignBlockEntity};
 use tracing::{debug, error, trace};
 
 // TODO: in the future this should be reworked so that if a block update exits early the client is informed that the block never updated.
@@ -44,6 +45,7 @@ pub fn handle(
     pos_q: Query<(&Position, &CollisionBounds)>,
     mut world_change: MessageWriter<WorldChange>,
     mut block_interact: MessageWriter<BlockInteractMessage>,
+    mut block_entity_placed: MessageWriter<BlockEntityPlaced>,
 ) {
     'ev_loop: for (event, eid) in receiver.0.try_iter() {
         let Ok((entity, conn, inventory, hotbar, _pos, rot, sneak)) = query.get(eid) else {
@@ -158,12 +160,16 @@ pub fn handle(
                         continue 'ev_loop;
                     }
 
-                    let mut block_state = ITEM_TO_BLOCK_MAPPING
+                    let Some(mut block_state) = ITEM_TO_BLOCK_MAPPING
                         .get()
                         .unwrap()
                         .get(&(item_id.as_u32() as i32))
                         .copied()
-                        .unwrap();
+                    else {
+                        // Not a placeable item, nothing to do here until item-on-block
+                        // interactions exist.
+                        continue 'ev_loop;
+                    };
 
                     let mut placement_context = temper_blocks::PlacementContext {
                         face: event.face.clone(),
@@ -229,6 +235,14 @@ pub fn handle(
                             .set_block(*block_pos, Dimension::Overworld, *block_state)
                             .unwrap_or_else(|_| error!("Failed to update block {}", block_pos));
 
+                        if let Some(kind) = create_block_entity(&state, *block_pos, *block_state) {
+                            block_entity_placed.write(BlockEntityPlaced {
+                                player: entity,
+                                position: *block_pos,
+                                kind,
+                            });
+                        }
+
                         let block_chunk = block_pos.chunk();
                         world_change.write(WorldChange {
                             chunk: Some(block_chunk),
@@ -273,4 +287,57 @@ pub fn handle(
             }
         }
     }
+}
+
+/// Creates default block entity data for a freshly placed block, if its
+/// blockstate has an associated block entity type we support. Returns the
+/// kind created, so the caller can notify type-specific systems.
+fn create_block_entity(
+    state: &GlobalStateResource,
+    block_pos: BlockPos,
+    block_state: BlockStateId,
+) -> Option<BlockEntityKind> {
+    let protocol_id = temper_data::blocks::block_entity_type_for_state(block_state.raw())?;
+
+    let name = temper_data::blocks::BLOCK_ENTITY_TYPE_NAMES
+        .get(protocol_id as usize)
+        .copied()
+        .unwrap_or_default();
+
+    let (kind, blob) = match name {
+        "sign" | "hanging_sign" => (BlockEntityKind::Sign, SignBlockEntity::default().to_blob()),
+        other => {
+            trace!("No block entity support for {other} at {block_pos}");
+            return None;
+        }
+    };
+
+    let blob = match blob {
+        Ok(blob) => blob,
+        Err(err) => {
+            error!("Failed to serialize block entity at {block_pos}: {err}");
+            return None;
+        }
+    };
+
+    let Ok(chunk) = state
+        .0
+        .world
+        .get_chunk(block_pos.chunk(), Dimension::Overworld)
+    else {
+        error!("Failed to get chunk for block entity at {block_pos}");
+        return None;
+    };
+
+    chunk.block_entities.insert(
+        block_pos.chunk_block_pos(),
+        BlockEntityData {
+            kind,
+            protocol_id,
+            blob,
+        },
+    );
+    chunk.mark_dirty();
+
+    Some(kind)
 }

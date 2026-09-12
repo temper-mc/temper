@@ -170,6 +170,7 @@ temper-utils = { path = "src/utils" }
 temper-world = { path = "src/world" }
 temper-world-format = { path = "src/world/format" }
 temper-world-gen = { path = "src/world/gen" }
+temper-blocks-generated = { path = "src/blocks/crates/generated" }
 
 # Asynchronous
 tokio = { version = "1.53.1", features = [

@@ -315,6 +315,7 @@ fn break_block(
         {
             error!("Failed to break block at {}: {}", pos, world_error)
         }
+        remove_block_entity(state, *pos);
     }
 
     // Broadcast the block break to all players
@@ -348,5 +349,25 @@ fn break_block(
                 eid, e
             );
         }
+    }
+}
+
+/// Removes block entity data when its block is broken, so a later block
+/// entity at the same position doesn't inherit stale data.
+fn remove_block_entity(state: &GlobalStateResource, block_pos: BlockPos) {
+    let Ok(chunk) = state
+        .0
+        .world
+        .get_chunk(block_pos.chunk(), Dimension::Overworld)
+    else {
+        return;
+    };
+
+    if chunk
+        .block_entities
+        .remove(&block_pos.chunk_block_pos())
+        .is_some()
+    {
+        chunk.mark_dirty();
     }
 }

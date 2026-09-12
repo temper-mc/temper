@@ -24,3 +24,5 @@ pub mod client_command;
 pub mod close_container;
 pub mod set_held_item;
 pub mod update_survival_mode_slot;
+
+pub mod signs;

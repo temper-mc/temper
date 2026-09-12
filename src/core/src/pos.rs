@@ -269,7 +269,7 @@ impl From<(u8, u8)> for ChunkColumnPos {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ChunkBlockPos {
     pos: I16Vec3,
 }

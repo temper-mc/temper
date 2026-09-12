@@ -5,15 +5,7 @@ use temper_core::pos::ChunkPos;
 use temper_macros::{NetEncode, packet};
 use temper_world_format::Chunk;
 use temper_world_format::light::network::NetworkLightData;
-use temper_world_format::network::NetworkChunk;
-
-#[derive(NetEncode)]
-pub struct BlockEntity {
-    pub xz: u8,
-    pub y: u16,
-    pub entity_type: VarInt,
-    pub nbt: Vec<u8>,
-}
+use temper_world_format::network::{BlockEntity, NetworkChunk};
 
 #[derive(NetEncode)]
 pub struct NetHeightmap {
@@ -39,7 +31,7 @@ impl<'chunk> ChunkAndLightData<'chunk> {
             chunk_x: pos.x(),
             chunk_z: pos.z(),
             chunk_data: NetworkChunk::try_from(chunk)?,
-            block_entities: LengthPrefixedVec::new(Vec::new()),
+            block_entities: LengthPrefixedVec::new(Vec::<BlockEntity>::try_from(chunk)?),
             light_data: NetworkLightData::from(chunk),
         })
     }

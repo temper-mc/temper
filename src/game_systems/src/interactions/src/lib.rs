@@ -32,15 +32,28 @@ use temper_protocol::outgoing::block_update::BlockUpdate;
 use temper_state::GlobalStateResource;
 use tracing::{debug, error};
 
+type InteractQuery<'a> = (
+    Entity,
+    &'a StreamWriter,
+    &'a Position,
+    &'a ClientInformationComponent,
+);
+
+/// Tells the client its predicted interaction was received. The client holds
+/// the prediction until it sees this sequence, so every path out of the
+/// handler needs to send one.
+fn send_ack(query: &Query<InteractQuery>, player: Entity, sequence: VarInt, context: &str) {
+    if let Ok((_, conn, _, _)) = query.get(player)
+        && let Err(e) = conn.send_packet_ref(&BlockChangeAck { sequence })
+    {
+        error!("Failed to send BlockChangeAck ({context}): {:?}", e);
+    }
+}
+
 pub fn handle_block_interact(
     mut events: MessageReader<BlockInteractMessage>,
     state: Res<GlobalStateResource>,
-    query: Query<(
-        Entity,
-        &StreamWriter,
-        &Position,
-        &ClientInformationComponent,
-    )>,
+    query: Query<InteractQuery>,
     mut cooldowns: Local<Option<Cache<BlockPos, Instant>>>,
 ) {
     let cooldown_duration = Duration::from_millis(InteractionCooldown::default().cooldown_ms);
@@ -54,14 +67,7 @@ pub fn handle_block_interact(
                 .get(&pos)
                 .is_some_and(|t| t.elapsed() < cooldown_duration)
         {
-            if let Ok((_, conn, _, _)) = query.get(event.player) {
-                let ack = BlockChangeAck {
-                    sequence: event.sequence,
-                };
-                if let Err(e) = conn.send_packet_ref(&ack) {
-                    error!("Failed to send BlockChangeAck (cooldown): {:?}", e);
-                }
-            }
+            send_ack(&query, event.player, event.sequence, "cooldown");
             continue;
         }
         cooldowns
@@ -79,6 +85,14 @@ pub fn handle_block_interact(
 
         let updates = {
             let updates = block_state.interact(&state.0.world, pos);
+
+            if updates.blocks.is_empty() && block_state == original {
+                // Nothing changed, another system handles this interaction,
+                // but the client is still waiting on the sequence.
+                send_ack(&query, event.player, event.sequence, "unhandled");
+                continue;
+            }
+
             let mut updates = updates.blocks;
             updates.insert(pos, block_state);
 
@@ -120,15 +134,7 @@ pub fn handle_block_interact(
                 .collect::<Vec<_>>()
         }; // chunk lock released here
 
-        // Send BlockChangeAck to the player
-        if let Ok((_, conn, _, _)) = query.get(event.player) {
-            let ack = BlockChangeAck {
-                sequence: event.sequence,
-            };
-            if let Err(e) = conn.send_packet_ref(&ack) {
-                error!("Failed to send BlockChangeAck: {:?}", e);
-            }
-        }
+        send_ack(&query, event.player, event.sequence, "interact");
 
         // Broadcast BlockUpdate to all players within render distance
         let block_chunk = pos.chunk();

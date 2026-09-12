@@ -242,3 +242,18 @@ fn test_blocks_consistency() {
     assert_eq!(direct_stone.hardness, id_lookup.hardness);
     assert_eq!(direct_stone.hardness, name_lookup.hardness);
 }
+
+#[test]
+fn test_block_entity_type_for_state() {
+    // oak_sign state 5335 -> sign (block entity type 7)
+    assert_eq!(blocks::block_entity_type_for_state(5335), Some(7));
+    // stone has no block entity
+    assert_eq!(blocks::block_entity_type_for_state(1), None);
+    assert_eq!(blocks::block_entity_type_for_state(999_999), None);
+}
+
+#[test]
+fn test_block_entity_type_names() {
+    assert_eq!(blocks::BLOCK_ENTITY_TYPE_NAMES[7], "sign");
+    assert_eq!(blocks::BLOCK_ENTITY_TYPE_NAMES.len(), 49);
+}

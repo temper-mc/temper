@@ -129,6 +129,34 @@
 "minecraft:soul_torch" = "TorchBlock"
 "minecraft:soul_wall_torch" = "WallTorchBlock"
 
+# Wall signs and wall hanging signs need their own structs so placement can
+# swap to them from the standing variants.
+"minecraft:acacia_wall_sign" = "WallSignBlock"
+"minecraft:bamboo_wall_sign" = "WallSignBlock"
+"minecraft:birch_wall_sign" = "WallSignBlock"
+"minecraft:cherry_wall_sign" = "WallSignBlock"
+"minecraft:crimson_wall_sign" = "WallSignBlock"
+"minecraft:dark_oak_wall_sign" = "WallSignBlock"
+"minecraft:jungle_wall_sign" = "WallSignBlock"
+"minecraft:mangrove_wall_sign" = "WallSignBlock"
+"minecraft:oak_wall_sign" = "WallSignBlock"
+"minecraft:pale_oak_wall_sign" = "WallSignBlock"
+"minecraft:spruce_wall_sign" = "WallSignBlock"
+"minecraft:warped_wall_sign" = "WallSignBlock"
+
+"minecraft:acacia_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:bamboo_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:birch_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:cherry_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:crimson_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:dark_oak_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:jungle_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:mangrove_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:oak_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:pale_oak_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:spruce_wall_hanging_sign" = "WallHangingSignBlock"
+"minecraft:warped_wall_hanging_sign" = "WallHangingSignBlock"
+
 # From Minecraft's net.minecraft.world.level.block.state.properties.BlockStateProperties class
 #
 # Maps property names to the type the generator should use in the generated structs.

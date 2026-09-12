@@ -14,7 +14,7 @@ struct BlockStateEntry {
 }
 
 #[derive(Deserialize)]
-struct ItemEntry {
+struct ProtocolIdEntry {
     protocol_id: i32,
 }
 
@@ -30,7 +30,17 @@ struct BlockRegistry {
     entries: HashMap<String, BlockEntry>,
 }
 
-// Type for registries.json: "minecraft:item" -> "entries" -> "minecraft:stone" -> ItemEntry
+#[derive(Deserialize)]
+struct ItemRegistry {
+    entries: HashMap<String, ProtocolIdEntry>,
+}
+
+#[derive(Deserialize)]
+struct BlockEntityTypeRegistry {
+    entries: HashMap<String, ProtocolIdEntry>,
+}
+
+// Type for registries.json: "minecraft:item" -> "entries" -> "minecraft:stone" -> ProtocolIdEntry
 #[derive(Deserialize)]
 struct RegistryRoot {
     #[serde(rename = "minecraft:item")]
@@ -38,11 +48,9 @@ struct RegistryRoot {
 
     #[serde(rename = "minecraft:block")]
     block: BlockRegistry,
-}
 
-#[derive(Deserialize)]
-struct ItemRegistry {
-    entries: HashMap<String, ItemEntry>,
+    #[serde(rename = "minecraft:block_entity_type")]
+    block_entity_type: BlockEntityTypeRegistry,
 }
 
 // --- 2. The Main Build Function ---
@@ -131,4 +139,16 @@ fn main() {
         hardness_map.entry(name, hardness_u32.to_string());
     }
     writeln!(file, "{};\n", hardness_map.build()).unwrap();
+
+    // --- 8. Generate `phf::Map` for BlockEntityTypeName -> Protocol_ID ---
+    write!(
+        file,
+        "static BLOCK_ENTITY_TYPE_NAME_TO_ID: phf::Map<&'static str, i32> = "
+    )
+    .unwrap();
+    let mut block_entity_map = Map::new();
+    for (name, entry) in &registry.block_entity_type.entries {
+        block_entity_map.entry(name, entry.protocol_id.to_string());
+    }
+    writeln!(file, "{};\n", block_entity_map.build()).unwrap();
 }

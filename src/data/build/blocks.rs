@@ -6,6 +6,7 @@ use std::path::PathBuf;
 pub struct BlockData {
     blocks: Vec<Block>,
     shapes: Vec<Shape>,
+    block_entity_types: Vec<String>,
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -38,6 +39,7 @@ pub struct State {
     luminance: u32,
     piston_behavior: String,
     hardness: f32,
+    block_entity_type: Option<u16>,
     collision_shapes: Vec<u32>,
     outline_shapes: Vec<u32>,
 }
@@ -107,6 +109,7 @@ pub fn build() -> Result<(), Box<dyn std::error::Error>> {
     types_content.push_str("    pub id: u32,\n");
     types_content.push_str("    pub luminance: u32,\n");
     types_content.push_str("    pub piston_behavior: &'static str,\n");
+    types_content.push_str("    pub block_entity_type: Option<u16>,\n");
     types_content.push_str("    pub collision_shapes: &'static [u32],\n");
     types_content.push_str("    pub outline_shapes: &'static [u32],\n");
     types_content.push_str("}\n\n");
@@ -183,6 +186,13 @@ pub fn build() -> Result<(), Box<dyn std::error::Error>> {
                     "        piston_behavior: \"{}\",\n",
                     state.piston_behavior
                 ));
+
+                match state.block_entity_type {
+                    Some(t) => {
+                        content.push_str(&format!("        block_entity_type: Some({}),\n", t))
+                    }
+                    None => content.push_str("        block_entity_type: None,\n"),
+                }
 
                 if !state.collision_shapes.is_empty() {
                     content.push_str("        collision_shapes: &[");
@@ -281,6 +291,37 @@ pub fn build() -> Result<(), Box<dyn std::error::Error>> {
     mod_content.push_str("        }\n");
     mod_content.push_str("    }\n");
     mod_content.push_str("}\n");
+
+    mod_content.push_str("/// Blockstate ID -> block entity type ID, for states that have one.\n");
+    mod_content.push_str("/// Sorted by state id; use `block_entity_type_for_state`.\n");
+    mod_content.push_str("pub const STATE_BLOCK_ENTITY_TYPES: &[(u32, u16)] = &[\n");
+    let mut pairs: Vec<(u32, u16)> = data
+        .blocks
+        .iter()
+        .flat_map(|b| b.states.iter())
+        .filter_map(|s| s.block_entity_type.map(|t| (s.id, t)))
+        .collect();
+    pairs.sort_unstable_by_key(|(id, _)| *id);
+    for (id, ty) in &pairs {
+        mod_content.push_str(&format!("    ({}, {}),\n", id, ty));
+    }
+    mod_content.push_str("];\n\n");
+
+    mod_content.push_str("/// The block entity type ID for a blockstate, if it has one.\n");
+    mod_content.push_str("pub fn block_entity_type_for_state(state_id: u32) -> Option<u16> {\n");
+    mod_content.push_str("    STATE_BLOCK_ENTITY_TYPES\n");
+    mod_content.push_str("        .binary_search_by_key(&state_id, |(id, _)| *id)\n");
+    mod_content.push_str("        .ok()\n");
+    mod_content.push_str("        .map(|i| STATE_BLOCK_ENTITY_TYPES[i].1)\n");
+    mod_content.push_str("}\n\n");
+
+    mod_content
+        .push_str("/// Names indexed by block entity type ID — the index is the protocol ID.\n");
+    mod_content.push_str("pub const BLOCK_ENTITY_TYPE_NAMES: &[&str] = &[\n");
+    for name in &data.block_entity_types {
+        mod_content.push_str(&format!("    \"{}\",\n", name));
+    }
+    mod_content.push_str("];\n\n");
 
     fs::write(blocks_dir.join("mod.rs"), mod_content)?;
 

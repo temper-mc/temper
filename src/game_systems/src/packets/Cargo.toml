@@ -26,6 +26,10 @@ temper-entities = { workspace = true }
 bevy_math = { workspace = true }
 temper-world = { workspace = true }
 interactions = { workspace = true }
+temper-data = { workspace = true }
+temper-world-format = { workspace = true }
+temper-blocks-generated = { workspace = true }
+temper-block-properties = { workspace = true }
 
 [lints]
 workspace = true
