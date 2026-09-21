@@ -50,6 +50,11 @@ struct OptionalFixture {
     transient: String,
 }
 
+#[derive(Debug, PartialEq, NBTDeserialize)]
+struct Mutf8Fixture {
+    value: String,
+}
+
 #[test]
 fn derived_deserialize_reads_existing_named_root_payload() {
     let fixture = ExistingFixture::from_bytes(&existing_fixture_bytes()).unwrap();
@@ -83,6 +88,18 @@ fn optional_fields_can_be_absent_and_skipped_fields_use_default() {
             transient: String::new(),
         }
     );
+}
+
+#[test]
+fn strings_accept_java_modified_utf8() {
+    let mut bytes = Vec::new();
+    compound_root(&mut bytes, "Mutf8Fixture", |bytes| {
+        named_raw_string(bytes, "value", b"a\xc0\x80b");
+    });
+
+    let decoded = Mutf8Fixture::from_bytes(&bytes).unwrap();
+
+    assert_eq!(decoded.value, "a\0b");
 }
 
 #[test]
@@ -191,6 +208,12 @@ fn named_long(bytes: &mut Vec<u8>, name: &str, value: i64) {
 fn named_string(bytes: &mut Vec<u8>, name: &str, value: &str) {
     named_header(bytes, TAG_STRING, name);
     string_payload(bytes, value);
+}
+
+fn named_raw_string(bytes: &mut Vec<u8>, name: &str, value: &[u8]) {
+    named_header(bytes, TAG_STRING, name);
+    bytes.extend_from_slice(&(value.len() as u16).to_be_bytes());
+    bytes.extend_from_slice(value);
 }
 
 fn named_string_list(bytes: &mut Vec<u8>, name: &str, values: &[&str]) {

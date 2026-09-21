@@ -45,7 +45,7 @@ mod primitives {
     impl FromNbt<'_> for String {
         fn from_nbt(_tapes: &NbtTape, element: &NbtTapeElement) -> Result<Self> {
             match element {
-                NbtTapeElement::String(val) => Ok(val.to_string()),
+                NbtTapeElement::String(val) => Ok(val.clone()),
                 _ => Err(NBTError::TypeMismatch {
                     expected: "String",
                     found: element.nbt_type(),
@@ -56,13 +56,10 @@ mod primitives {
 
     impl<'a> FromNbt<'a> for &'a str {
         fn from_nbt(_tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> Result<Self> {
-            match element {
-                NbtTapeElement::String(val) => Ok(val),
-                _ => Err(NBTError::TypeMismatch {
-                    expected: "String",
-                    found: element.nbt_type(),
-                }),
-            }
+            Err(NBTError::TypeMismatch {
+                expected: "String (owned String is required for MUTF-8 NBT)",
+                found: element.nbt_type(),
+            })
         }
     }
 
@@ -124,31 +121,22 @@ mod maps {
     }
 
     impl<'a, V: FromNbt<'a>> FromNbt<'a> for HashMap<&'a str, V> {
-        fn from_nbt(tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> Result<Self> {
-            let compound = element.as_compound().ok_or(NBTError::TypeMismatch {
-                expected: "Compound (from HashMap<&str, V>)",
+        fn from_nbt(_tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> Result<Self> {
+            let _compound = element.as_compound().ok_or(NBTError::TypeMismatch {
+                expected: "Compound (from HashMap<&str, V>, use HashMap<String, V>)",
                 found: element.nbt_type(),
             })?;
-            // Compound: &Vec<(&str, NbtTapeElement)>, therefore we can just iterate over it and turn it into a hashmap.
-            compound
-                .iter()
-                .map(|(key, val)| Ok((*key, V::from_nbt(tapes, val)?)))
-                .collect()
+            Err(NBTError::InvalidNBTData)
         }
     }
 
     impl<'a, V: FromNbt<'a>> FromNbt<'a> for BTreeMap<&'a str, V> {
-        fn from_nbt(tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> Result<Self> {
-            let compound = element.as_compound().ok_or(NBTError::TypeMismatch {
-                expected: "Compound (from BTreeMap<&str, V>)",
+        fn from_nbt(_tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> Result<Self> {
+            let _compound = element.as_compound().ok_or(NBTError::TypeMismatch {
+                expected: "Compound (from BTreeMap<&str, V>, use BTreeMap<String, V>)",
                 found: element.nbt_type(),
             })?;
-            // Compound: &Vec<(&str, NbtTapeElement)>, therefore we can just iterate over it and turn it into a hashmap.
-
-            compound
-                .iter()
-                .map(|(key, val)| Ok((*key, V::from_nbt(tapes, val)?)))
-                .collect()
+            Err(NBTError::InvalidNBTData)
         }
     }
 
@@ -171,15 +159,15 @@ mod maps {
 #[cfg(test)]
 mod test_map {
     use crate::{FromNbt, NBTSerializable, NBTSerializeOptions};
-    use std::collections::HashMap;
+    use std::collections::{BTreeMap, HashMap};
 
     #[test]
     fn test_hashmap_both_ways() {
-        let some_hashmap = maplit::hashmap! {
-            "key1" => 1,
-            "key2" => 2,
-            "key3" => 3,
-        };
+        let some_hashmap = HashMap::from([
+            ("key1".to_string(), 1),
+            ("key2".to_string(), 2),
+            ("key3".to_string(), 3),
+        ]);
 
         let data = {
             let mut buf = Vec::new();
@@ -195,18 +183,18 @@ mod test_map {
             .map(|(_, b)| b)
             .expect("failed to get root");
         let hashmap =
-            HashMap::<&str, i32>::from_nbt(&tapes, root).expect("failed to deserialize root");
+            HashMap::<String, i32>::from_nbt(&tapes, root).expect("failed to deserialize root");
 
         assert_eq!(some_hashmap, hashmap);
     }
 
     #[test]
     fn test_btreemap_both_ways() {
-        let some_btreemap = maplit::btreemap! {
-            "key1" => 1,
-            "key2" => 2,
-            "key3" => 3,
-        };
+        let some_btreemap = BTreeMap::from([
+            ("key1".to_string(), 1),
+            ("key2".to_string(), 2),
+            ("key3".to_string(), 3),
+        ]);
 
         let data = {
             let mut buf = Vec::new();
@@ -221,9 +209,31 @@ mod test_map {
             .as_ref()
             .map(|(_, b)| b)
             .expect("failed to get root");
-        let btreemap = std::collections::BTreeMap::<&str, i32>::from_nbt(&tapes, root)
+        let btreemap = BTreeMap::<String, i32>::from_nbt(&tapes, root)
             .expect("failed to deserialize root");
 
         assert_eq!(some_btreemap, btreemap);
+    }
+
+    #[test]
+    fn borrowed_map_keys_are_rejected() {
+        let some_hashmap = HashMap::from([("key".to_string(), 1)]);
+
+        let data = {
+            let mut buf = Vec::new();
+            some_hashmap.serialize(&mut buf, &NBTSerializeOptions::WithHeader("root"));
+            buf
+        };
+
+        let mut tapes = crate::de::borrow::NbtTape::new(&data);
+        tapes.parse();
+        let root = tapes
+            .root
+            .as_ref()
+            .map(|(_, b)| b)
+            .expect("failed to get root");
+
+        assert!(HashMap::<&str, i32>::from_nbt(&tapes, root).is_err());
+        assert!(BTreeMap::<&str, i32>::from_nbt(&tapes, root).is_err());
     }
 }

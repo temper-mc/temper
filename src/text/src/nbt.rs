@@ -151,7 +151,7 @@ fn required_element<'a, 'b>(
 
 fn string_value<'a>(element: &'a NbtTapeElement<'a>) -> temper_nbt::Result<&'a str> {
     match element {
-        NbtTapeElement::String(value) => Ok(value),
+        NbtTapeElement::String(value) => Ok(value.as_str()),
         _ => Err(NBTError::TypeMismatch {
             expected: "String",
             found: element.nbt_type(),
