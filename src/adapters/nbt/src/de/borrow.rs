@@ -51,7 +51,7 @@ impl From<u8> for NbtTag {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum NbtTapeElement<'a> {
     End,
     Byte(i8),
@@ -60,13 +60,10 @@ pub enum NbtTapeElement<'a> {
     Long(i64),
     Float(f32),
     Double(f64),
-    ByteArray(Vec<i8>),
+    ByteArray(Vec<u8>),
     String(String),
-    List {
-        el_type: NbtTag,
-        elements: Vec<NbtTapeElement<'a>>,
-    },
-    Compound(Vec<(String, NbtTapeElement<'a>)>),
+    List(NbtList),
+    Compound(NbtCompound),
     IntArray(Vec<i32>),
     LongArray(Vec<i64>),
     #[doc(hidden)]
@@ -85,7 +82,7 @@ impl NbtTapeElement<'_> {
             NbtTapeElement::Double(_) => "Double",
             NbtTapeElement::ByteArray(_) => "ByteArray",
             NbtTapeElement::String(_) => "String",
-            NbtTapeElement::List { .. } => "List",
+            NbtTapeElement::List(_) => "List",
             NbtTapeElement::Compound(_) => "Compound",
             NbtTapeElement::IntArray(_) => "IntArray",
             NbtTapeElement::LongArray(_) => "LongArray",
@@ -104,7 +101,7 @@ impl NbtTapeElement<'_> {
             NbtTapeElement::Double(_) => NbtTag::Double as u8,
             NbtTapeElement::ByteArray(_) => NbtTag::ByteArray as u8,
             NbtTapeElement::String(_) => NbtTag::String as u8,
-            NbtTapeElement::List { .. } => NbtTag::List as u8,
+            NbtTapeElement::List(_) => NbtTag::List as u8,
             NbtTapeElement::Compound(_) => NbtTag::Compound as u8,
             NbtTapeElement::IntArray(_) => NbtTag::IntArray as u8,
             NbtTapeElement::LongArray(_) => NbtTag::LongArray as u8,
@@ -119,23 +116,28 @@ pub struct NbtTape<'a> {
 }
 
 impl<'a> NbtTapeElement<'a> {
-    pub fn get(&self, key: &str) -> Option<&NbtTapeElement<'a>> {
+    pub fn get(&self, key: &str) -> Option<NbtTapeElement<'a>> {
         match self {
-            NbtTapeElement::Compound(elements) => elements
-                .iter()
-                .find_map(|(name, element)| (name == key).then_some(element)),
+            NbtTapeElement::Compound(compound) => compound.get(key).cloned().map(convert_tag),
             _ => None,
         }
     }
 
-    pub fn as_compound(&self) -> Option<&Vec<(String, NbtTapeElement<'a>)>> {
+    pub fn take(&mut self, key: &str) -> Option<NbtTapeElement<'a>> {
         match self {
-            NbtTapeElement::Compound(elements) => Some(elements),
+            NbtTapeElement::Compound(compound) => compound.take(key).map(convert_tag),
             _ => None,
         }
     }
 
-    pub fn as_list<T: FromNbt<'a>>(&self, tape: &NbtTape<'a>) -> Option<Vec<T>> {
+    pub fn as_compound(&self) -> Option<&NbtCompound> {
+        match self {
+            NbtTapeElement::Compound(compound) => Some(compound),
+            _ => None,
+        }
+    }
+
+    pub fn as_list<T: FromNbt<'a>>(self, tape: &NbtTape<'a>) -> Option<Vec<T>> {
         tape.unpack_list(self)
     }
 }
@@ -163,27 +165,31 @@ impl<'a> NbtTape<'a> {
         Ok(())
     }
 
-    pub fn get(&self, key: &str) -> Option<&NbtTapeElement<'a>> {
+    pub fn take_root(&mut self) -> crate::Result<NbtTapeElement<'a>> {
+        self.root
+            .take()
+            .map(|(_, element)| element)
+            .ok_or(NBTError::NoRootTag)
+    }
+
+    pub fn get(&self, key: &str) -> Option<NbtTapeElement<'a>> {
         self.root.as_ref().and_then(|(_, element)| element.get(key))
     }
 
-    pub fn unpack_list<T: FromNbt<'a>>(&self, element: &NbtTapeElement<'a>) -> Option<Vec<T>> {
+    pub fn unpack_list<T: FromNbt<'a>>(&self, element: NbtTapeElement<'a>) -> Option<Vec<T>> {
         match element {
-            NbtTapeElement::List { elements, .. } => elements
-                .iter()
-                .map(|element| T::from_nbt(self, element).ok())
-                .collect(),
+            NbtTapeElement::List(list) => unpack_simd_list(self, list),
             NbtTapeElement::ByteArray(data) => data
-                .iter()
-                .map(|value| T::from_nbt(self, &NbtTapeElement::Byte(*value)).ok())
+                .into_iter()
+                .map(|value| T::from_nbt(self, NbtTapeElement::Byte(value as i8)).ok())
                 .collect(),
             NbtTapeElement::IntArray(data) => data
-                .iter()
-                .map(|value| T::from_nbt(self, &NbtTapeElement::Int(*value)).ok())
+                .into_iter()
+                .map(|value| T::from_nbt(self, NbtTapeElement::Int(value)).ok())
                 .collect(),
             NbtTapeElement::LongArray(data) => data
-                .iter()
-                .map(|value| T::from_nbt(self, &NbtTapeElement::Long(*value)).ok())
+                .into_iter()
+                .map(|value| T::from_nbt(self, NbtTapeElement::Long(value)).ok())
                 .collect(),
             _ => None,
         }
@@ -203,19 +209,10 @@ fn convert_root<'a>(nbt: Nbt) -> crate::Result<(String, NbtTapeElement<'a>)> {
     };
 
     let name = root.name().to_str().into_owned();
-    Ok((name, convert_compound(root.as_compound())))
+    Ok((name, NbtTapeElement::Compound(root.as_compound())))
 }
 
-fn convert_compound<'a>(compound: NbtCompound) -> NbtTapeElement<'a> {
-    NbtTapeElement::Compound(
-        compound
-            .into_iter()
-            .map(|(name, tag)| (name.to_str().into_owned(), convert_tag(tag)))
-            .collect(),
-    )
-}
-
-fn convert_tag<'a>(tag: SimdNbtTag) -> NbtTapeElement<'a> {
+pub(crate) fn convert_tag<'a>(tag: SimdNbtTag) -> NbtTapeElement<'a> {
     match tag {
         SimdNbtTag::Byte(value) => NbtTapeElement::Byte(value),
         SimdNbtTag::Short(value) => NbtTapeElement::Short(value),
@@ -223,21 +220,67 @@ fn convert_tag<'a>(tag: SimdNbtTag) -> NbtTapeElement<'a> {
         SimdNbtTag::Long(value) => NbtTapeElement::Long(value),
         SimdNbtTag::Float(value) => NbtTapeElement::Float(value),
         SimdNbtTag::Double(value) => NbtTapeElement::Double(value),
-        SimdNbtTag::ByteArray(values) => {
-            NbtTapeElement::ByteArray(values.into_iter().map(|value| value as i8).collect())
-        }
-        SimdNbtTag::String(value) => NbtTapeElement::String(value.to_str().into_owned()),
-        SimdNbtTag::List(list) => convert_list(list),
-        SimdNbtTag::Compound(compound) => convert_compound(compound),
+        SimdNbtTag::ByteArray(values) => NbtTapeElement::ByteArray(values),
+        SimdNbtTag::String(value) => NbtTapeElement::String(value.into_string()),
+        SimdNbtTag::List(list) => NbtTapeElement::List(list),
+        SimdNbtTag::Compound(compound) => NbtTapeElement::Compound(compound),
         SimdNbtTag::IntArray(values) => NbtTapeElement::IntArray(values),
         SimdNbtTag::LongArray(values) => NbtTapeElement::LongArray(values),
     }
 }
 
-fn convert_list<'a>(list: NbtList) -> NbtTapeElement<'a> {
-    let el_type = NbtTag::from(list.id());
-    let elements = list.as_nbt_tags().into_iter().map(convert_tag).collect();
-    NbtTapeElement::List { el_type, elements }
+fn unpack_simd_list<'a, T: FromNbt<'a>>(tape: &NbtTape<'a>, list: NbtList) -> Option<Vec<T>> {
+    match list {
+        NbtList::Empty => Some(Vec::new()),
+        NbtList::Byte(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::Byte(value)).ok())
+            .collect(),
+        NbtList::Short(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::Short(value)).ok())
+            .collect(),
+        NbtList::Int(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::Int(value)).ok())
+            .collect(),
+        NbtList::Long(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::Long(value)).ok())
+            .collect(),
+        NbtList::Float(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::Float(value)).ok())
+            .collect(),
+        NbtList::Double(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::Double(value)).ok())
+            .collect(),
+        NbtList::ByteArray(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::ByteArray(value)).ok())
+            .collect(),
+        NbtList::String(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::String(value.into_string())).ok())
+            .collect(),
+        NbtList::List(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::List(value)).ok())
+            .collect(),
+        NbtList::Compound(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::Compound(value)).ok())
+            .collect(),
+        NbtList::IntArray(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::IntArray(value)).ok())
+            .collect(),
+        NbtList::LongArray(values) => values
+            .into_iter()
+            .map(|value| T::from_nbt(tape, NbtTapeElement::LongArray(value)).ok())
+            .collect(),
+    }
 }
 
 pub enum NbtDeserializableOptions {
@@ -367,25 +410,16 @@ fn write_payload(element: &NbtTapeElement<'_>, writer: &mut Vec<u8>) -> Result<(
         NbtTapeElement::Double(value) => writer.write_all(&value.to_be_bytes())?,
         NbtTapeElement::ByteArray(values) => {
             (values.len() as i32).serialize(writer, &NBTSerializeOptions::None);
-            writer.write_all(&values.iter().map(|value| *value as u8).collect::<Vec<_>>())?;
+            writer.write_all(values)?;
         }
         NbtTapeElement::String(value) => {
             value.serialize(writer, &NBTSerializeOptions::None);
         }
-        NbtTapeElement::List { el_type, elements } => {
-            writer.write_all(&[*el_type as u8])?;
-            (elements.len() as i32).serialize(writer, &NBTSerializeOptions::None);
-            for element in elements {
-                write_payload(element, writer)?;
-            }
+        NbtTapeElement::List(list) => {
+            list.write(writer);
         }
         NbtTapeElement::Compound(elements) => {
-            for (name, element) in elements {
-                writer.write_all(&[element.nbt_id()])?;
-                name.serialize(writer, &NBTSerializeOptions::None);
-                write_payload(element, writer)?;
-            }
-            writer.write_all(&[NbtTag::End as u8])?;
+            elements.write(writer);
         }
         NbtTapeElement::IntArray(values) => {
             (values.len() as i32).serialize(writer, &NBTSerializeOptions::None);
