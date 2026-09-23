@@ -148,8 +148,7 @@ impl<'a> FromNbt<'a> for HoverEvent {
 
         match action.as_str() {
             "show_text" => Ok(Self::ShowText(Box::<TextComponent>::from_nbt(
-                tapes,
-                value,
+                tapes, value,
             )?)),
             "show_item" => Ok(Self::ShowItem {
                 id: required(tapes, &value, "id")?,

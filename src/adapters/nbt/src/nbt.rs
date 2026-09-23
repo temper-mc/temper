@@ -179,7 +179,9 @@ mod tests {
             Ok(Self {
                 name: String::from_nbt(
                     tapes,
-                    element.take("name").ok_or(NBTError::ElementNotFound("name"))?,
+                    element
+                        .take("name")
+                        .ok_or(NBTError::ElementNotFound("name"))?,
                 )?,
                 health: i32::from_nbt(
                     tapes,

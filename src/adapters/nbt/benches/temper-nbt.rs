@@ -110,9 +110,9 @@ fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function("temper NBT", |b| {
         b.iter(|| bench_temper_nbt(black_box(data)))
     });
-    // group.bench_function("fastnbt", |b| b.iter(|| fastnbt(black_box(data))));
-    // group.bench_function("crab_nbt", |b| b.iter(|| crab_nbt(black_box(data))));
-    // group.bench_function("hematite_nbt", |b| b.iter(|| hematite_nbt(black_box(data))));
+    group.bench_function("fastnbt", |b| b.iter(|| fastnbt(black_box(data))));
+    group.bench_function("crab_nbt", |b| b.iter(|| crab_nbt(black_box(data))));
+    group.bench_function("hematite_nbt", |b| b.iter(|| hematite_nbt(black_box(data))));
     group.finish();
 
     let network_data = network_fixture_data();

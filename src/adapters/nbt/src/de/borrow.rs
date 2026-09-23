@@ -180,7 +180,9 @@ impl<'a> NbtTape<'a> {
     }
 
     pub fn get<'tape>(&'tape self, key: &str) -> Option<NbtTapeElement<'a, 'tape>> {
-        self.root_element().ok().and_then(|element| element.get(key))
+        self.root_element()
+            .ok()
+            .and_then(|element| element.get(key))
     }
 
     pub fn unpack_list<'tape, T: FromNbt<'a>>(
@@ -229,7 +231,9 @@ where
     root.as_compound()
 }
 
-pub(crate) fn convert_tag<'a, 'tape>(tag: SimdNbtTag<'a, 'tape>) -> Option<NbtTapeElement<'a, 'tape>>
+pub(crate) fn convert_tag<'a, 'tape>(
+    tag: SimdNbtTag<'a, 'tape>,
+) -> Option<NbtTapeElement<'a, 'tape>>
 where
     'a: 'tape,
 {
@@ -255,10 +259,9 @@ where
         NbtTapeElement::Compound(compound)
     } else if let Some(values) = tag.int_array() {
         NbtTapeElement::IntArray(values)
-    } else if let Some(values) = tag.long_array() {
-        NbtTapeElement::LongArray(values)
     } else {
-        return None;
+        let values = tag.long_array()?;
+        NbtTapeElement::LongArray(values)
     })
 }
 
@@ -518,7 +521,8 @@ fn write_payload(
             writer.write_all(values)?;
         }
         NbtTapeElement::String(value) => {
-            value.to_str()
+            value
+                .to_str()
                 .as_ref()
                 .serialize(writer, &NBTSerializeOptions::None);
         }
