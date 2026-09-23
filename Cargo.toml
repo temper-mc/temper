@@ -231,7 +231,7 @@ bitcode = { version = "0.6.9", features = ["serde", "uuid"] }
 bitcode_derive = "0.6.9"
 toml = "1.1.4"
 craftflow-nbt = "2.1.0"
-simdnbt = "0.10.0"
+simdnbt = { version = "0.10.0", git = "https://github.com/MSKatKing/simdnbt", branch = "stable" }
 figment = { version = "0.10.19", features = ["toml", "env"] }
 simd-json = "0.18.0"
 bytemuck = { version = "1.25.2", features = ["extern_crate_alloc", "derive"] }
