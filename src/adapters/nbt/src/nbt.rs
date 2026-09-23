@@ -162,7 +162,13 @@ mod tests {
     }
 
     impl<'a> FromNbt<'a> for NetworkFixture {
-        fn from_nbt(tapes: &NbtTape<'a>, mut element: NbtTapeElement<'a>) -> crate::Result<Self> {
+        fn from_nbt<'tape>(
+            tapes: &'tape NbtTape<'a>,
+            mut element: NbtTapeElement<'a, 'tape>,
+        ) -> crate::Result<Self>
+        where
+            'a: 'tape,
+        {
             if !matches!(element, NbtTapeElement::Compound(_)) {
                 return Err(NBTError::TypeMismatch {
                     expected: "Compound",

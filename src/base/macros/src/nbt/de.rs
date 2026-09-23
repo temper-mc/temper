@@ -107,10 +107,13 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl #impl_generics ::temper_nbt::FromNbt #lifetime for #struct_name #ty_generics #where_clause {
-            fn from_nbt(
-                tapes: &::temper_nbt::NbtTape #lifetime,
-                mut element: ::temper_nbt::NbtTapeElement #lifetime
-            ) -> ::temper_nbt::Result<Self> {
+            fn from_nbt<'tape>(
+                tapes: &'tape ::temper_nbt::NbtTape #lifetime,
+                mut element: ::temper_nbt::NbtTapeElement<#lifetime_without_ident, 'tape>
+            ) -> ::temper_nbt::Result<Self>
+            where
+                #lifetime_without_ident: 'tape,
+            {
                 Ok(#struct_name {
                     #(#fields_init)*
                 })
