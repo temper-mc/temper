@@ -95,9 +95,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
             .before(TickPhase::VisibleTracking),
     );
 
-    schedule.add_systems(player::player_despawn::handle);
     schedule.add_systems(player::player_join_message::handle);
-    schedule.add_systems(player::player_leave_message::handle);
     schedule.add_systems(player::player_swimming::detect_player_swimming);
     schedule.add_systems(player::teleport::teleport_entities);
     schedule.add_systems(player::send_inventory_updates::handle_inventory_updates);
@@ -117,9 +115,16 @@ fn register_tick_systems(schedule: &mut Schedule) {
             .chain()
             .in_set(TickPhase::VisibleTracking),
     );
-    schedule.add_systems(background::connection_killer::connection_killer);
+    schedule.add_systems(
+        (
+            background::connection_killer::connection_killer,
+            player::player_despawn::handle,
+            player::player_leave_message::handle,
+            background::mq::process,
+        )
+            .chain(),
+    );
     schedule.add_systems(background::day_cycle::tick_daylight_cycle);
-    schedule.add_systems(background::mq::process);
     schedule.add_systems(background::server_command::handle);
     schedule.add_systems(
         (
@@ -149,7 +154,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
 
     schedule.add_systems(world::particles::handle);
 
-    schedule.add_systems(bevy_ecs::message::message_update_system);
+    schedule.add_systems(bevy_ecs::message::message_update_system.after(background::mq::process));
 }
 
 fn register_world_sync_schedule_systems(schedule: &mut Schedule) {
