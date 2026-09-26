@@ -12,26 +12,38 @@ impl NetDecode for TextComponent {
 }
 
 impl<'a> FromNbt<'a> for TextComponent {
-    fn from_nbt(tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> temper_nbt::Result<Self> {
+    fn from_nbt<'tape>(
+        tapes: &'tape NbtTape<'a>,
+        element: NbtTapeElement<'a, 'tape>,
+    ) -> temper_nbt::Result<Self>
+    where
+        'a: 'tape,
+    {
         Ok(Self {
-            content: TextContent::from_nbt(tapes, element)?,
-            color: optional(tapes, element, "color")?,
-            font: optional(tapes, element, "font")?,
-            bold: optional(tapes, element, "bold")?,
-            italic: optional(tapes, element, "italic")?,
-            underlined: optional(tapes, element, "underlined")?,
-            strikethrough: optional(tapes, element, "strikethrough")?,
-            obfuscated: optional(tapes, element, "obfuscated")?,
-            insertion: optional(tapes, element, "insertion")?,
-            click_event: optional(tapes, element, "click_event")?,
-            hover_event: optional(tapes, element, "hover_event")?,
-            extra: optional(tapes, element, "extra")?.unwrap_or_default(),
+            content: TextContent::from_nbt(tapes, element.clone())?,
+            color: optional(tapes, &element, "color")?,
+            font: optional(tapes, &element, "font")?,
+            bold: optional(tapes, &element, "bold")?,
+            italic: optional(tapes, &element, "italic")?,
+            underlined: optional(tapes, &element, "underlined")?,
+            strikethrough: optional(tapes, &element, "strikethrough")?,
+            obfuscated: optional(tapes, &element, "obfuscated")?,
+            insertion: optional(tapes, &element, "insertion")?,
+            click_event: optional(tapes, &element, "click_event")?,
+            hover_event: optional(tapes, &element, "hover_event")?,
+            extra: optional(tapes, &element, "extra")?.unwrap_or_default(),
         })
     }
 }
 
 impl<'a> FromNbt<'a> for TextContent {
-    fn from_nbt(tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> temper_nbt::Result<Self> {
+    fn from_nbt<'tape>(
+        tapes: &'tape NbtTape<'a>,
+        element: NbtTapeElement<'a, 'tape>,
+    ) -> temper_nbt::Result<Self>
+    where
+        'a: 'tape,
+    {
         if let Some(text) = element.get("text") {
             return Ok(Self::Text {
                 text: String::from_nbt(tapes, text)?,
@@ -41,7 +53,7 @@ impl<'a> FromNbt<'a> for TextContent {
         if let Some(translate) = element.get("translate") {
             return Ok(Self::Translate {
                 translate: String::from_nbt(tapes, translate)?,
-                with: optional(tapes, element, "with")?.unwrap_or_default(),
+                with: optional(tapes, &element, "with")?.unwrap_or_default(),
             });
         }
 
@@ -55,26 +67,44 @@ impl<'a> FromNbt<'a> for TextContent {
     }
 }
 
-impl FromNbt<'_> for Color {
-    fn from_nbt(_tapes: &NbtTape, element: &NbtTapeElement) -> temper_nbt::Result<Self> {
+impl<'a> FromNbt<'a> for Color {
+    fn from_nbt<'tape>(
+        _tapes: &'tape NbtTape<'a>,
+        element: NbtTapeElement<'a, 'tape>,
+    ) -> temper_nbt::Result<Self>
+    where
+        'a: 'tape,
+    {
         let value = string_value(element)?;
 
-        Ok(match named_color(value) {
+        Ok(match named_color(&value) {
             Some(color) => Self::Named(color),
-            None => Self::Hex(value.to_string()),
+            None => Self::Hex(value),
         })
     }
 }
 
-impl FromNbt<'_> for NamedColor {
-    fn from_nbt(_tapes: &NbtTape, element: &NbtTapeElement) -> temper_nbt::Result<Self> {
-        named_color(string_value(element)?).ok_or(NBTError::InvalidNBTData)
+impl<'a> FromNbt<'a> for NamedColor {
+    fn from_nbt<'tape>(
+        _tapes: &'tape NbtTape<'a>,
+        element: NbtTapeElement<'a, 'tape>,
+    ) -> temper_nbt::Result<Self>
+    where
+        'a: 'tape,
+    {
+        named_color(&string_value(element)?).ok_or(NBTError::InvalidNBTData)
     }
 }
 
-impl FromNbt<'_> for Font {
-    fn from_nbt(_tapes: &NbtTape, element: &NbtTapeElement) -> temper_nbt::Result<Self> {
-        Ok(match string_value(element)? {
+impl<'a> FromNbt<'a> for Font {
+    fn from_nbt<'tape>(
+        _tapes: &'tape NbtTape<'a>,
+        element: NbtTapeElement<'a, 'tape>,
+    ) -> temper_nbt::Result<Self>
+    where
+        'a: 'tape,
+    {
+        Ok(match string_value(element)?.as_str() {
             "minecraft:default" => Self::Default,
             "minecraft:uniform" => Self::Uniform,
             "minecraft:alt" => Self::Alt,
@@ -84,9 +114,15 @@ impl FromNbt<'_> for Font {
 }
 
 impl<'a> FromNbt<'a> for ClickEvent {
-    fn from_nbt(tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> temper_nbt::Result<Self> {
-        let action = required::<String>(tapes, element, "action")?;
-        let value = required_element(element, "value")?;
+    fn from_nbt<'tape>(
+        tapes: &'tape NbtTape<'a>,
+        element: NbtTapeElement<'a, 'tape>,
+    ) -> temper_nbt::Result<Self>
+    where
+        'a: 'tape,
+    {
+        let action = required::<String>(tapes, &element, "action")?;
+        let value = required_element(&element, "value")?;
 
         match action.as_str() {
             "open_url" => Ok(Self::OpenUrl(String::from_nbt(tapes, value)?)),
@@ -100,58 +136,73 @@ impl<'a> FromNbt<'a> for ClickEvent {
 }
 
 impl<'a> FromNbt<'a> for HoverEvent {
-    fn from_nbt(tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> temper_nbt::Result<Self> {
-        let action = required::<String>(tapes, element, "action")?;
-        let value = required_element(element, "value")?;
+    fn from_nbt<'tape>(
+        tapes: &'tape NbtTape<'a>,
+        element: NbtTapeElement<'a, 'tape>,
+    ) -> temper_nbt::Result<Self>
+    where
+        'a: 'tape,
+    {
+        let action = required::<String>(tapes, &element, "action")?;
+        let value = required_element(&element, "value")?;
 
         match action.as_str() {
             "show_text" => Ok(Self::ShowText(Box::<TextComponent>::from_nbt(
                 tapes, value,
             )?)),
             "show_item" => Ok(Self::ShowItem {
-                id: required(tapes, value, "id")?,
-                count: required(tapes, value, "count")?,
-                tag: required(tapes, value, "tag")?,
+                id: required(tapes, &value, "id")?,
+                count: required(tapes, &value, "count")?,
+                tag: required(tapes, &value, "tag")?,
             }),
             "show_entity" => Ok(Self::ShowEntity {
-                entity_type: required(tapes, value, "type")?,
-                id: parse_uuid(required::<String>(tapes, value, "id")?)?,
-                name: optional(tapes, value, "name")?,
+                entity_type: required(tapes, &value, "type")?,
+                id: parse_uuid(required::<String>(tapes, &value, "id")?)?,
+                name: optional(tapes, &value, "name")?,
             }),
             _ => Err(NBTError::InvalidNBTData),
         }
     }
 }
 
-fn optional<'a, T: FromNbt<'a>>(
-    tapes: &NbtTape<'a>,
-    element: &NbtTapeElement<'a>,
+fn optional<'a, 'tape, T: FromNbt<'a>>(
+    tapes: &'tape NbtTape<'a>,
+    element: &NbtTapeElement<'a, 'tape>,
     key: &'static str,
-) -> temper_nbt::Result<Option<T>> {
+) -> temper_nbt::Result<Option<T>>
+where
+    'a: 'tape,
+{
     element
         .get(key)
         .map(|value| T::from_nbt(tapes, value))
         .transpose()
 }
 
-fn required<'a, T: FromNbt<'a>>(
-    tapes: &NbtTape<'a>,
-    element: &NbtTapeElement<'a>,
+fn required<'a, 'tape, T: FromNbt<'a>>(
+    tapes: &'tape NbtTape<'a>,
+    element: &NbtTapeElement<'a, 'tape>,
     key: &'static str,
-) -> temper_nbt::Result<T> {
+) -> temper_nbt::Result<T>
+where
+    'a: 'tape,
+{
     T::from_nbt(tapes, required_element(element, key)?)
 }
 
-fn required_element<'a, 'b>(
-    element: &'b NbtTapeElement<'a>,
+fn required_element<'a, 'tape>(
+    element: &NbtTapeElement<'a, 'tape>,
     key: &'static str,
-) -> temper_nbt::Result<&'b NbtTapeElement<'a>> {
+) -> temper_nbt::Result<NbtTapeElement<'a, 'tape>>
+where
+    'a: 'tape,
+{
     element.get(key).ok_or(NBTError::ElementNotFound(key))
 }
 
-fn string_value<'a>(element: &'a NbtTapeElement<'a>) -> temper_nbt::Result<&'a str> {
+fn string_value(element: NbtTapeElement<'_, '_>) -> temper_nbt::Result<String> {
     match element {
-        NbtTapeElement::String(value) => Ok(value),
+        NbtTapeElement::String(value) => Ok(value.to_str().into_owned()),
         _ => Err(NBTError::TypeMismatch {
             expected: "String",
             found: element.nbt_type(),

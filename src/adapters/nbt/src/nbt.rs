@@ -34,13 +34,9 @@ impl<T: for<'a> FromNbt<'a>> NetDecode for NBT<T> {
         let mut tape = NbtTape::new(&bytes.0);
         tape.parse_network_root()
             .map_err(|_| NetDecodeError::ExternalError("NBT Parse Error".into()))?;
-        let root =
-            tape.root
-                .as_ref()
-                .map(|(_, element)| element)
-                .ok_or(NetDecodeError::ExternalError(
-                    "NBT did not contain a root compound".into(),
-                ))?;
+        let root = tape.take_root().map_err(|_| {
+            NetDecodeError::ExternalError("NBT did not contain a root compound".into())
+        })?;
 
         Ok(NBT {
             inner: T::from_nbt(&tape, root)
@@ -166,22 +162,39 @@ mod tests {
     }
 
     impl<'a> FromNbt<'a> for NetworkFixture {
-        fn from_nbt(tapes: &NbtTape<'a>, element: &NbtTapeElement<'a>) -> crate::Result<Self> {
-            let compound = element.as_compound().ok_or(NBTError::TypeMismatch {
-                expected: "Compound",
-                found: element.nbt_type(),
-            })?;
-            let field = |name| {
-                compound
-                    .iter()
-                    .find_map(|(field_name, element)| (*field_name == name).then_some(element))
-                    .ok_or(NBTError::ElementNotFound(name))
-            };
+        fn from_nbt<'tape>(
+            tapes: &'tape NbtTape<'a>,
+            mut element: NbtTapeElement<'a, 'tape>,
+        ) -> crate::Result<Self>
+        where
+            'a: 'tape,
+        {
+            if !matches!(element, NbtTapeElement::Compound(_)) {
+                return Err(NBTError::TypeMismatch {
+                    expected: "Compound",
+                    found: element.nbt_type(),
+                });
+            }
 
             Ok(Self {
-                name: String::from_nbt(tapes, field("name")?)?,
-                health: i32::from_nbt(tapes, field("health")?)?,
-                heights: Vec::<i64>::from_nbt(tapes, field("heights")?)?,
+                name: String::from_nbt(
+                    tapes,
+                    element
+                        .take("name")
+                        .ok_or(NBTError::ElementNotFound("name"))?,
+                )?,
+                health: i32::from_nbt(
+                    tapes,
+                    element
+                        .take("health")
+                        .ok_or(NBTError::ElementNotFound("health"))?,
+                )?,
+                heights: Vec::<i64>::from_nbt(
+                    tapes,
+                    element
+                        .take("heights")
+                        .ok_or(NBTError::ElementNotFound("heights"))?,
+                )?,
             })
         }
     }

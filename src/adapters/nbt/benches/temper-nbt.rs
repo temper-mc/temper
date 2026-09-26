@@ -12,40 +12,40 @@ use temper_nbt::NBT;
 mod structs {
     use super::*;
     #[derive(NBTDeserialize)]
-    pub(super) struct Chunk<'a> {
+    pub(super) struct Chunk {
         #[nbt(rename = "xPos")]
         pub(crate) x_pos: i32,
         #[nbt(rename = "zPos")]
         pub(crate) z_pos: i32,
         #[nbt(rename = "Heightmaps")]
-        pub(crate) heightmaps: Heightmaps<'a>,
+        pub(crate) heightmaps: Heightmaps,
         #[nbt(rename = "sections")]
-        _sections: Vec<Section<'a>>,
+        _sections: Vec<Section>,
     }
 
     #[derive(NBTDeserialize)]
-    pub(super) struct Heightmaps<'a> {
+    pub(super) struct Heightmaps {
         #[nbt(rename = "MOTION_BLOCKING")]
-        pub(crate) motion_blocking: &'a [i64],
+        pub(crate) motion_blocking: Vec<i64>,
     }
 
     #[derive(NBTDeserialize)]
-    pub(super) struct Section<'a> {
+    pub(super) struct Section {
         #[nbt(rename = "Y")]
         _y: i8,
-        _block_states: Option<BlockState<'a>>,
+        _block_states: Option<BlockState>,
     }
 
     #[derive(NBTDeserialize)]
-    pub(super) struct BlockState<'a> {
-        pub(crate) _data: Option<&'a [i64]>,
-        pub(crate) _palette: Vec<Palette<'a>>,
+    pub(super) struct BlockState {
+        pub(crate) _data: Option<Vec<i64>>,
+        pub(crate) _palette: Vec<Palette>,
     }
 
     #[derive(NBTDeserialize)]
-    pub(super) struct Palette<'a> {
+    pub(super) struct Palette {
         #[nbt(rename = "Name")]
-        pub(crate) _name: &'a str,
+        pub(crate) _name: String,
     }
 
     #[derive(Clone, NBTSerialize, NBTDeserialize)]
