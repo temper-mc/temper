@@ -221,10 +221,10 @@ async fn send_login_success(
         session_id: 0,
     };
     conn_write.send_packet(login_success)?;
-    
-    // if in offline mode we can't verify that the uuid is unique (or the name for that matter) so 
-    // we generate a UUID based off the name. It's not a good solution, but there isn't really a 
-    // "correct" way to handle offline mode. At least this way 2 offline account being used by the 
+
+    // if in offline mode we can't verify that the uuid is unique (or the name for that matter) so
+    // we generate a UUID based off the name. It's not a good solution, but there isn't really a
+    // "correct" way to handle offline mode. At least this way 2 offline account being used by the
     // same person won't have the same uuid if they have different names.
     let uuid = if state.config.online_mode {
         Uuid::from_u128(login_start.uuid)

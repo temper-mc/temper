@@ -154,9 +154,7 @@ fn register_tick_systems(schedule: &mut Schedule) {
 
     schedule.add_systems(world::particles::handle);
 
-    schedule.add_systems(
-        bevy_ecs::message::message_update_system.after(background::mq::process),
-    );
+    schedule.add_systems(bevy_ecs::message::message_update_system.after(background::mq::process));
 }
 
 fn register_world_sync_schedule_systems(schedule: &mut Schedule) {
