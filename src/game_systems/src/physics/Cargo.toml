@@ -13,6 +13,7 @@ temper-entities = { workspace = true }
 temper-macros = { workspace = true }
 temper-messages = { workspace = true }
 temper-physics = { workspace = true }
+temper-data = { workspace = true }
 tracing = { workspace = true }
 
 [lints]

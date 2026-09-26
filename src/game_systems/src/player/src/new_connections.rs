@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::{Commands, MessageWriter, Res};
 use std::time::Instant;
+use bevy_math::Vec3A;
 use temper_components::bounds::CollisionBounds;
 use temper_components::player::bossbar_sender::BossbarSender;
 use temper_components::player::chunk_receiver::ChunkReceiver;
@@ -19,6 +20,7 @@ use temper_net_runtime::connection::DisconnectHandle;
 use temper_resources::new_conn::NewConnectionRecv;
 use temper_state::GlobalStateResource;
 use tracing::{error, info};
+use temper_components::player::velocity::Velocity;
 
 pub fn accept_new_connections(
     mut cmd: Commands,
@@ -66,6 +68,7 @@ pub fn accept_new_connections(
             gamemode: GameModeComponent(player_data.gamemode),
             position: player_data.position.into(),
             rotation: player_data.rotation,
+            velocity: Velocity::zero(),
             on_ground: OnGround::default(),
             chunk_receiver: ChunkReceiver::default(),
             inventory: player_data.inventory,

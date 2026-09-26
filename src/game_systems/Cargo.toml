@@ -19,6 +19,7 @@ temper-command-infra = { workspace = true }
 temper-config = { workspace = true }
 temper-scheduler = { workspace = true }
 temper-state = { workspace = true }
+temper-data = { workspace = true }
 
 [dev-dependencies]
 bevy_math = { workspace = true }

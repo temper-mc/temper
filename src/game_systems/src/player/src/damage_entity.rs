@@ -21,7 +21,7 @@ pub fn damage_entity(
     mut player_query: Query<(
         Entity,
         &mut Health,
-        &Hunger,
+        Option<&Hunger>,
         Option<&StreamWriter>,
         Has<PlayerMarker>,
         &Identity,
@@ -60,8 +60,8 @@ pub fn damage_entity(
                 if let Some(stream_writer) = stream_writer {
                     let health_packet = SetHealth {
                         health: health.current,
-                        food: hunger.level.into(),
-                        saturation: hunger.saturation,
+                        food: hunger.unwrap().level.into(),
+                        saturation: hunger.unwrap().saturation,
                     };
                     if let Err(err) = stream_writer.send_packet(health_packet) {
                         error!(

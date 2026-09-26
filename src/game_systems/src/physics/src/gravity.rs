@@ -7,7 +7,7 @@ use temper_core::dimension::Dimension;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
 use temper_entities::markers::{HasGravity, HasWaterDrag};
 use temper_macros::match_block;
-use temper_physics::GRAVITY_ACCELERATION;
+use temper_physics::{AIR_RESISTANCE, GRAVITY_ACCELERATION};
 use temper_state::GlobalStateResource;
 
 type EntityQuery<'w, 's> = Query<
@@ -47,7 +47,7 @@ pub fn handle(mut entities: EntityQuery, state: Res<GlobalStateResource>) {
             }
         } else {
             // Apply gravity
-            vel.vec += GRAVITY_ACCELERATION;
+            vel.vec.y = (vel.vec.y + GRAVITY_ACCELERATION.y) * AIR_RESISTANCE as f32;
         }
     }
 }

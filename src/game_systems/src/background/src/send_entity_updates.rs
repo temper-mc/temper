@@ -17,10 +17,10 @@ pub fn handle(
     mut query: Query<(
         Entity,
         &Position,
-        &Velocity,
+        Option<&Velocity>,
         &Rotation,
-        &mut LastSyncedPosition,
-        &GameID,
+        Option<&mut LastSyncedPosition>,
+        Option<&GameID>,
         &OnGround,
     )>,
     mut player_query: Query<(Entity, &StreamWriter, &EntityTracker)>,
@@ -34,15 +34,26 @@ pub fn handle(
         if let Ok((entity, pos, vel, rot, mut last_synced, game_id, grounded)) =
             query.get_mut(entity)
         {
+            let (Some(mut last_synced), Some(game_id)) = (last_synced, game_id) else {
+                continue;
+            };
+
+            // Fallback velocity to zero if the entity doesn't have a Velocity component
+            let (vel_x, vel_y, vel_z) = if let Some(v) = vel {
+                (v.x as f64, v.y as f64, v.z as f64)
+            } else {
+                (0.0, 0.0, 0.0)
+            };
+
             if last_synced.0.distance(pos.coords) >= 8.0 {
                 let packet = TeleportEntityPacket {
                     entity_id: game_id.get(),
                     x: pos.x,
                     y: pos.y,
                     z: pos.z,
-                    vel_x: f64::from(vel.x),
-                    vel_y: f64::from(vel.y),
-                    vel_z: f64::from(vel.z),
+                    vel_x,
+                    vel_y,
+                    vel_z,
                     yaw: rot.yaw,
                     pitch: rot.pitch,
                     on_ground: grounded.0,
@@ -90,8 +101,9 @@ pub fn handle(
             };
             *last_synced = LastSyncedPosition(pos.coords);
         } else {
+            // This will now only trigger if the entity completely lacks Position, Rotation, LastSyncedPosition, GameID, or OnGround
             warn!(
-                "Tried to send entity update for non-existent entity: {:?}",
+                "Tried to send entity update for non-existent entity or entity missing required sync components: {:?}",
                 entity
             );
         }

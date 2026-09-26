@@ -21,6 +21,7 @@ use crate::{
 use bevy_ecs::prelude::Bundle;
 use temper_inventories::{hotbar::Hotbar, inventory::Inventory};
 use temper_permissions::player::PlayerPermission;
+use crate::player::velocity::Velocity;
 
 /// A Bevy Bundle containing all components required for a player entity.
 /// This groups all 17+ components into a single, spawnable unit.
@@ -37,6 +38,7 @@ pub struct PlayerBundle {
 
     // Position/World
     pub position: Position,
+    pub velocity: Velocity,
     pub rotation: Rotation,
     pub on_ground: OnGround,
     pub chunk_receiver: ChunkReceiver,
