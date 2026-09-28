@@ -83,7 +83,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
         if optional {
             return quote! {
-                #field_name: element.get(#deserialize_name).map_or(Ok(None), |e| {
+                #field_name: element.take(#deserialize_name).map_or(Ok(None), |e| {
                     <#field_ty as ::temper_nbt::FromNbt #lifetime>::from_nbt(tapes, e)
                 })?,
             };
@@ -92,7 +92,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
         quote! {
             #field_name: <#field_ty as ::temper_nbt::FromNbt #lifetime>::from_nbt(
                 tapes,
-                element.get(#deserialize_name).ok_or({
+                element.take(#deserialize_name).ok_or({
                     ::temper_nbt::NBTError::ElementNotFound(#elem_name)
                 })?
             )?,
@@ -107,10 +107,13 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl #impl_generics ::temper_nbt::FromNbt #lifetime for #struct_name #ty_generics #where_clause {
-            fn from_nbt(
-                tapes: &::temper_nbt::NbtTape #lifetime,
-                element: &::temper_nbt::NbtTapeElement #lifetime
-            ) -> ::temper_nbt::Result<Self> {
+            fn from_nbt<'tape>(
+                tapes: &'tape ::temper_nbt::NbtTape #lifetime,
+                mut element: ::temper_nbt::NbtTapeElement<#lifetime_without_ident, 'tape>
+            ) -> ::temper_nbt::Result<Self>
+            where
+                #lifetime_without_ident: 'tape,
+            {
                 Ok(#struct_name {
                     #(#fields_init)*
                 })
@@ -121,9 +124,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
             pub fn from_bytes(bytes: &#lifetime_without_ident [u8]) -> ::temper_nbt::Result<Self> {
                 let mut tape = ::temper_nbt::NbtTape::new(bytes);
                 tape.parse();
-                let root = tape.root.as_ref()
-                    .map(|(_, b)| b)
-                    .ok_or(::temper_nbt::NBTError::NoRootTag)?;
+                let root = tape.take_root()?;
                 <#struct_name #ty_generics as ::temper_nbt::FromNbt #lifetime>::from_nbt(&tape, root)
             }
         }

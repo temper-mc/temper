@@ -1,5 +1,3 @@
-#![allow(unsafe_code)]
-
 pub mod blob;
 pub mod de;
 pub mod errors;

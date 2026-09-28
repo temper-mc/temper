@@ -129,22 +129,8 @@ fn read_bytes<R: Read>(
     }
 
     let start = bytes.len();
-    bytes.reserve(len);
-
-    let buf = {
-        let spare = &mut bytes.spare_capacity_mut()[..len];
-        // SAFETY: `spare` points at `len` contiguous spare `u8` slots owned by
-        // `bytes`. `read_exact` fully initializes them before `set_len` exposes
-        // them as part of the vector.
-        unsafe { std::slice::from_raw_parts_mut(spare.as_mut_ptr().cast::<u8>(), len) }
-    };
-
-    reader.read_exact(buf)?;
-
-    // SAFETY: The previous `read_exact` call initialized exactly `len` bytes.
-    unsafe {
-        bytes.set_len(start + len);
-    }
+    bytes.resize(start + len, 0);
+    reader.read_exact(&mut bytes[start..])?;
 
     Ok(())
 }
