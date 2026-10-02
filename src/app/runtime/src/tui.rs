@@ -12,12 +12,15 @@ use crossbeam_channel::Sender;
 use ratatui::prelude::{Line, Modifier, Span};
 use std::thread::sleep;
 use std::time::Duration;
-use tracing::info;
+use tracing::{info, warn};
 use tui_input::Input;
 use tui_input::backend::crossterm::EventHandler;
 use tui_logger::{TuiWidgetEvent, TuiWidgetState};
 
 pub fn run_tui(state: GlobalState, sender: Sender<String>) {
+    warn!(
+        "The TUI will be removed in the next release, prepare to update command line flags accordingly!"
+    );
     std::thread::Builder::new()
         .name("tui".into())
         .spawn(|| {

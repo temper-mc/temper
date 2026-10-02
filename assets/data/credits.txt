@@ -1,2 +1,20 @@
 Temper is a Minecraft server created and maintained by a dedicated team of developers and community members. 
+We would like to acknowledge the following individuals and groups for their contributions:
+
+Project lead:
+ReCore
+
+Financial Contributors:
+alex_s168, Pooka, kumpelinus and Sunny
+
+Other contributors, past and present:
+Cleboost, colonthreeing, Contrabass26, DjPro, GStudiosX, kumpelinus, MSKatKing, Outspending, Pooka, Toungechaude
+
+As well as the numerous contributors to the project's predecessor, Ferrumc
+
+Additionally, special thanks to the Rust, Bevy and Minecraft protocol communities for their 
+invaluable resources and support.
+
+None of this would be possible without the collective effort and passion of everyone involved.
+Thank you all for being a part of the Temper journey!
 Thank you for your contributions!
