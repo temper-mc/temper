@@ -1,8 +1,9 @@
 use heck::ToShoutySnakeCase;
 use proc_macro2::{Span, TokenStream};
 use quote::{format_ident, quote, ToTokens};
-use serde::Deserialize;
-use std::{collections::BTreeMap, fs};
+use serde::de::{MapAccess, Visitor};
+use serde::{Deserialize, Deserializer};
+use std::{collections::BTreeMap, fmt, fs};
 use syn::LitInt;
 
 #[derive(Deserialize)]
@@ -20,6 +21,53 @@ pub struct EntityType {
     pub dimension: [f32; 2],
     pub eye_height: f32,
     pub spawn_restriction: SpawnRestriction,
+    #[serde(default)]
+    pub attributes: Vec<EntityAttribute>,
+}
+
+#[derive(Debug, Clone)]
+pub struct EntityAttribute {
+    pub name: String,
+    pub value: f64,
+}
+
+impl<'de> Deserialize<'de> for EntityAttribute {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct EntityAttributeVisitor;
+
+        impl<'de> Visitor<'de> for EntityAttributeVisitor {
+            type Value = EntityAttribute;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a single-key object representing an attribute name and value")
+            }
+
+            fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+            where
+                M: MapAccess<'de>,
+            {
+                if let Some((name, value)) = access.next_entry::<String, f64>()? {
+                    Ok(EntityAttribute { name, value })
+                } else {
+                    Err(serde::de::Error::custom(
+                        "expected at least one key-value pair",
+                    ))
+                }
+            }
+        }
+
+        deserializer.deserialize_map(EntityAttributeVisitor)
+    }
+}
+
+#[derive(Deserialize)]
+pub struct AttributeDefault {
+    #[expect(dead_code)] // ID needed for json serializing, otherwise useless.
+    pub id: u16,
+    pub default_value: f64,
 }
 
 #[derive(Deserialize)]
@@ -62,13 +110,19 @@ pub enum HeightMap {
     MotionBlockingNoLeaves,
 }
 
-pub struct NamedEntityType<'a>(&'a str, &'a EntityType);
+pub struct NamedEntityType<'a>(
+    pub &'a str,
+    pub &'a EntityType,
+    pub &'a BTreeMap<String, AttributeDefault>,
+);
 
 impl quote::ToTokens for NamedEntityType<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let name = self.0;
         let entity = self.1;
-        let id = LitInt::new(&entity.id.to_string(), proc_macro2::Span::call_site());
+        let global_attribute_defaults = self.2;
+
+        let id = LitInt::new(&entity.id.to_string(), Span::call_site());
 
         let max_health = match entity.max_health {
             Some(mh) => quote! { Some(#mh) },
@@ -81,10 +135,10 @@ impl quote::ToTokens for NamedEntityType<'_> {
         };
 
         let spawn_restriction_location = match entity.spawn_restriction.location {
-            SpawnLocation::InLava => quote! {SpawnLocation::InLava},
-            SpawnLocation::InWater => quote! {SpawnLocation::InWater},
-            SpawnLocation::OnGround => quote! {SpawnLocation::OnGround},
-            SpawnLocation::Unrestricted => quote! {SpawnLocation::Unrestricted},
+            SpawnLocation::InLava => quote! { SpawnLocation::InLava },
+            SpawnLocation::InWater => quote! { SpawnLocation::InWater },
+            SpawnLocation::OnGround => quote! { SpawnLocation::OnGround },
+            SpawnLocation::Unrestricted => quote! { SpawnLocation::Unrestricted },
         };
 
         let spawn_restriction_heightmap = match entity.spawn_restriction.heightmap {
@@ -114,6 +168,29 @@ impl quote::ToTokens for NamedEntityType<'_> {
             MobCategory::MISC => quote! { MobCategory::MISC },
         };
 
+        // Filter out entity attributes that match the global default values
+        let attributes_tokens = entity.attributes.iter().filter_map(|attr| {
+            let lookup_name = attr.name.strip_prefix("generic.").unwrap_or(&attr.name);
+
+            if let Some(default_attr) = global_attribute_defaults
+                .get(lookup_name)
+                .or_else(|| global_attribute_defaults.get(&attr.name))
+            {
+                if (attr.value - default_attr.default_value).abs() < f64::EPSILON {
+                    return None;
+                }
+            }
+
+            let attr_name = &attr.name;
+            let value = attr.value;
+            Some(quote! {
+                EntityAttribute {
+                    name: #attr_name,
+                    value: #value,
+                }
+            })
+        });
+
         let saveable = entity.saveable;
         let summonable = entity.summonable;
         let fire_immune = entity.fire_immune;
@@ -136,12 +213,13 @@ impl quote::ToTokens for NamedEntityType<'_> {
                 limit_per_chunk: #limit_per_chunk,
                 summonable: #summonable,
                 fire_immune: #fire_immune,
-                category: &#spawn_category,
+                category: #spawn_category,
                 can_spawn_far_from_player: #can_spawn_far_from_player,
                 dimension: [#dimension0, #dimension1],
                 eye_height: #eye_height,
                 spawn_restriction: #spawn_restriction,
                 resource_name: #name,
+                attributes: &[#(#attributes_tokens),*],
             }
         });
     }
@@ -149,6 +227,12 @@ impl quote::ToTokens for NamedEntityType<'_> {
 
 pub(crate) fn build() -> TokenStream {
     println!("cargo:rerun-if-changed=../../assets/extracted/entities.json");
+    println!("cargo:rerun-if-changed=../../assets/extracted/attributes.json");
+
+    let global_attribute_defaults: BTreeMap<String, AttributeDefault> = serde_json::from_str(
+        &fs::read_to_string("../../assets/extracted/attributes.json").unwrap(),
+    )
+    .expect("Failed to parse attributes.json");
 
     let json: BTreeMap<String, EntityType> =
         serde_json::from_str(&fs::read_to_string("../../assets/extracted/entities.json").unwrap())
@@ -160,7 +244,8 @@ pub(crate) fn build() -> TokenStream {
 
     for (name, entity) in json.iter() {
         let upper_name = format_ident!("{}", name.to_shouty_snake_case());
-        let entity_tokens = NamedEntityType(name, entity).to_token_stream();
+        let entity_tokens =
+            NamedEntityType(name, entity, &global_attribute_defaults).to_token_stream();
 
         consts.extend(quote! {
             pub const #upper_name: EntityType = #entity_tokens;
@@ -179,7 +264,7 @@ pub(crate) fn build() -> TokenStream {
     quote! {
         use std::hash::Hash;
 
-        #[derive(Debug)]
+        #[derive(Debug, Clone, Copy)]
         pub struct EntityType {
             pub id: u16,
             pub max_health: Option<f32>,
@@ -189,12 +274,13 @@ pub(crate) fn build() -> TokenStream {
             pub limit_per_chunk: i32,
             pub summonable: bool,
             pub fire_immune: bool,
-            pub category: &'static MobCategory,
+            pub category: MobCategory,
             pub can_spawn_far_from_player: bool,
             pub dimension: [f32; 2],
             pub eye_height: f32,
             pub spawn_restriction: SpawnRestriction,
             pub resource_name: &'static str,
+            pub attributes: &'static [EntityAttribute],
         }
 
         impl Hash for EntityType {
@@ -211,13 +297,19 @@ pub(crate) fn build() -> TokenStream {
 
         impl Eq for EntityType {}
 
-        #[derive(Debug)]
+        #[derive(Debug, Clone, Copy, PartialEq)]
+        pub struct EntityAttribute {
+            pub name: &'static str,
+            pub value: f64,
+        }
+
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub struct SpawnRestriction {
             pub location: SpawnLocation,
             pub heightmap: HeightMap,
         }
 
-        #[derive(Debug)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub enum SpawnLocation {
             InLava,
             InWater,
@@ -225,7 +317,7 @@ pub(crate) fn build() -> TokenStream {
             Unrestricted,
         }
 
-        #[derive(Debug)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub enum HeightMap {
             WorldSurfaceWg,
             WorldSurface,
@@ -235,7 +327,7 @@ pub(crate) fn build() -> TokenStream {
             MotionBlockingNoLeaves,
         }
 
-        #[derive(Debug)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         #[allow(non_camel_case_types)]
         pub enum MobCategory {
             MONSTER,
@@ -315,6 +407,16 @@ pub(crate) fn build() -> TokenStream {
 
             pub const fn is_fire_immune(&self) -> bool {
                 self.fire_immune
+            }
+
+            pub fn get_attribute(&self, name: &str) -> Option<f64> {
+                use crate::attributes::Attribute;
+                if let Some(attr) = self.attributes.iter().find(|attr| attr.name == name) {
+                    return Some(attr.value);
+                }
+
+                // Fallback to global Attribute default value
+                Attribute::from_name(name).map(|attr| attr.default_value)
             }
         }
     }

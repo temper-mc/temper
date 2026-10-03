@@ -8,7 +8,7 @@ use temper_macros::{NetEncode, packet};
 /// Packet sent to play the hurt/damage animation on an entity.
 ///
 /// This makes the entity flash red and plays the hurt sound.
-#[derive(NetEncode, Debug)]
+#[derive(NetEncode, Debug, Clone)]
 #[packet(packet_id = "hurt_animation", state = "play")]
 pub struct HurtAnimationPacket {
     /// The entity ID that is being hurt

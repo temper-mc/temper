@@ -1,5 +1,5 @@
 use std::hash::Hash;
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct EntityType {
     pub id: u16,
     pub max_health: Option<f32>,
@@ -9,12 +9,13 @@ pub struct EntityType {
     pub limit_per_chunk: i32,
     pub summonable: bool,
     pub fire_immune: bool,
-    pub category: &'static MobCategory,
+    pub category: MobCategory,
     pub can_spawn_far_from_player: bool,
     pub dimension: [f32; 2],
     pub eye_height: f32,
     pub spawn_restriction: SpawnRestriction,
     pub resource_name: &'static str,
+    pub attributes: &'static [EntityAttribute],
 }
 impl Hash for EntityType {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
@@ -27,19 +28,24 @@ impl PartialEq for EntityType {
     }
 }
 impl Eq for EntityType {}
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct EntityAttribute {
+    pub name: &'static str,
+    pub value: f64,
+}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SpawnRestriction {
     pub location: SpawnLocation,
     pub heightmap: HeightMap,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SpawnLocation {
     InLava,
     InWater,
     OnGround,
     Unrestricted,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HeightMap {
     WorldSurfaceWg,
     WorldSurface,
@@ -48,7 +54,7 @@ pub enum HeightMap {
     MotionBlocking,
     MotionBlockingNoLeaves,
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(non_camel_case_types)]
 pub enum MobCategory {
     MONSTER,
@@ -97,7 +103,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -106,6 +112,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "acacia_boat",
+        attributes: &[],
     };
     pub const ACACIA_CHEST_BOAT: EntityType = EntityType {
         id: 1,
@@ -116,7 +123,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -125,6 +132,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "acacia_chest_boat",
+        attributes: &[],
     };
     pub const ALLAY: EntityType = EntityType {
         id: 2,
@@ -135,7 +143,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.35f32, 0.6f32],
         eye_height: 0.36f32,
@@ -144,6 +152,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "allay",
+        attributes: &[
+            EntityAttribute {
+                name: "flying_speed",
+                value: 0.10000000149011612f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.10000000149011612f64,
+            },
+        ],
     };
     pub const AREA_EFFECT_CLOUD: EntityType = EntityType {
         id: 3,
@@ -154,7 +176,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [6f32, 0.5f32],
         eye_height: 0.425f32,
@@ -163,6 +185,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "area_effect_cloud",
+        attributes: &[],
     };
     pub const ARMADILLO: EntityType = EntityType {
         id: 4,
@@ -173,7 +196,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.7f32, 0.65f32],
         eye_height: 0.26f32,
@@ -182,6 +205,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "armadillo",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 12f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.14f64,
+            },
+        ],
     };
     pub const ARMOR_STAND: EntityType = EntityType {
         id: 5,
@@ -192,7 +229,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 1.975f32],
         eye_height: 1.7775f32,
@@ -201,6 +238,10 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "armor_stand",
+        attributes: &[EntityAttribute {
+            name: "step_height",
+            value: 0f64,
+        }],
     };
     pub const ARROW: EntityType = EntityType {
         id: 6,
@@ -211,7 +252,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0.13f32,
@@ -220,6 +261,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "arrow",
+        attributes: &[],
     };
     pub const AXOLOTL: EntityType = EntityType {
         id: 7,
@@ -230,7 +272,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::AXOLOTLS,
+        category: MobCategory::AXOLOTLS,
         can_spawn_far_from_player: false,
         dimension: [0.75f32, 0.42f32],
         eye_height: 0.2751f32,
@@ -239,6 +281,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "axolotl",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 14f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const BAMBOO_CHEST_RAFT: EntityType = EntityType {
         id: 8,
@@ -249,7 +309,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -258,6 +318,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "bamboo_chest_raft",
+        attributes: &[],
     };
     pub const BAMBOO_RAFT: EntityType = EntityType {
         id: 9,
@@ -268,7 +329,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -277,6 +338,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "bamboo_raft",
+        attributes: &[],
     };
     pub const BAT: EntityType = EntityType {
         id: 10,
@@ -287,7 +349,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::AMBIENT,
+        category: MobCategory::AMBIENT,
         can_spawn_far_from_player: false,
         dimension: [0.5f32, 0.9f32],
         eye_height: 0.45f32,
@@ -296,6 +358,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "bat",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 6f64,
+            },
+        ],
     };
     pub const BEE: EntityType = EntityType {
         id: 11,
@@ -306,7 +378,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.55f32, 0.5f32],
         eye_height: 0.3f32,
@@ -315,6 +387,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "bee",
+        attributes: &[
+            EntityAttribute {
+                name: "flying_speed",
+                value: 0.6000000238418579f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const BIRCH_BOAT: EntityType = EntityType {
         id: 12,
@@ -325,7 +415,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -334,6 +424,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "birch_boat",
+        attributes: &[],
     };
     pub const BIRCH_CHEST_BOAT: EntityType = EntityType {
         id: 13,
@@ -344,7 +435,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -353,6 +444,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "birch_chest_boat",
+        attributes: &[],
     };
     pub const BLAZE: EntityType = EntityType {
         id: 14,
@@ -363,7 +455,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.8f32],
         eye_height: 1.53f32,
@@ -372,6 +464,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "blaze",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 48f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.2300000041723251f64,
+            },
+        ],
     };
     pub const BLOCK_DISPLAY: EntityType = EntityType {
         id: 15,
@@ -382,7 +488,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0f32, 0f32],
         eye_height: 0f32,
@@ -391,6 +497,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "block_display",
+        attributes: &[],
     };
     pub const BOGGED: EntityType = EntityType {
         id: 16,
@@ -401,7 +508,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.99f32],
         eye_height: 1.74f32,
@@ -410,6 +517,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "bogged",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const BREEZE: EntityType = EntityType {
         id: 17,
@@ -420,7 +541,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.77f32],
         eye_height: 1.3452f32,
@@ -429,6 +550,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "breeze",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 24f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 30f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.6299999952316284f64,
+            },
+        ],
     };
     pub const BREEZE_WIND_CHARGE: EntityType = EntityType {
         id: 18,
@@ -439,7 +578,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.3125f32, 0.3125f32],
         eye_height: 0f32,
@@ -448,6 +587,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "breeze_wind_charge",
+        attributes: &[],
     };
     pub const CAMEL: EntityType = EntityType {
         id: 19,
@@ -458,7 +598,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.7f32, 2.375f32],
         eye_height: 2.275f32,
@@ -467,6 +607,32 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "camel",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 32f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.09000000357627869f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1.5f64,
+            },
+        ],
     };
     pub const CAMEL_HUSK: EntityType = EntityType {
         id: 20,
@@ -477,7 +643,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [1.7f32, 2.375f32],
         eye_height: 2.275f32,
@@ -486,6 +652,32 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "camel_husk",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 32f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.09000000357627869f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1.5f64,
+            },
+        ],
     };
     pub const CAT: EntityType = EntityType {
         id: 21,
@@ -496,7 +688,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 0.7f32],
         eye_height: 0.35f32,
@@ -505,6 +697,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "cat",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const CAVE_SPIDER: EntityType = EntityType {
         id: 22,
@@ -515,7 +725,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.7f32, 0.5f32],
         eye_height: 0.45f32,
@@ -524,6 +734,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "cave_spider",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 12f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const CHERRY_BOAT: EntityType = EntityType {
         id: 23,
@@ -534,7 +758,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -543,6 +767,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "cherry_boat",
+        attributes: &[],
     };
     pub const CHERRY_CHEST_BOAT: EntityType = EntityType {
         id: 24,
@@ -553,7 +778,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -562,6 +787,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "cherry_chest_boat",
+        attributes: &[],
     };
     pub const CHEST_MINECART: EntityType = EntityType {
         id: 25,
@@ -572,7 +798,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.7f32],
         eye_height: 0.595f32,
@@ -581,6 +807,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "chest_minecart",
+        attributes: &[],
     };
     pub const CHICKEN: EntityType = EntityType {
         id: 26,
@@ -591,7 +818,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.4f32, 0.7f32],
         eye_height: 0.644f32,
@@ -600,6 +827,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "chicken",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 4f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const COD: EntityType = EntityType {
         id: 27,
@@ -610,7 +851,7 @@ impl EntityType {
         limit_per_chunk: 8i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::WATER_AMBIENT,
+        category: MobCategory::WATER_AMBIENT,
         can_spawn_far_from_player: false,
         dimension: [0.5f32, 0.3f32],
         eye_height: 0.195f32,
@@ -619,6 +860,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "cod",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 3f64,
+            },
+        ],
     };
     pub const COMMAND_BLOCK_MINECART: EntityType = EntityType {
         id: 29,
@@ -629,7 +880,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.7f32],
         eye_height: 0.595f32,
@@ -638,6 +889,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "command_block_minecart",
+        attributes: &[],
     };
     pub const COPPER_GOLEM: EntityType = EntityType {
         id: 28,
@@ -648,7 +900,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.49f32, 0.98f32],
         eye_height: 0.8125f32,
@@ -657,6 +909,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "copper_golem",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 12f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const COW: EntityType = EntityType {
         id: 30,
@@ -667,7 +937,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 1.4f32],
         eye_height: 1.3f32,
@@ -676,6 +946,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "cow",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+        ],
     };
     pub const CREAKING: EntityType = EntityType {
         id: 31,
@@ -686,7 +970,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.9f32, 2.7f32],
         eye_height: 2.3f32,
@@ -695,6 +979,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "creaking",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.4000000059604645f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1.0625f64,
+            },
+        ],
     };
     pub const CREEPER: EntityType = EntityType {
         id: 32,
@@ -705,7 +1007,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.7f32],
         eye_height: 1.445f32,
@@ -714,6 +1016,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "creeper",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const DARK_OAK_BOAT: EntityType = EntityType {
         id: 33,
@@ -724,7 +1036,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -733,6 +1045,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "dark_oak_boat",
+        attributes: &[],
     };
     pub const DARK_OAK_CHEST_BOAT: EntityType = EntityType {
         id: 34,
@@ -743,7 +1056,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -752,6 +1065,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "dark_oak_chest_boat",
+        attributes: &[],
     };
     pub const DOLPHIN: EntityType = EntityType {
         id: 35,
@@ -762,7 +1076,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::WATER_CREATURE,
+        category: MobCategory::WATER_CREATURE,
         can_spawn_far_from_player: false,
         dimension: [0.9f32, 0.6f32],
         eye_height: 0.3f32,
@@ -771,6 +1085,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "dolphin",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 1.2000000476837158f64,
+            },
+        ],
     };
     pub const DONKEY: EntityType = EntityType {
         id: 36,
@@ -781,7 +1113,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.3964844f32, 1.5f32],
         eye_height: 1.425f32,
@@ -790,6 +1122,36 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "donkey",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "jump_strength",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 53f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.17499999701976776f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const DRAGON_FIREBALL: EntityType = EntityType {
         id: 37,
@@ -800,7 +1162,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1f32, 1f32],
         eye_height: 0.85f32,
@@ -809,6 +1171,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "dragon_fireball",
+        attributes: &[],
     };
     pub const DROWNED: EntityType = EntityType {
         id: 38,
@@ -819,7 +1182,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.74f32,
@@ -828,6 +1191,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "drowned",
+        attributes: &[
+            EntityAttribute {
+                name: "armor",
+                value: 2f64,
+            },
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 35f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.2300000041723251f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const EGG: EntityType = EntityType {
         id: 39,
@@ -838,7 +1223,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -847,6 +1232,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "egg",
+        attributes: &[],
     };
     pub const ELDER_GUARDIAN: EntityType = EntityType {
         id: 40,
@@ -857,7 +1243,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [1.9975f32, 1.9975f32],
         eye_height: 0.99875f32,
@@ -866,6 +1252,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "elder_guardian",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 8f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 80f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const END_CRYSTAL: EntityType = EntityType {
         id: 45,
@@ -876,7 +1280,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [2f32, 2f32],
         eye_height: 1.7f32,
@@ -885,6 +1289,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "end_crystal",
+        attributes: &[],
     };
     pub const ENDER_DRAGON: EntityType = EntityType {
         id: 43,
@@ -895,7 +1300,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [16f32, 8f32],
         eye_height: 6.8f32,
@@ -904,6 +1309,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "ender_dragon",
+        attributes: &[
+            EntityAttribute {
+                name: "camera_distance",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 200f64,
+            },
+        ],
     };
     pub const ENDER_PEARL: EntityType = EntityType {
         id: 44,
@@ -914,7 +1333,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -923,6 +1342,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "ender_pearl",
+        attributes: &[],
     };
     pub const ENDERMAN: EntityType = EntityType {
         id: 41,
@@ -933,7 +1353,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 2.9f32],
         eye_height: 2.55f32,
@@ -942,6 +1362,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "enderman",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 7f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 64f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 40f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const ENDERMITE: EntityType = EntityType {
         id: 42,
@@ -952,7 +1394,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.4f32, 0.3f32],
         eye_height: 0.13f32,
@@ -961,6 +1403,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "endermite",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 8f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const EVOKER: EntityType = EntityType {
         id: 46,
@@ -971,7 +1427,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.6575f32,
@@ -980,6 +1436,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "evoker",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 12f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 24f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.5f64,
+            },
+        ],
     };
     pub const EVOKER_FANGS: EntityType = EntityType {
         id: 47,
@@ -990,7 +1460,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.8f32],
         eye_height: 0.68f32,
@@ -999,6 +1469,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "evoker_fangs",
+        attributes: &[],
     };
     pub const EXPERIENCE_BOTTLE: EntityType = EntityType {
         id: 48,
@@ -1009,7 +1480,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1018,6 +1489,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "experience_bottle",
+        attributes: &[],
     };
     pub const EXPERIENCE_ORB: EntityType = EntityType {
         id: 49,
@@ -1028,7 +1500,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0.425f32,
@@ -1037,6 +1509,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "experience_orb",
+        attributes: &[],
     };
     pub const EYE_OF_ENDER: EntityType = EntityType {
         id: 50,
@@ -1047,7 +1520,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1056,6 +1529,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "eye_of_ender",
+        attributes: &[],
     };
     pub const FALLING_BLOCK: EntityType = EntityType {
         id: 51,
@@ -1066,7 +1540,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.98f32],
         eye_height: 0.83300006f32,
@@ -1075,6 +1549,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "falling_block",
+        attributes: &[],
     };
     pub const FIREBALL: EntityType = EntityType {
         id: 52,
@@ -1085,7 +1560,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1f32, 1f32],
         eye_height: 0.85f32,
@@ -1094,6 +1569,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "fireball",
+        attributes: &[],
     };
     pub const FIREWORK_ROCKET: EntityType = EntityType {
         id: 53,
@@ -1104,7 +1580,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1113,6 +1589,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "firework_rocket",
+        attributes: &[],
     };
     pub const FISHING_BOBBER: EntityType = EntityType {
         id: 157,
@@ -1123,7 +1600,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: false,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1132,6 +1609,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "fishing_bobber",
+        attributes: &[],
     };
     pub const FOX: EntityType = EntityType {
         id: 54,
@@ -1142,7 +1620,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 0.7f32],
         eye_height: 0.4f32,
@@ -1151,6 +1629,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "fox",
+        attributes: &[
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 5f64,
+            },
+        ],
     };
     pub const FROG: EntityType = EntityType {
         id: 55,
@@ -1161,7 +1653,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0.425f32,
@@ -1170,6 +1662,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "frog",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const FURNACE_MINECART: EntityType = EntityType {
         id: 56,
@@ -1180,7 +1694,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.7f32],
         eye_height: 0.595f32,
@@ -1189,6 +1703,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "furnace_minecart",
+        attributes: &[],
     };
     pub const GHAST: EntityType = EntityType {
         id: 57,
@@ -1199,7 +1714,7 @@ impl EntityType {
         limit_per_chunk: 1i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [4f32, 4f32],
         eye_height: 2.6f32,
@@ -1208,6 +1723,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "ghast",
+        attributes: &[
+            EntityAttribute {
+                name: "camera_distance",
+                value: 8f64,
+            },
+            EntityAttribute {
+                name: "flying_speed",
+                value: 0.06f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 100f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+        ],
     };
     pub const GIANT: EntityType = EntityType {
         id: 59,
@@ -1218,7 +1751,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [3.6f32, 12f32],
         eye_height: 10.44f32,
@@ -1227,6 +1760,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "giant",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 50f64,
+            },
+            EntityAttribute {
+                name: "camera_distance",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 100f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.5f64,
+            },
+        ],
     };
     pub const GLOW_ITEM_FRAME: EntityType = EntityType {
         id: 60,
@@ -1237,7 +1792,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0f32,
@@ -1246,6 +1801,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "glow_item_frame",
+        attributes: &[],
     };
     pub const GLOW_SQUID: EntityType = EntityType {
         id: 61,
@@ -1256,7 +1812,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::UNDERGROUND_WATER_CREATURE,
+        category: MobCategory::UNDERGROUND_WATER_CREATURE,
         can_spawn_far_from_player: false,
         dimension: [0.8f32, 0.8f32],
         eye_height: 0.4f32,
@@ -1265,6 +1821,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "glow_squid",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+        ],
     };
     pub const GOAT: EntityType = EntityType {
         id: 62,
@@ -1275,7 +1841,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 1.3f32],
         eye_height: 1.105f32,
@@ -1284,6 +1850,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "goat",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+        ],
     };
     pub const GUARDIAN: EntityType = EntityType {
         id: 63,
@@ -1294,7 +1874,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.85f32, 0.85f32],
         eye_height: 0.425f32,
@@ -1303,6 +1883,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "guardian",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 30f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.5f64,
+            },
+        ],
     };
     pub const HAPPY_GHAST: EntityType = EntityType {
         id: 58,
@@ -1313,7 +1911,7 @@ impl EntityType {
         limit_per_chunk: 1i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [4f32, 4f32],
         eye_height: 2.6f32,
@@ -1322,6 +1920,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "happy_ghast",
+        attributes: &[
+            EntityAttribute {
+                name: "camera_distance",
+                value: 8f64,
+            },
+            EntityAttribute {
+                name: "flying_speed",
+                value: 0.05f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.05f64,
+            },
+            EntityAttribute {
+                name: "tempt_range",
+                value: 16f64,
+            },
+        ],
     };
     pub const HOGLIN: EntityType = EntityType {
         id: 64,
@@ -1332,7 +1952,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [1.3964844f32, 1.4f32],
         eye_height: 1.19f32,
@@ -1341,6 +1961,32 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "hoglin",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "attack_knockback",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "knockback_resistance",
+                value: 0.6000000238418579f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 40f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const HOPPER_MINECART: EntityType = EntityType {
         id: 65,
@@ -1351,7 +1997,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.7f32],
         eye_height: 0.595f32,
@@ -1360,6 +2006,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "hopper_minecart",
+        attributes: &[],
     };
     pub const HORSE: EntityType = EntityType {
         id: 66,
@@ -1370,7 +2017,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.3964844f32, 1.6f32],
         eye_height: 1.52f32,
@@ -1379,6 +2026,36 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "horse",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "jump_strength",
+                value: 0.7f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 53f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.22499999403953552f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const HUSK: EntityType = EntityType {
         id: 67,
@@ -1389,7 +2066,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.74f32,
@@ -1398,6 +2075,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "husk",
+        attributes: &[
+            EntityAttribute {
+                name: "armor",
+                value: 2f64,
+            },
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 35f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.2300000041723251f64,
+            },
+        ],
     };
     pub const ILLUSIONER: EntityType = EntityType {
         id: 68,
@@ -1408,7 +2103,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.6575f32,
@@ -1417,6 +2112,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "illusioner",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 18f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 32f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.5f64,
+            },
+        ],
     };
     pub const INTERACTION: EntityType = EntityType {
         id: 69,
@@ -1427,7 +2136,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0f32, 0f32],
         eye_height: 0f32,
@@ -1436,6 +2145,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "interaction",
+        attributes: &[],
     };
     pub const IRON_GOLEM: EntityType = EntityType {
         id: 70,
@@ -1446,7 +2156,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.4f32, 2.7f32],
         eye_height: 2.295f32,
@@ -1455,6 +2165,32 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "iron_golem",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 15f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "knockback_resistance",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 100f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const ITEM: EntityType = EntityType {
         id: 71,
@@ -1465,7 +2201,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1474,6 +2210,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "item",
+        attributes: &[],
     };
     pub const ITEM_DISPLAY: EntityType = EntityType {
         id: 72,
@@ -1484,7 +2221,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0f32, 0f32],
         eye_height: 0f32,
@@ -1493,6 +2230,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "item_display",
+        attributes: &[],
     };
     pub const ITEM_FRAME: EntityType = EntityType {
         id: 73,
@@ -1503,7 +2241,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0f32,
@@ -1512,6 +2250,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "item_frame",
+        attributes: &[],
     };
     pub const JUNGLE_BOAT: EntityType = EntityType {
         id: 74,
@@ -1522,7 +2261,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1531,6 +2270,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "jungle_boat",
+        attributes: &[],
     };
     pub const JUNGLE_CHEST_BOAT: EntityType = EntityType {
         id: 75,
@@ -1541,7 +2281,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1550,6 +2290,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "jungle_chest_boat",
+        attributes: &[],
     };
     pub const LEASH_KNOT: EntityType = EntityType {
         id: 76,
@@ -1560,7 +2301,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.375f32, 0.5f32],
         eye_height: 0.0625f32,
@@ -1569,6 +2310,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "leash_knot",
+        attributes: &[],
     };
     pub const LIGHTNING_BOLT: EntityType = EntityType {
         id: 77,
@@ -1579,7 +2321,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0f32, 0f32],
         eye_height: 0f32,
@@ -1588,6 +2330,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "lightning_bolt",
+        attributes: &[],
     };
     pub const LINGERING_POTION: EntityType = EntityType {
         id: 106,
@@ -1598,7 +2341,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1607,6 +2350,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "lingering_potion",
+        attributes: &[],
     };
     pub const LLAMA: EntityType = EntityType {
         id: 78,
@@ -1617,7 +2361,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 1.87f32],
         eye_height: 1.7765f32,
@@ -1626,6 +2370,36 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "llama",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "jump_strength",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 53f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.17499999701976776f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const LLAMA_SPIT: EntityType = EntityType {
         id: 79,
@@ -1636,7 +2410,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1645,6 +2419,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "llama_spit",
+        attributes: &[],
     };
     pub const MAGMA_CUBE: EntityType = EntityType {
         id: 80,
@@ -1655,7 +2430,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.52f32, 0.52f32],
         eye_height: 0.325f32,
@@ -1664,6 +2439,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "magma_cube",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+        ],
     };
     pub const MANGROVE_BOAT: EntityType = EntityType {
         id: 81,
@@ -1674,7 +2459,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1683,6 +2468,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "mangrove_boat",
+        attributes: &[],
     };
     pub const MANGROVE_CHEST_BOAT: EntityType = EntityType {
         id: 82,
@@ -1693,7 +2479,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1702,6 +2488,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "mangrove_chest_boat",
+        attributes: &[],
     };
     pub const MANNEQUIN: EntityType = EntityType {
         id: 83,
@@ -1712,7 +2499,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 1.8f32],
         eye_height: 1.62f32,
@@ -1721,6 +2508,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "mannequin",
+        attributes: &[],
     };
     pub const MARKER: EntityType = EntityType {
         id: 84,
@@ -1731,7 +2519,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0f32, 0f32],
         eye_height: 0f32,
@@ -1740,6 +2528,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "marker",
+        attributes: &[],
     };
     pub const MINECART: EntityType = EntityType {
         id: 85,
@@ -1750,7 +2539,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.7f32],
         eye_height: 0.595f32,
@@ -1759,6 +2548,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "minecart",
+        attributes: &[],
     };
     pub const MOOSHROOM: EntityType = EntityType {
         id: 86,
@@ -1769,7 +2559,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 1.4f32],
         eye_height: 1.3f32,
@@ -1778,6 +2568,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "mooshroom",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+        ],
     };
     pub const MULE: EntityType = EntityType {
         id: 87,
@@ -1788,7 +2592,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.3964844f32, 1.6f32],
         eye_height: 1.52f32,
@@ -1797,6 +2601,36 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "mule",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "jump_strength",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 53f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.17499999701976776f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const NAUTILUS: EntityType = EntityType {
         id: 88,
@@ -1807,7 +2641,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::WATER_CREATURE,
+        category: MobCategory::WATER_CREATURE,
         can_spawn_far_from_player: false,
         dimension: [0.875f32, 0.95f32],
         eye_height: 0.2751f32,
@@ -1816,6 +2650,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "nautilus",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "knockback_resistance",
+                value: 0.30000001192092896f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 15f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 1f64,
+            },
+        ],
     };
     pub const OAK_BOAT: EntityType = EntityType {
         id: 89,
@@ -1826,7 +2682,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1835,6 +2691,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "oak_boat",
+        attributes: &[],
     };
     pub const OAK_CHEST_BOAT: EntityType = EntityType {
         id: 90,
@@ -1845,7 +2702,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1854,6 +2711,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "oak_chest_boat",
+        attributes: &[],
     };
     pub const OCELOT: EntityType = EntityType {
         id: 91,
@@ -1864,7 +2722,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 0.7f32],
         eye_height: 0.595f32,
@@ -1873,6 +2731,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlocking,
         },
         resource_name: "ocelot",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const OMINOUS_ITEM_SPAWNER: EntityType = EntityType {
         id: 92,
@@ -1883,7 +2759,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -1892,6 +2768,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "ominous_item_spawner",
+        attributes: &[],
     };
     pub const PAINTING: EntityType = EntityType {
         id: 93,
@@ -1902,7 +2779,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0.425f32,
@@ -1911,6 +2788,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "painting",
+        attributes: &[],
     };
     pub const PALE_OAK_BOAT: EntityType = EntityType {
         id: 94,
@@ -1921,7 +2799,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1930,6 +2808,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "pale_oak_boat",
+        attributes: &[],
     };
     pub const PALE_OAK_CHEST_BOAT: EntityType = EntityType {
         id: 95,
@@ -1940,7 +2819,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -1949,6 +2828,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "pale_oak_chest_boat",
+        attributes: &[],
     };
     pub const PANDA: EntityType = EntityType {
         id: 96,
@@ -1959,7 +2839,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.3f32, 1.25f32],
         eye_height: 1.0625f32,
@@ -1968,6 +2848,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "panda",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.15000000596046448f64,
+            },
+        ],
     };
     pub const PARCHED: EntityType = EntityType {
         id: 97,
@@ -1978,7 +2872,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.99f32],
         eye_height: 1.74f32,
@@ -1987,6 +2881,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "parched",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const PARROT: EntityType = EntityType {
         id: 98,
@@ -1997,7 +2905,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.9f32],
         eye_height: 0.54f32,
@@ -2006,6 +2914,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlocking,
         },
         resource_name: "parrot",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "flying_speed",
+                value: 0.4000000059604645f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+        ],
     };
     pub const PHANTOM: EntityType = EntityType {
         id: 99,
@@ -2016,7 +2946,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.9f32, 0.5f32],
         eye_height: 0.175f32,
@@ -2025,6 +2955,10 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "phantom",
+        attributes: &[EntityAttribute {
+            name: "follow_range",
+            value: 16f64,
+        }],
     };
     pub const PIG: EntityType = EntityType {
         id: 100,
@@ -2035,7 +2969,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 0.9f32],
         eye_height: 0.765f32,
@@ -2044,6 +2978,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "pig",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const PIGLIN: EntityType = EntityType {
         id: 101,
@@ -2054,7 +3002,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.79f32,
@@ -2063,6 +3011,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "piglin",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.3499999940395355f64,
+            },
+        ],
     };
     pub const PIGLIN_BRUTE: EntityType = EntityType {
         id: 102,
@@ -2073,7 +3039,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.79f32,
@@ -2082,6 +3048,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "piglin_brute",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 7f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 12f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 50f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.3499999940395355f64,
+            },
+        ],
     };
     pub const PILLAGER: EntityType = EntityType {
         id: 103,
@@ -2092,7 +3076,7 @@ impl EntityType {
         limit_per_chunk: 1i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.6575f32,
@@ -2101,6 +3085,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "pillager",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 5f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 24f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.3499999940395355f64,
+            },
+        ],
     };
     pub const PLAYER: EntityType = EntityType {
         id: 156,
@@ -2111,7 +3109,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: false,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 1.8f32],
         eye_height: 1.62f32,
@@ -2120,6 +3118,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "player",
+        attributes: &[],
     };
     pub const POLAR_BEAR: EntityType = EntityType {
         id: 104,
@@ -2130,7 +3129,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.4f32, 1.4f32],
         eye_height: 1.19f32,
@@ -2139,6 +3138,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "polar_bear",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 20f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 30f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const PUFFERFISH: EntityType = EntityType {
         id: 107,
@@ -2149,7 +3166,7 @@ impl EntityType {
         limit_per_chunk: 8i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::WATER_AMBIENT,
+        category: MobCategory::WATER_AMBIENT,
         can_spawn_far_from_player: false,
         dimension: [0.7f32, 0.7f32],
         eye_height: 0.455f32,
@@ -2158,6 +3175,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "pufferfish",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 3f64,
+            },
+        ],
     };
     pub const RABBIT: EntityType = EntityType {
         id: 108,
@@ -2168,7 +3195,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.49f32, 0.6f32],
         eye_height: 0.59f32,
@@ -2177,6 +3204,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "rabbit",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const RAVAGER: EntityType = EntityType {
         id: 109,
@@ -2187,7 +3232,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [1.95f32, 2.2f32],
         eye_height: 1.8700001f32,
@@ -2196,6 +3241,32 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "ravager",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 12f64,
+            },
+            EntityAttribute {
+                name: "attack_knockback",
+                value: 1.5f64,
+            },
+            EntityAttribute {
+                name: "knockback_resistance",
+                value: 0.75f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 100f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.3f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const SALMON: EntityType = EntityType {
         id: 110,
@@ -2206,7 +3277,7 @@ impl EntityType {
         limit_per_chunk: 5i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::WATER_AMBIENT,
+        category: MobCategory::WATER_AMBIENT,
         can_spawn_far_from_player: false,
         dimension: [0.7f32, 0.4f32],
         eye_height: 0.26f32,
@@ -2215,6 +3286,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "salmon",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 3f64,
+            },
+        ],
     };
     pub const SHEEP: EntityType = EntityType {
         id: 111,
@@ -2225,7 +3306,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 1.3f32],
         eye_height: 1.235f32,
@@ -2234,6 +3315,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "sheep",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 8f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.2300000041723251f64,
+            },
+        ],
     };
     pub const SHULKER: EntityType = EntityType {
         id: 112,
@@ -2244,7 +3339,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: true,
         dimension: [1f32, 1f32],
         eye_height: 0.5f32,
@@ -2253,6 +3348,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "shulker",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 30f64,
+            },
+        ],
     };
     pub const SHULKER_BULLET: EntityType = EntityType {
         id: 113,
@@ -2263,7 +3368,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.3125f32, 0.3125f32],
         eye_height: 0.265625f32,
@@ -2272,6 +3377,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "shulker_bullet",
+        attributes: &[],
     };
     pub const SILVERFISH: EntityType = EntityType {
         id: 114,
@@ -2282,7 +3388,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.4f32, 0.3f32],
         eye_height: 0.13f32,
@@ -2291,6 +3397,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "silverfish",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 8f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const SKELETON: EntityType = EntityType {
         id: 115,
@@ -2301,7 +3425,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.99f32],
         eye_height: 1.74f32,
@@ -2310,6 +3434,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "skeleton",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const SKELETON_HORSE: EntityType = EntityType {
         id: 116,
@@ -2320,7 +3454,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.3964844f32, 1.6f32],
         eye_height: 1.52f32,
@@ -2329,6 +3463,36 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "skeleton_horse",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "jump_strength",
+                value: 0.7f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 15f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const SLIME: EntityType = EntityType {
         id: 117,
@@ -2339,7 +3503,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.52f32, 0.52f32],
         eye_height: 0.325f32,
@@ -2348,6 +3512,10 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "slime",
+        attributes: &[EntityAttribute {
+            name: "follow_range",
+            value: 16f64,
+        }],
     };
     pub const SMALL_FIREBALL: EntityType = EntityType {
         id: 118,
@@ -2358,7 +3526,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.3125f32, 0.3125f32],
         eye_height: 0.265625f32,
@@ -2367,6 +3535,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "small_fireball",
+        attributes: &[],
     };
     pub const SNIFFER: EntityType = EntityType {
         id: 119,
@@ -2377,7 +3546,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.9f32, 1.75f32],
         eye_height: 1.05f32,
@@ -2386,6 +3555,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "sniffer",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 14f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.10000000149011612f64,
+            },
+        ],
     };
     pub const SNOW_GOLEM: EntityType = EntityType {
         id: 121,
@@ -2396,7 +3579,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.7f32, 1.9f32],
         eye_height: 1.7f32,
@@ -2405,6 +3588,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "snow_golem",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 4f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.20000000298023224f64,
+            },
+        ],
     };
     pub const SNOWBALL: EntityType = EntityType {
         id: 120,
@@ -2415,7 +3612,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -2424,6 +3621,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "snowball",
+        attributes: &[],
     };
     pub const SPAWNER_MINECART: EntityType = EntityType {
         id: 122,
@@ -2434,7 +3632,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.7f32],
         eye_height: 0.595f32,
@@ -2443,6 +3641,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "spawner_minecart",
+        attributes: &[],
     };
     pub const SPECTRAL_ARROW: EntityType = EntityType {
         id: 123,
@@ -2453,7 +3652,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0.13f32,
@@ -2462,6 +3661,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "spectral_arrow",
+        attributes: &[],
     };
     pub const SPIDER: EntityType = EntityType {
         id: 124,
@@ -2472,7 +3672,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [1.4f32, 0.9f32],
         eye_height: 0.65f32,
@@ -2481,6 +3681,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "spider",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const SPLASH_POTION: EntityType = EntityType {
         id: 105,
@@ -2491,7 +3705,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.25f32, 0.25f32],
         eye_height: 0.2125f32,
@@ -2500,6 +3714,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "splash_potion",
+        attributes: &[],
     };
     pub const SPRUCE_BOAT: EntityType = EntityType {
         id: 125,
@@ -2510,7 +3725,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -2519,6 +3734,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "spruce_boat",
+        attributes: &[],
     };
     pub const SPRUCE_CHEST_BOAT: EntityType = EntityType {
         id: 126,
@@ -2529,7 +3745,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [1.375f32, 0.5625f32],
         eye_height: 0.5625f32,
@@ -2538,6 +3754,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "spruce_chest_boat",
+        attributes: &[],
     };
     pub const SQUID: EntityType = EntityType {
         id: 127,
@@ -2548,7 +3765,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::WATER_CREATURE,
+        category: MobCategory::WATER_CREATURE,
         can_spawn_far_from_player: false,
         dimension: [0.8f32, 0.8f32],
         eye_height: 0.4f32,
@@ -2557,6 +3774,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "squid",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 10f64,
+            },
+        ],
     };
     pub const STRAY: EntityType = EntityType {
         id: 128,
@@ -2567,7 +3794,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.99f32],
         eye_height: 1.74f32,
@@ -2576,6 +3803,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "stray",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const STRIDER: EntityType = EntityType {
         id: 129,
@@ -2586,7 +3823,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 1.7f32],
         eye_height: 1.445f32,
@@ -2595,6 +3832,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "strider",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.17499999701976776f64,
+            },
+        ],
     };
     pub const SULFUR_CUBE: EntityType = EntityType {
         id: 130,
@@ -2605,7 +3852,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.49f32, 0.49f32],
         eye_height: 0.175f32,
@@ -2614,6 +3861,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "sulfur_cube",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "tempt_range",
+                value: 8f64,
+            },
+        ],
     };
     pub const TADPOLE: EntityType = EntityType {
         id: 131,
@@ -2624,7 +3881,7 @@ impl EntityType {
         limit_per_chunk: 8i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.4f32, 0.3f32],
         eye_height: 0.19500001f32,
@@ -2633,6 +3890,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "tadpole",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 1f64,
+            },
+        ],
     };
     pub const TEXT_DISPLAY: EntityType = EntityType {
         id: 132,
@@ -2643,7 +3914,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0f32, 0f32],
         eye_height: 0f32,
@@ -2652,6 +3923,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "text_display",
+        attributes: &[],
     };
     pub const TNT: EntityType = EntityType {
         id: 133,
@@ -2662,7 +3934,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.98f32],
         eye_height: 0.15f32,
@@ -2671,6 +3943,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "tnt",
+        attributes: &[],
     };
     pub const TNT_MINECART: EntityType = EntityType {
         id: 134,
@@ -2681,7 +3954,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.98f32, 0.7f32],
         eye_height: 0.595f32,
@@ -2690,6 +3963,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "tnt_minecart",
+        attributes: &[],
     };
     pub const TRADER_LLAMA: EntityType = EntityType {
         id: 135,
@@ -2700,7 +3974,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.9f32, 1.87f32],
         eye_height: 1.7765f32,
@@ -2709,6 +3983,36 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "trader_llama",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "jump_strength",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 53f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.17499999701976776f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const TRIDENT: EntityType = EntityType {
         id: 136,
@@ -2719,7 +4023,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.5f32, 0.5f32],
         eye_height: 0.13f32,
@@ -2728,6 +4032,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "trident",
+        attributes: &[],
     };
     pub const TROPICAL_FISH: EntityType = EntityType {
         id: 137,
@@ -2738,7 +4043,7 @@ impl EntityType {
         limit_per_chunk: 8i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::WATER_AMBIENT,
+        category: MobCategory::WATER_AMBIENT,
         can_spawn_far_from_player: false,
         dimension: [0.5f32, 0.4f32],
         eye_height: 0.26f32,
@@ -2747,6 +4052,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "tropical_fish",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 3f64,
+            },
+        ],
     };
     pub const TURTLE: EntityType = EntityType {
         id: 138,
@@ -2757,7 +4072,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [1.2f32, 0.4f32],
         eye_height: 0.34f32,
@@ -2766,6 +4081,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "turtle",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 30f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const VEX: EntityType = EntityType {
         id: 139,
@@ -2776,7 +4109,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.4f32, 0.8f32],
         eye_height: 0.51875f32,
@@ -2785,6 +4118,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "vex",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 4f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 14f64,
+            },
+        ],
     };
     pub const VILLAGER: EntityType = EntityType {
         id: 140,
@@ -2795,7 +4142,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.62f32,
@@ -2804,6 +4151,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "villager",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.5f64,
+            },
+        ],
     };
     pub const VINDICATOR: EntityType = EntityType {
         id: 141,
@@ -2814,7 +4171,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.6575f32,
@@ -2823,6 +4180,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "vindicator",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 12f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 24f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.3499999940395355f64,
+            },
+        ],
     };
     pub const WANDERING_TRADER: EntityType = EntityType {
         id: 142,
@@ -2833,7 +4208,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.62f32,
@@ -2842,6 +4217,10 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "wandering_trader",
+        attributes: &[EntityAttribute {
+            name: "follow_range",
+            value: 16f64,
+        }],
     };
     pub const WARDEN: EntityType = EntityType {
         id: 143,
@@ -2852,7 +4231,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.9f32, 2.9f32],
         eye_height: 2.4650002f32,
@@ -2861,6 +4240,32 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "warden",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 30f64,
+            },
+            EntityAttribute {
+                name: "attack_knockback",
+                value: 1.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 24f64,
+            },
+            EntityAttribute {
+                name: "knockback_resistance",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 500f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const WIND_CHARGE: EntityType = EntityType {
         id: 144,
@@ -2871,7 +4276,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.3125f32, 0.3125f32],
         eye_height: 0f32,
@@ -2880,6 +4285,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "wind_charge",
+        attributes: &[],
     };
     pub const WITCH: EntityType = EntityType {
         id: 145,
@@ -2890,7 +4296,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.62f32,
@@ -2899,6 +4305,20 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "witch",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 26f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const WITHER: EntityType = EntityType {
         id: 146,
@@ -2909,7 +4329,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.9f32, 3.5f32],
         eye_height: 2.9750001f32,
@@ -2918,6 +4338,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "wither",
+        attributes: &[
+            EntityAttribute {
+                name: "armor",
+                value: 4f64,
+            },
+            EntityAttribute {
+                name: "flying_speed",
+                value: 0.6000000238418579f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 40f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 300f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.6000000238418579f64,
+            },
+        ],
     };
     pub const WITHER_SKELETON: EntityType = EntityType {
         id: 147,
@@ -2928,7 +4370,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.7f32, 2.4f32],
         eye_height: 2.1f32,
@@ -2937,6 +4379,16 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "wither_skeleton",
+        attributes: &[
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.25f64,
+            },
+        ],
     };
     pub const WITHER_SKULL: EntityType = EntityType {
         id: 148,
@@ -2947,7 +4399,7 @@ impl EntityType {
         limit_per_chunk: 0i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MISC,
+        category: MobCategory::MISC,
         can_spawn_far_from_player: true,
         dimension: [0.3125f32, 0.3125f32],
         eye_height: 0.265625f32,
@@ -2956,6 +4408,7 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "wither_skull",
+        attributes: &[],
     };
     pub const WOLF: EntityType = EntityType {
         id: 149,
@@ -2966,7 +4419,7 @@ impl EntityType {
         limit_per_chunk: 8i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::CREATURE,
+        category: MobCategory::CREATURE,
         can_spawn_far_from_player: true,
         dimension: [0.6f32, 0.85f32],
         eye_height: 0.68f32,
@@ -2975,6 +4428,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "wolf",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 4f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 8f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const ZOGLIN: EntityType = EntityType {
         id: 150,
@@ -2985,7 +4456,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [1.3964844f32, 1.4f32],
         eye_height: 1.19f32,
@@ -2994,6 +4465,32 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "zoglin",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "attack_knockback",
+                value: 1f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "knockback_resistance",
+                value: 0.6000000238418579f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 40f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.30000001192092896f64,
+            },
+        ],
     };
     pub const ZOMBIE: EntityType = EntityType {
         id: 151,
@@ -3004,7 +4501,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.74f32,
@@ -3013,6 +4510,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "zombie",
+        attributes: &[
+            EntityAttribute {
+                name: "armor",
+                value: 2f64,
+            },
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 35f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.2300000041723251f64,
+            },
+        ],
     };
     pub const ZOMBIE_HORSE: EntityType = EntityType {
         id: 152,
@@ -3023,7 +4538,7 @@ impl EntityType {
         limit_per_chunk: 6i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [1.3964844f32, 1.6f32],
         eye_height: 1.52f32,
@@ -3032,6 +4547,36 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "zombie_horse",
+        attributes: &[
+            EntityAttribute {
+                name: "fall_damage_multiplier",
+                value: 0.5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "jump_strength",
+                value: 0.7f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 25f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.22499999403953552f64,
+            },
+            EntityAttribute {
+                name: "safe_fall_distance",
+                value: 6f64,
+            },
+            EntityAttribute {
+                name: "step_height",
+                value: 1f64,
+            },
+        ],
     };
     pub const ZOMBIE_NAUTILUS: EntityType = EntityType {
         id: 153,
@@ -3042,7 +4587,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.875f32, 0.95f32],
         eye_height: 0.2751f32,
@@ -3051,6 +4596,28 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "zombie_nautilus",
+        attributes: &[
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 16f64,
+            },
+            EntityAttribute {
+                name: "knockback_resistance",
+                value: 0.30000001192092896f64,
+            },
+            EntityAttribute {
+                name: "max_health",
+                value: 15f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 1.100000023841858f64,
+            },
+        ],
     };
     pub const ZOMBIE_VILLAGER: EntityType = EntityType {
         id: 154,
@@ -3061,7 +4628,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: false,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.74f32,
@@ -3070,6 +4637,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "zombie_villager",
+        attributes: &[
+            EntityAttribute {
+                name: "armor",
+                value: 2f64,
+            },
+            EntityAttribute {
+                name: "attack_damage",
+                value: 3f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 35f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.2300000041723251f64,
+            },
+        ],
     };
     pub const ZOMBIFIED_PIGLIN: EntityType = EntityType {
         id: 155,
@@ -3080,7 +4665,7 @@ impl EntityType {
         limit_per_chunk: 4i32,
         summonable: true,
         fire_immune: true,
-        category: &MobCategory::MONSTER,
+        category: MobCategory::MONSTER,
         can_spawn_far_from_player: false,
         dimension: [0.6f32, 1.95f32],
         eye_height: 1.79f32,
@@ -3089,6 +4674,24 @@ impl EntityType {
             heightmap: HeightMap::MotionBlockingNoLeaves,
         },
         resource_name: "zombified_piglin",
+        attributes: &[
+            EntityAttribute {
+                name: "armor",
+                value: 2f64,
+            },
+            EntityAttribute {
+                name: "attack_damage",
+                value: 5f64,
+            },
+            EntityAttribute {
+                name: "follow_range",
+                value: 35f64,
+            },
+            EntityAttribute {
+                name: "movement_speed",
+                value: 0.2300000041723251f64,
+            },
+        ],
     };
     pub const fn from_raw(id: u16) -> Option<&'static Self> {
         match id {
@@ -3431,5 +5034,12 @@ impl EntityType {
     }
     pub const fn is_fire_immune(&self) -> bool {
         self.fire_immune
+    }
+    pub fn get_attribute(&self, name: &str) -> Option<f64> {
+        use crate::attributes::Attribute;
+        if let Some(attr) = self.attributes.iter().find(|attr| attr.name == name) {
+            return Some(attr.value);
+        }
+        Attribute::from_name(name).map(|attr| attr.default_value)
     }
 }
