@@ -17,7 +17,9 @@ use temper_entities::bundles::PigBundle;
 use temper_entities::markers::HasCollisions;
 use temper_entities::markers::entity_types::Pig;
 use temper_macros::block;
+use temper_messages::damage::DamageEvent;
 use temper_messages::entity_update::SendEntityUpdate;
+use temper_messages::kill_entity::KillEntity;
 use temper_state::create_test_state;
 
 #[test]
@@ -37,6 +39,8 @@ fn falling_entity_lands_when_velocity_step_crosses_floor() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let mut bundle = PigBundle::new(Position::new(0.5, 65.2, 0.5));
     bundle.velocity = Velocity::new(0.0, -2.4, 0.0);
@@ -73,6 +77,8 @@ fn walking_entity_stops_flush_against_a_wall_on_a_partial_width_axis() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     // Pig is 0.9 blocks wide (half-width 0.45), which doesn't divide evenly into whole
     // blocks - this is what actually exercises the snapping math on a non-full-width axis.
@@ -115,6 +121,8 @@ fn diagonal_movement_slides_along_a_wall_instead_of_stopping_dead() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let mut bundle = PigBundle::new(Position::new(0.0, 64.0, 0.5));
     bundle.velocity = Velocity::new(2.0, 0.0, 1.5);
@@ -159,6 +167,8 @@ fn player_landing_on_ground_gets_marked_grounded_without_position_correction() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     // The client already reported landing a bit into the floor - we shouldn't correct a
     // player's Position (that's left to the client), but OnGround still needs to flip.
@@ -214,6 +224,8 @@ fn player_predicted_next_step_can_detect_an_upcoming_landing() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let requested_pos = Position::new(0.5, 65.3, 0.5);
     let mut bundle = PlayerBundle {
@@ -266,6 +278,8 @@ fn player_landing_with_negligible_horizontal_jitter_still_detected() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let requested_pos = Position::new(0.5000001, 64.98, 0.5);
     let mut bundle = PlayerBundle {
@@ -318,6 +332,8 @@ fn player_walking_into_a_wall_gets_detected() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let requested_pos = Position::new(1.0, 65.0, 0.5);
     let mut bundle = PlayerBundle {
@@ -383,6 +399,8 @@ fn player_landing_over_multiple_small_ticks_still_detected() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let mut bundle = PlayerBundle {
         identity: Identity::new(Some("Steve".to_string())),
@@ -428,6 +446,8 @@ fn player_landing_flush_on_a_whole_number_boundary_still_detected() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let mut bundle = PlayerBundle {
         identity: Identity::new(Some("Steve".to_string())),
@@ -479,6 +499,8 @@ fn player_jumping_off_ground_does_not_get_falsely_marked_as_hitting_it() {
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let mut bundle = PlayerBundle {
         identity: Identity::new(Some("Steve".to_string())),
@@ -553,6 +575,8 @@ fn repeated_predicted_player_landing_only_marks_the_first_tick_as_new_ground_con
     world.insert_resource(state);
     world.insert_resource(PhysicalRegistry::new());
     MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+    MessageRegistry::register_message::<DamageEvent>(&mut world);
+    MessageRegistry::register_message::<KillEntity>(&mut world);
 
     let mut bundle = PlayerBundle {
         identity: Identity::new(Some("Steve".to_string())),

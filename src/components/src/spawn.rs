@@ -63,7 +63,7 @@ impl SpawnProperties {
         let data = metadata.vanilla_data();
 
         Self {
-            category: clone_mob_category(data.category),
+            category: clone_mob_category(&data.category),
             saveable: data.saveable,
             limit_per_chunk: data.limit_per_chunk,
             can_spawn_far_from_player: data.can_spawn_far_from_player,
@@ -74,7 +74,7 @@ impl SpawnProperties {
     /// Create directly from vanilla data
     pub fn from_vanilla(data: &'static VanillaEntityType) -> Self {
         Self {
-            category: clone_mob_category(data.category),
+            category: clone_mob_category(&data.category),
             saveable: data.saveable,
             limit_per_chunk: data.limit_per_chunk,
             can_spawn_far_from_player: data.can_spawn_far_from_player,

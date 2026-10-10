@@ -2,7 +2,7 @@ use temper_codec::net_types::prefixed_optional::PrefixedOptional;
 use temper_codec::net_types::var_int::VarInt;
 use temper_macros::{NetEncode, packet};
 
-#[derive(NetEncode)]
+#[derive(NetEncode, Clone)]
 #[packet(packet_id = "damage_event", state = "play")]
 pub struct DamagePlayer {
     pub entity_id: VarInt,

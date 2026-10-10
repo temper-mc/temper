@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use temper_components::bossbar::BossbarOwner;
 use temper_components::combat::CombatProperties;
 use temper_components::entity_identity::Identity;
+use temper_components::health::Health;
 use temper_components::last_synced_position::LastSyncedPosition;
 use temper_components::metadata::EntityMetadata;
 use temper_components::player::entity_tracker::EntityTracker;
@@ -64,7 +65,18 @@ pub fn handle_spawn_mob_bundle(
             );
         }
 
-        event.bundle.clone().spawn_standard(&mut commands);
+        let mob_entity = event.bundle.clone().spawn_standard(&mut commands);
+
+        let entity_health_opt = kind.to_entity_type().get_attribute("max_health");
+
+        let mut health = Health::default();
+
+        if let Some(entity_health) = entity_health_opt {
+            health.max = entity_health as f32;
+            health.current = health.max;
+        }
+
+        commands.entity(mob_entity).insert(health);
 
         query.iter().for_each(|tracker| {
             tracker.to_track.push((uuid, kind.to_entity_type().id));

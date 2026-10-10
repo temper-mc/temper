@@ -7,7 +7,7 @@ impl NormalGenerator {
     #[dispatch_simd(A)]
     pub(crate) fn generate_noises(&self, input: StageInput<'_>) -> Result<(), GenerationError> {
         let grid_2d = quick_noise::Grid::<2, A>::new(16, 16)
-            .grid_position(input.pos.x() as f32, input.pos.z() as f32)
+            .grid_position(input.pos.x().into(), input.pos.z().into())
             .seed(self.seed as i64);
 
         let mut end_grid_2d = [0f32; 256];

@@ -3,6 +3,8 @@ use bevy_ecs::prelude::{DetectChanges, Entity, Has, Query, Res, With};
 use bevy_ecs::world::Mut;
 use bevy_math::Vec3A;
 use bevy_math::bounding::BoundingVolume;
+use bevy_math::ops::floor;
+use std::cmp::max;
 use std::time::Instant;
 use temper_components::bounds::CollisionBounds;
 use temper_components::entity_identity::Identity;
@@ -15,14 +17,17 @@ use temper_components::player::velocity::Velocity;
 use temper_core::block_properties;
 use temper_core::dimension::Dimension;
 use temper_core::pos::{BlockPos, ChunkPos};
+use temper_data::attributes::Attribute;
 use temper_entities::PhysicalRegistry;
 use temper_entities::components::Baby;
 use temper_entities::components::EntityMetadata;
 use temper_entities::markers::HasCollisions;
+use temper_messages::damage::{DamageEvent, DamageSource};
 use temper_messages::entity_update::SendEntityUpdate;
+use temper_physics::GRAVITY_ACCELERATION;
 use temper_state::{GlobalState, GlobalStateResource};
 use temper_world::RefChunk;
-use tracing::{debug, error, trace};
+use tracing::{debug, error, info, trace};
 
 type CollisionQueryItem<'a> = (
     Entity,
@@ -43,6 +48,7 @@ type CollisionQueryItem<'a> = (
 pub fn handle(
     query: Query<CollisionQueryItem, With<HasCollisions>>,
     mut entity_updates_writer: MessageWriter<SendEntityUpdate>,
+    mut damage_writer: MessageWriter<DamageEvent>,
     state: Res<GlobalStateResource>,
     registry: Res<PhysicalRegistry>,
 ) {
@@ -197,7 +203,9 @@ pub fn handle(
                 // correct the entity's position - players are client-authoritative so we
                 // never touch their Position below, but OnGround still has to reflect that
                 // their reported movement did hit something on the y-axis.
-                if axis == 1 {
+                let is_ground_hit = axis == 1 && sweep_delta.y < 0.0;
+
+                if is_ground_hit {
                     grounded.currently_grounded = true;
                 }
 
@@ -209,6 +217,67 @@ pub fn handle(
                         possible_hits,
                         Instant::now() - start
                     );
+                    if axis == 1 || sweep_delta.y < 0.0 {
+                        let fall_vel = vel
+                            .as_ref()
+                            .map(|v| v.y)
+                            .filter(|&y| y != 0.0)
+                            .unwrap_or(sweep_delta.y);
+
+                        // Check for downwards movement
+                        if fall_vel < 0.0 && grounded.just_landed() {
+                            let vy = fall_vel.abs();
+                            let g = GRAVITY_ACCELERATION.y.abs();
+
+                            let fall_dist = if g > 0.0 { vy.powi(2) / (2.0 * g) } else { vy };
+
+                            let (sfd, fdm) = if let Some(meta) = metadata {
+                                // For Mobs, get Attribute and there the value
+                                let vanilla_data = meta.vanilla_data();
+
+                                let safe_fall_distance = vanilla_data
+                                    .get_attribute("safe_fall_distance")
+                                    .expect("Failed to get 'safe_fall_distance' attribute from entity metadata");
+
+                                let fall_damage_mult = vanilla_data
+                                    .get_attribute("fall_damage_multiplier")
+                                    .expect("Failed to get 'fall_damage_multiplier' attribute from entity metadata");
+
+                                (safe_fall_distance as f32, fall_damage_mult as f32)
+                            } else {
+                                // For Players, get the default Attribute
+                                // (gets it similar to how mobs get it, just a longer way there)
+                                let safe_fall_distance = Attribute::from_name("safe_fall_distance")
+                                    .expect("Failed to find default attribute definition for 'safe_fall_distance'");
+
+                                let fall_damage_mult = Attribute::from_name("fall_damage_multiplier")
+                                    .expect("Failed to find default attribute definition for 'fall_damage_multiplier'");
+
+                                (
+                                    safe_fall_distance.default_value as f32,
+                                    fall_damage_mult.default_value as f32,
+                                )
+                            };
+
+                            // Calculate Fall-Damage
+                            let fall_damage = max(0, floor((fall_dist - sfd) * fdm) as i32);
+
+                            // Only emit DamageEvent if damage was actually taken
+                            if fall_damage > 0 {
+                                damage_writer.write(DamageEvent {
+                                    target: eid,
+                                    source: DamageSource::Fall { last_ground: None },
+                                    damage: fall_damage as f32,
+                                    knockback: None,
+                                    knockback_source: None,
+                                });
+
+                                info!("Entity {:?} fell taking {} damage", eid, fall_damage);
+                            } else {
+                                trace!("Entity {:?} fell without taking damage", eid);
+                            }
+                        }
+                    }
                 }
 
                 // If it's not a player we need to set their position to not be colliding with the block.
@@ -306,10 +375,10 @@ fn sweep_aabb(
         return None;
     }
 
-    let axis = if entry[0] >= entry[1] && entry[0] >= entry[2] {
-        0
-    } else if entry[1] >= entry[2] {
+    let axis = if entry[1] >= entry[0] && entry[1] >= entry[2] {
         1
+    } else if entry[0] >= entry[2] {
+        0
     } else {
         2
     };
