@@ -5,6 +5,7 @@ mod dimension;
 pub mod echo;
 pub mod gamemode;
 mod kill;
+mod list;
 mod motion;
 mod noise;
 pub mod op;
