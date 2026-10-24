@@ -6,6 +6,7 @@ version.workspace = true
 build = "build/main.rs"
 
 [dependencies]
+include_dir = { workspace = true }
 
 [build-dependencies]
 which = { workspace = true }

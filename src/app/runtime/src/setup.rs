@@ -32,11 +32,12 @@ pub fn generate_spawn_chunks(state: GlobalState) -> Result<(), BinaryError> {
         batch.execute(move || {
             let pos = ChunkPos::new(x, z);
             let chunk_store = &state_clone.world.chunks;
-            if let Err(e) =
-                state_clone
-                    .world
-                    .chunk_generator
-                    .generate(chunk_store, Dimension::Overworld, pos)
+            if let Err(e) = state_clone
+                .world
+                .chunk_generators
+                .get(&Dimension::Overworld)
+                .expect("should have overworld generator")
+                .generate(chunk_store, Dimension::Overworld, pos)
             {
                 error!("Failed to generate chunk at {}: {:?}", pos, e);
             }

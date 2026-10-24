@@ -7,6 +7,7 @@ pub enum DensityRuntimeError {
     PositionStackUnderflow,
     SplineRuntimeOutOfBounds { got: usize, max: usize },
     InvalidCache { got: usize, max: usize },
+    InvalidFunctionId { got: usize, max: usize },
 }
 
 #[derive(Debug)]

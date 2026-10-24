@@ -11,6 +11,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 use temper_config::ServerConfig;
 pub use temper_core::dimension::Dimension;
+use temper_core::math::java_hash_code;
 use temper_core::pos::FullChunkPos;
 use temper_general_purpose::paths::get_root_path;
 use temper_storage::lmdb::StorageBackend;
@@ -25,7 +26,7 @@ use wyhash::WyHasherBuilder;
 #[derive(Clone)]
 pub struct World {
     pub chunks: ChunkStore,
-    pub chunk_generator: WorldChunkGenerator,
+    pub chunk_generators: DashMap<Dimension, WorldChunkGenerator>,
 }
 
 #[derive(Clone)]
@@ -68,45 +69,72 @@ impl World {
             config.database.verify_chunk_data,
             WyHasherBuilder::new(seed),
         );
-        let chunk_generator = WorldChunkGenerator::from_name(&config.world_gen.generator, seed);
+        let overworld_chunk_generator =
+            WorldChunkGenerator::from_name(&config.world_gen.generator, seed, Dimension::Overworld)
+                .ok_or(InvalidWorldGenerator(
+                    match config.world_gen.generator.as_str() {
+                        "" => "<empty string>".to_string(),
+                        other => other.to_string(),
+                    },
+                ))?;
+        let nether_chunk_generator =
+            WorldChunkGenerator::from_name(&config.world_gen.generator, seed, Dimension::Nether)
+                .ok_or(InvalidWorldGenerator(
+                    match config.world_gen.generator.as_str() {
+                        "" => "<empty string>".to_string(),
+                        other => other.to_string(),
+                    },
+                ))?;
+        let end_chunk_generator =
+            WorldChunkGenerator::from_name(&config.world_gen.generator, seed, Dimension::End)
+                .ok_or(InvalidWorldGenerator(
+                    match config.world_gen.generator.as_str() {
+                        "" => "<empty string>".to_string(),
+                        other => other.to_string(),
+                    },
+                ))?;
 
-        if let Some(chunk_generator) = chunk_generator {
-            Ok(World {
-                chunks,
-                chunk_generator,
-            })
-        } else {
-            Err(InvalidWorldGenerator(
-                match config.world_gen.generator.as_str() {
-                    "" => "<empty string>".to_string(),
-                    other => other.to_string(),
-                },
-            ))
-        }
+        Ok(World {
+            chunks,
+            chunk_generators: [
+                (Dimension::Overworld, overworld_chunk_generator),
+                (Dimension::Nether, nether_chunk_generator),
+                (Dimension::End, end_chunk_generator),
+            ]
+            .into_iter()
+            .collect(),
+        })
     }
 
     pub fn get_cache(&self) -> &ChunkCache {
         self.chunks.get_cache()
     }
 
-    pub fn final_generation_stage(&self) -> u8 {
-        self.chunk_generator.final_stage().raw()
+    pub fn final_generation_stage(&self, dimension: Dimension) -> u8 {
+        self.chunk_generators
+            .get(&dimension)
+            .map(|g| g.final_stage().raw())
+            .unwrap_or_default()
     }
 
-    pub fn is_fully_generated(&self, chunk: &Chunk) -> bool {
-        chunk.stage >= self.final_generation_stage()
+    pub fn is_fully_generated(&self, chunk: &Chunk, dimension: Dimension) -> bool {
+        chunk.stage >= self.final_generation_stage(dimension)
     }
 
     /// Loads a chunk from the database or cache, generating or advancing it first if needed.
     pub fn get_or_generate_chunk(&'_ self, pos: FullChunkPos) -> Result<RefChunk<'_>, WorldError> {
-        self.chunk_generator
+        self.chunk_generators
+            .get(&pos.dimension())
+            .ok_or(WorldError::MissingWorldGenerator(pos.dimension()))?
             .generate(&self.chunks, pos.dimension(), *pos)?;
         self.get_chunk(pos)
     }
 
     /// Loads a chunk from the database or cache, generating or advancing it first if needed. Returns a mutable reference.
     pub fn get_or_generate_mut(&self, pos: FullChunkPos) -> Result<MutChunk<'_>, WorldError> {
-        self.chunk_generator
+        self.chunk_generators
+            .get(&pos.dimension())
+            .ok_or(WorldError::MissingWorldGenerator(pos.dimension()))?
             .generate(&self.chunks, pos.dimension(), *pos)?;
         self.get_chunk_mut(pos)
     }
@@ -175,21 +203,9 @@ fn check_config_validity(config: &ServerConfig) -> Result<(), WorldError> {
     Ok(())
 }
 
-fn java_hash_code(str: &str) -> u32 {
-    let mut output = 0u32;
-
-    for (i, char) in str.chars().enumerate() {
-        output = output.wrapping_add(
-            (char as u32).wrapping_mul(31u32.wrapping_pow(str.len() as u32 - i as u32 - 1)),
-        )
-    }
-
-    output
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{java_hash_code, World};
+    use crate::World;
     use temper_config::server_config::create_dummy_config;
     use temper_core::dimension::Dimension;
     use temper_core::pos::{ChunkPos, FullChunkPos};
@@ -210,14 +226,5 @@ mod tests {
             );
         let encoded = bitcode::serialize(&*chunk).unwrap();
         std::fs::write("../../../.etc/raw_chunk.dat", encoded).unwrap();
-    }
-
-    #[test]
-    fn test_java_hash_code() {
-        assert_eq!(java_hash_code("Hello, world!"), 2414922741);
-        assert_eq!(java_hash_code("temper rox"), 1116817596);
-        assert_eq!(java_hash_code("my custom seed"), 1881557324);
-        assert_eq!(java_hash_code("abcghimnostuyz123789"), 1899513971);
-        assert_eq!(java_hash_code("TEMPER ROX!"), 2444120837);
     }
 }

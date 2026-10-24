@@ -53,7 +53,9 @@ fn generate_region(world: &World, size: i32) {
             let pos = black_box(ChunkPos::new(x, z));
             black_box(
                 world
-                    .chunk_generator
+                    .chunk_generators
+                    .get(&Dimension::Overworld)
+                    .expect("overworld generator didnt exist")
                     .generate(store, Dimension::Overworld, pos),
             )
             .unwrap();

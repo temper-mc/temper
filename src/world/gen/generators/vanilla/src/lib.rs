@@ -2,9 +2,10 @@ use gen_core::{
     ChunkGenerator, GenStage, GenerationError, GeneratorId, StageDependencies, StageInput,
     StageSpec,
 };
-use include_dir::{Dir, include_dir};
+use include_dir::Dir;
 use std::collections::HashMap;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_core::math::TemperMathExt;
 use temper_core::pos::{ChunkBlockPos, ChunkPos};
 use temper_core::random::{RandomSource, XoroshiroRandomSource};
@@ -20,16 +21,24 @@ pub struct VanillaGenerator {
     default_block_state: BlockStateId,
     default_fluid_state: BlockStateId,
     water_level: i16,
+    dimension: Dimension,
+    interpolation_cell_size_xz: u8,
+    interpolation_cell_size_y: u8,
 }
 
 impl VanillaGenerator {
-    pub fn new(seed: u64) -> VanillaGenerator {
+    pub fn new(seed: u64, dimension: Dimension) -> VanillaGenerator {
         const BASE: &str = include_str!("function.json");
-        const EXTERNAL: Dir =
-            include_dir!("assets/generated/generated/data/minecraft/worldgen/density_function");
+        const NETHER: &str = include_str!("nether.json");
+        const END: &str = include_str!("end.json");
 
         let mut rand = XoroshiroRandomSource::new(seed);
-        let func = deserialize_function(BASE).unwrap();
+
+        let func = match dimension {
+            Dimension::Nether => deserialize_function(NETHER).unwrap(),
+            Dimension::End => deserialize_function(END).unwrap(),
+            _ => deserialize_function(BASE).unwrap(),
+        };
 
         let mut external = HashMap::new();
         fn gather(external: &mut HashMap<String, DensityFunctionArgument>, root: &Dir) {
@@ -54,15 +63,46 @@ impl VanillaGenerator {
             }
         }
 
-        gather(&mut external, &EXTERNAL);
-        let compiled = Compiler::compile(&mut rand.fork_positional(), &external, func);
+        gather(
+            &mut external,
+            &temper_assets::generated::DENSITY_FUNCTION_DIR,
+        );
+        let compiled = Compiler::compile(
+            &mut rand.fork_positional(),
+            &external,
+            func,
+            seed,
+            matches!(dimension, Dimension::Nether | Dimension::End),
+        );
 
         Self {
             _rand: rand,
             final_density: compiled.unwrap(),
-            default_block_state: block!("stone"),
-            default_fluid_state: block!("water", { level: 0 }),
-            water_level: 63,
+            default_block_state: match dimension {
+                Dimension::Overworld => block!("stone"),
+                Dimension::Nether => block!("netherrack"),
+                Dimension::End => block!("end_stone"),
+                _ => block!("stone"),
+            },
+            default_fluid_state: match dimension {
+                Dimension::Overworld => block!("water", { level: 0 }),
+                Dimension::Nether => block!("lava", { level: 0 }),
+                _ => block!("air"),
+            },
+            water_level: match dimension {
+                Dimension::Overworld => 63,
+                Dimension::Nether => 32,
+                _ => 0,
+            },
+            interpolation_cell_size_xz: match dimension {
+                Dimension::End => 2,
+                _ => 1,
+            },
+            interpolation_cell_size_y: match dimension {
+                Dimension::End => 1,
+                _ => 2,
+            },
+            dimension,
         }
     }
 }
@@ -101,7 +141,7 @@ impl ChunkGenerator for VanillaGenerator {
 
 impl VanillaGenerator {
     fn fill_noise(&self, input: StageInput) -> Result<(), GenerationError> {
-        for y in -4..(self.water_level >> 4) {
+        for y in input.target.height().min_section_y()..(self.water_level >> 4) {
             input.target.fill_section(y as i8, self.default_fluid_state)
         }
 
@@ -116,22 +156,21 @@ impl VanillaGenerator {
             }
         }
 
-        for y in -64..-54 {
-            for x in 0..16 {
-                for z in 0..16 {
-                    input.target.set_block_without_heightmap(
-                        ChunkBlockPos::new(x, y, z),
-                        block!("lava", { level: 0 }),
-                    )
+        if self.dimension == Dimension::Overworld {
+            for y in -64..-54 {
+                for x in 0..16 {
+                    for z in 0..16 {
+                        input.target.set_block_without_heightmap(
+                            ChunkBlockPos::new(x, y, z),
+                            block!("lava", { level: 0 }),
+                        )
+                    }
                 }
             }
         }
 
-        let cell_size_xz = 1;
-        let cell_size_y = 2;
-
-        let cell_height = cell_size_y + 1;
-        let cell_width = cell_size_xz + 1;
+        let cell_width = self.interpolation_cell_size_xz + 1;
+        let cell_height = self.interpolation_cell_size_y + 1;
 
         let cell_count_xz = 16usize >> cell_width;
         let cell_count_y = (input.target.height().height as usize) >> cell_height;
@@ -232,6 +271,10 @@ impl VanillaGenerator {
     }
 
     fn generate_surface(&self, input: StageInput) -> Result<(), GenerationError> {
+        if self.dimension != Dimension::Overworld {
+            return Ok(());
+        }
+
         let grass = block!("grass_block", { snowy: false });
         let dirt = block!("dirt");
         let sand = block!("sand");
@@ -286,8 +329,8 @@ fn fill_slice(
     cell_x: usize,
     cell_count_xz: usize,
     cell_count_y: usize,
-    cell_width: i32,
-    cell_height: i32,
+    cell_width: u8,
+    cell_height: u8,
     min_y: i16,
     function: &mut DensityRuntime,
 ) -> DensityResult<()> {

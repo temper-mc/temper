@@ -19,19 +19,28 @@ impl NormalNoise {
         first_octave: 0,
     };
 
-    pub fn new<R: RandomSource>(rand: &mut R, param: &'static NoiseParameter) -> NormalNoise {
-        let mut this = Self::new_custom(rand, param.first_octave, param.amplitudes);
+    pub fn new<R: RandomSource, const LEGACY: bool>(
+        rand: &mut R,
+        param: &'static NoiseParameter,
+    ) -> NormalNoise {
+        let mut this = Self::new_custom::<R, LEGACY>(rand, param.first_octave, param.amplitudes);
         this.__param = param;
         this
     }
 
-    pub fn new_custom<R: RandomSource>(
+    pub fn new_custom<R: RandomSource, const LEGACY: bool>(
         rand: &mut R,
         first_octave: i32,
         amplitudes: &[f64],
     ) -> NormalNoise {
-        let first = PerlinNoise::new(rand, first_octave, amplitudes);
-        let second = PerlinNoise::new(rand, first_octave, amplitudes);
+        let first = match LEGACY {
+            false => PerlinNoise::new(rand, first_octave, amplitudes),
+            true => PerlinNoise::new_legacy(rand, first_octave, amplitudes),
+        };
+        let second = match LEGACY {
+            false => PerlinNoise::new(rand, first_octave, amplitudes),
+            true => PerlinNoise::new_legacy(rand, first_octave, amplitudes),
+        };
 
         let min_octave = amplitudes
             .iter()
@@ -73,13 +82,18 @@ mod tests {
     use super::*;
     use crate::maps::tests::data::NORMAL_TEST;
     use crate::maps::tests::run_test;
+    use temper_core::random::XoroshiroRandomSource;
 
     #[test]
     fn test_normal_noise() {
         run_test(
             &NORMAL_TEST,
             |rand, (first_octave, amplitudes)| {
-                NormalNoise::new_custom(rand, *first_octave, amplitudes)
+                NormalNoise::new_custom::<XoroshiroRandomSource, false>(
+                    rand,
+                    *first_octave,
+                    amplitudes,
+                )
             },
             NormalNoise::noise,
         )

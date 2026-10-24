@@ -9,3 +9,4 @@ serde_json = { workspace = true }
 temper-noise = { workspace = true }
 temper-core = { workspace = true }
 bevy_math = { workspace = true }
+indexmap = { workspace = true }

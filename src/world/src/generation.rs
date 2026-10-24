@@ -28,8 +28,10 @@ impl WorldChunkGenerator {
         }
     }
 
-    pub fn from_name(name: &str, seed: u64) -> Option<Self> {
-        Some(Self::new(world_gen::generator_from_name(name, seed)?))
+    pub fn from_name(name: &str, seed: u64, dimension: Dimension) -> Option<Self> {
+        Some(Self::new(world_gen::generator_from_name(
+            name, seed, dimension,
+        )?))
     }
 
     pub fn final_stage(&self) -> GenStage {

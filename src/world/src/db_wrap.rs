@@ -32,7 +32,7 @@ impl ChunkStore {
             return Ok(());
         }
 
-        let chunk = Chunk::new_empty();
+        let chunk = Chunk::new_empty_with_height(dimension.chunk_height());
         chunk.mark_dirty();
         self.cache.insert(FullChunkPos::new(pos, dimension), chunk);
 
@@ -193,7 +193,13 @@ impl World {
     }
 
     pub fn sync(&self) -> Result<(), WorldError> {
-        self.chunks.sync(self.final_generation_stage())
+        self.chunks.sync(
+            self.chunk_generators
+                .iter()
+                .map(|g| g.final_stage().raw())
+                .max()
+                .unwrap_or_default(),
+        )
     }
 }
 

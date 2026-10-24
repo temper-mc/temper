@@ -36,6 +36,17 @@ pub fn generate_source(assets_path: PathBuf) {
     write_dir(&mut content, &reports_dir, 1);
     content.push_str("}\n");
 
+    let density_func_dir = data_dir
+        .join("minecraft/worldgen/density_function")
+        .to_string_lossy()
+        .to_string();
+    content.push_str(&format!(
+        "pub const DENSITY_FUNCTION_DIR: include_dir::Dir = include_dir::include_dir!({:?});\n",
+        density_func_dir
+            .strip_prefix("\\\\?\\")
+            .unwrap_or(density_func_dir.as_ref()),
+    ));
+
     content.push_str(
         &format!(
             "#[doc = include_str!(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/src/asset_path_macro.md\"))]\n\

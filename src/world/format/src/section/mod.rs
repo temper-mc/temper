@@ -79,7 +79,6 @@ impl ChunkSectionType {
         }
     }
 
-    #[expect(unused)]
     pub fn fill(&mut self, id: BlockStateId) {
         match self {
             Self::Uniform(data) => data.fill(id),
@@ -185,7 +184,6 @@ impl ChunkSection {
         self.inner.set_block(pos, id);
     }
 
-    #[expect(unused)]
     pub(crate) fn fill(&mut self, id: BlockStateId) {
         self.dirty.store(true, std::sync::atomic::Ordering::Relaxed);
         self.inner.fill(id);

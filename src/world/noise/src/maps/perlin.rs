@@ -48,7 +48,7 @@ impl PerlinNoise {
         }
     }
 
-    pub fn new_legacy<R: RandomSource>(rand: &mut R, octaves: &[i32]) -> PerlinNoise {
+    pub fn new_legacy_for_blended<R: RandomSource>(rand: &mut R, octaves: &[i32]) -> PerlinNoise {
         debug_assert!(!octaves.is_empty());
 
         let low_freq_octaves = -octaves[0];
@@ -61,7 +61,14 @@ impl PerlinNoise {
             amplitudes[(octave + low_freq_octaves) as usize] = 1.0;
         }
 
-        let first_octave = octaves[0];
+        Self::new_legacy(rand, octaves[0], &amplitudes)
+    }
+
+    pub fn new_legacy<R: RandomSource>(
+        rand: &mut R,
+        first_octave: i32,
+        amplitudes: &[f64],
+    ) -> PerlinNoise {
         let octaves = amplitudes.len() as i32;
         let zero_octave_index = -first_octave;
         let mut noise_levels = vec![None; amplitudes.len()];
@@ -76,16 +83,12 @@ impl PerlinNoise {
         }
 
         for i in (0..zero_octave_index).rev() {
-            if i < octaves {
-                let amplitude = amplitudes[i as usize];
-                if amplitude != 0.0 {
-                    noise_levels[i as usize] = Some((ImprovedNoise::new(rand), amplitude));
-                } else {
-                    rand.consume_count(262)
-                }
-            } else {
-                rand.consume_count(262)
+            if i < octaves && amplitudes[i as usize] != 0.0 {
+                noise_levels[i as usize] = Some((ImprovedNoise::new(rand), amplitudes[i as usize]));
+                continue;
             }
+
+            rand.consume_count(262);
         }
 
         debug_assert_eq!(
@@ -171,7 +174,7 @@ mod tests {
         run_test(
             &PERLIN_LEGACY_TEST,
             |rand, range| {
-                PerlinNoise::new_legacy(
+                PerlinNoise::new_legacy_for_blended(
                     rand,
                     range.clone().into_iter().collect::<Vec<_>>().as_slice(),
                 )

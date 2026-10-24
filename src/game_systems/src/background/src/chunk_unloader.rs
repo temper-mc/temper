@@ -47,7 +47,9 @@ pub fn handle(
         if state
             .0
             .world
-            .chunk_generator
+            .chunk_generators
+            .get(&chunk_pos.dimension())
+            .expect("should have generator for dimension")
             .has_pending_jobs(chunk_pos.dimension(), **chunk_pos)
         {
             for dx in -1..=1 {
@@ -75,7 +77,9 @@ pub fn handle(
             state
                 .0
                 .world
-                .chunk_generator
+                .chunk_generators
+                .get(&pos.dimension())
+                .expect("should have generator for dimension")
                 .forget_chunk(pos.dimension(), *pos);
 
             // despawn orphaned entities

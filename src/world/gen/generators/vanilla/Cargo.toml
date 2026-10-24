@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 gen-core = { path = "../../core" }
+temper-assets = { workspace = true }
 temper-core = { workspace = true }
 temper-density = { path = "../../../density" }
 include_dir = { workspace = true }

@@ -33,3 +33,29 @@ pub trait TemperMathExt: Sized {
             .clamped_lerp(to_min, to_max)
     }
 }
+
+pub fn java_hash_code(str: &str) -> u32 {
+    let mut output = 0u32;
+
+    for (i, char) in str.chars().enumerate() {
+        output = output.wrapping_add(
+            (char as u32).wrapping_mul(31u32.wrapping_pow(str.len() as u32 - i as u32 - 1)),
+        )
+    }
+
+    output
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::math::java_hash_code;
+
+    #[test]
+    fn test_java_hash_code() {
+        assert_eq!(java_hash_code("Hello, world!"), 2414922741);
+        assert_eq!(java_hash_code("temper rox"), 1116817596);
+        assert_eq!(java_hash_code("my custom seed"), 1881557324);
+        assert_eq!(java_hash_code("abcghimnostuyz123789"), 1899513971);
+        assert_eq!(java_hash_code("TEMPER ROX!"), 2444120837);
+    }
+}

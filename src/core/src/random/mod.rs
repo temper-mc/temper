@@ -1,9 +1,11 @@
+mod legacy;
 mod xoroshiro;
 
 use crate::pos::BlockPos;
 use std::borrow::Borrow;
 use std::ops::RangeInclusive;
 
+pub use legacy::*;
 pub use xoroshiro::*;
 
 /// Supplies various random functions for structs. Based on `net.minecraft.util.RandomSource`.

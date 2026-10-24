@@ -43,15 +43,18 @@ impl BlendedNoise {
         smear_scale_multiplier: f64,
     ) -> Self {
         Self {
-            min_limit_noise: PerlinNoise::new_legacy(
+            min_limit_noise: PerlinNoise::new_legacy_for_blended(
                 rand,
                 &(-15..=0).into_iter().collect::<Vec<_>>(),
             ),
-            max_limit_noise: PerlinNoise::new_legacy(
+            max_limit_noise: PerlinNoise::new_legacy_for_blended(
                 rand,
                 &(-15..=0).into_iter().collect::<Vec<_>>(),
             ),
-            main_noise: PerlinNoise::new_legacy(rand, &(-7..=0).into_iter().collect::<Vec<_>>()),
+            main_noise: PerlinNoise::new_legacy_for_blended(
+                rand,
+                &(-7..=0).into_iter().collect::<Vec<_>>(),
+            ),
             multiplier: 684.412 * DVec3::new(xz_scale, y_scale, xz_scale),
             factor: DVec3::new(xz_factor, y_factor, xz_factor),
             smear_scale_multiplier,

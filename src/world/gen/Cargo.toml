@@ -4,6 +4,7 @@ version = { workspace = true }
 edition = "2024"
 
 [dependencies]
+temper-core = { workspace = true }
 gen-core = { path = "./core" }
 gen-scheduler = { path = "./scheduler" }
 normal = { path = "./generators/normal" }

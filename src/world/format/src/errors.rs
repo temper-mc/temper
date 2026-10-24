@@ -2,6 +2,7 @@ use crate::errors::WorldError::{CompressionError, GenericIOError, PermissionErro
 use std::io::ErrorKind;
 use temper_anvil::errors::AnvilError;
 use temper_core::block_state_id::BlockStateId;
+use temper_core::dimension::Dimension;
 use temper_general_purpose::data_packing::errors::DataPackingError;
 use temper_storage::errors::StorageError;
 use thiserror::Error;
@@ -67,6 +68,8 @@ pub enum WorldError {
     NBTError(#[from] temper_nbt::errors::NBTError),
     #[error("Invalid world generator: {0}")]
     InvalidWorldGenerator(String),
+    #[error("Missing world generator for dimension: {0:?}")]
+    MissingWorldGenerator(Dimension),
 }
 
 impl From<std::io::Error> for WorldError {

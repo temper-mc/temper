@@ -35,7 +35,11 @@ fn bench_perlin(c: &mut Criterion) {
 
 fn bench_normal(c: &mut Criterion) {
     let mut random = XoroshiroRandomSource::new(0);
-    let map = NormalNoise::new_custom(&mut random, -1, &[1.0, 1.0, 0.0, 2.0]);
+    let map = NormalNoise::new_custom::<XoroshiroRandomSource, false>(
+        &mut random,
+        -1,
+        &[1.0, 1.0, 0.0, 2.0],
+    );
 
     c.bench_function("normal noise - scalar", |b| {
         b.iter(|| {
@@ -46,7 +50,11 @@ fn bench_normal(c: &mut Criterion) {
 
 fn bench_blended(c: &mut Criterion) {
     let mut random = XoroshiroRandomSource::new(0);
-    let map = NormalNoise::new_custom(&mut random, -1, &[1.0, 1.0, 0.0, 2.0]);
+    let map = NormalNoise::new_custom::<XoroshiroRandomSource, false>(
+        &mut random,
+        -1,
+        &[1.0, 1.0, 0.0, 2.0],
+    );
 
     c.bench_function("blended noise - scalar", |b| {
         b.iter(|| {

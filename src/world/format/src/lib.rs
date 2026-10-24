@@ -128,8 +128,8 @@ impl Chunk {
     ///
     /// * An empty chunk filled with air using the given [`ChunkHeight`].
     pub fn new_empty_with_height(height: ChunkHeight) -> Chunk {
-        let sections = (-4..20)
-            .map(|y| ChunkSection::new_uniform(AIR, y))
+        let sections = (height.min_section_y()..height.max_section_y())
+            .map(|y| ChunkSection::new_uniform(AIR, y as i8))
             .collect::<Vec<_>>()
             .into_boxed_slice();
         Self {
@@ -161,8 +161,11 @@ impl Chunk {
     pub fn new_with_sections(sections: &[ChunkSection], height: ChunkHeight) -> Chunk {
         debug_assert_eq!(height.height as usize / 16, sections.len());
 
+        let mut sections = sections.to_vec();
+        sections.sort_by_key(|section| section.y);
+
         Self {
-            sections: sections.to_vec().into_boxed_slice(),
+            sections: sections.into_boxed_slice(),
             height,
             heightmaps: Heightmaps::default(),
             entities: DashMap::new(),
@@ -200,13 +203,7 @@ impl Chunk {
         assert!(i16::from(y) >= self.height.min_y / 16);
         assert!(i16::from(y) < (self.height.min_y + self.height.height as i16) / 16);
 
-        let section = self
-            .sections
-            .iter_mut()
-            .find(|s| s.y == y)
-            .expect("Section not found");
-
-        *section = ChunkSection::new_uniform(state, y);
+        self.sections[(i16::from(y) - self.height.min_section_y()) as usize].fill(state);
     }
 
     /// Fills the entire chunk with the given block.
@@ -216,7 +213,7 @@ impl Chunk {
     /// * `state` - The [`BlockStateId`] of the block to fill the chunk with.
     pub fn fill(&mut self, state: BlockStateId) {
         for section in &mut self.sections {
-            *section = ChunkSection::new_uniform(state, section.y);
+            section.fill(state);
         }
     }
 
@@ -231,7 +228,7 @@ impl Chunk {
     /// * The [`BlockStateId`] of the block at the requested position. If the position is above the maximum y of the chunk, air is always returned.
     ///   If the position is below the minimum y of the chunk, void air is always returned.
     pub fn get_block(&self, pos: ChunkBlockPos) -> BlockStateId {
-        let section = (pos.y().saturating_add(-self.height.min_y)) / 16;
+        let section = (pos.y() - self.height.min_y) >> 4;
         if section < 0 {
             return block!("void_air");
         }
