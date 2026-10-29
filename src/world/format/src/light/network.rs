@@ -34,8 +34,8 @@ impl<'chunk> From<&'chunk Chunk> for NetworkLightData<'chunk> {
         let mut block_light_arrays = Vec::with_capacity(NUM_SECTIONS);
 
         for (i, section) in chunk.sections.iter().enumerate() {
-            sky_light_mask.set(i, section.light.contains_sky_light());
-            block_light_mask.set(i, section.light.contains_block_light());
+            sky_light_mask.set(i + 1, section.light.contains_sky_light());
+            block_light_mask.set(i + 1, section.light.contains_block_light());
 
             if section.light.contains_sky_light() {
                 sky_light_arrays.push(LightDataArray {
@@ -72,5 +72,22 @@ impl<'chunk> From<&'chunk Chunk> for NetworkLightData<'chunk> {
             empty_block_light_mask,
             block_light_arrays: LengthPrefixedVec::new(block_light_arrays),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::light::SectionLightData;
+
+    #[test]
+    fn light_mask_skips_the_section_below_the_world() {
+        let mut chunk = Chunk::new_empty();
+        chunk.sections[0].light =
+            SectionLightData::with_data(LightStorage::Empty, LightStorage::Full);
+
+        let light = NetworkLightData::from(&chunk);
+        assert!(!light.block_light_mask.get(0));
+        assert!(light.block_light_mask.get(1));
     }
 }

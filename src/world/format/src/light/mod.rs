@@ -38,10 +38,12 @@ impl From<Vec<i8>> for LightStorage {
             let mut all_off = true;
 
             for b in data.iter() {
-                if *b != i8::MAX {
+                if *b != -1 {
+                    // Full light is 0xFF, which is -1 as i8 (Two's Complement)
                     all_on = false
                 };
-                if *b != i8::MIN {
+                if *b != 0 {
+                    // No light is 0x00, which is 0 as i8
                     all_off = false
                 };
             }
@@ -86,5 +88,29 @@ impl LightStorage {
             LightStorage::Full => true,
             LightStorage::Mixed { .. } => true,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn uniform_light_arrays_compress() {
+        assert!(matches!(
+            LightStorage::from(vec![-1i8; 2048]),
+            LightStorage::Full
+        ));
+        assert!(matches!(
+            LightStorage::from(vec![0i8; 2048]),
+            LightStorage::Empty
+        ));
+
+        let mut mixed = vec![0i8; 2048];
+        mixed[100] = 0x0F;
+        assert!(matches!(
+            LightStorage::from(mixed),
+            LightStorage::Mixed { .. }
+        ));
     }
 }
