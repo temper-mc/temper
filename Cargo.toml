@@ -175,7 +175,7 @@ temper-world-format = { path = "src/world/format" }
 temper-blocks-generated = { path = "src/blocks/crates/generated" }
 
 # Asynchronous
-tokio = { version = "1.53.3", features = [
+tokio = { version = "1.54.1", features = [
     "macros",
     "net",
     "rt",
@@ -267,7 +267,7 @@ zip = { version = "9.1.3", default-features = false, features = ["deflate"] }
 
 
 # Database
-heed = "0.22.1"
+heed = "0.23.1"
 
 # Misc
 deepsize = "0.2.0"

@@ -1,5 +1,3 @@
-use heed::byteorder::BigEndian;
-use heed::types::{Bytes, U128};
 use indicatif::ProgressStyle;
 use std::process::exit;
 use temper_core::pos::ChunkPos;
@@ -10,12 +8,19 @@ use tracing::{error, warn};
 use type_hash::TypeHash;
 
 pub fn check_chunks(state: &ServerState) -> Result<(), String> {
-    let env = state.world.chunks.storage_backend.env();
-    let txn = env
+    let backend = &state.world.chunks.storage_backend;
+    let metadata_db = backend
+        .database("metadata")
+        .map_err(|e| format!("Failed to open metadata database: {}", e))?;
+    let chunks_db = backend
+        .database("chunks")
+        .map_err(|e| format!("Failed to open chunks database: {}", e))?;
+    let txn = backend
+        .env()
         .read_txn()
         .map_err(|e| format!("Failed to create read transaction: {}", e))?;
 
-    if let Ok(Some(db)) = env.open_database::<U128<BigEndian>, Bytes>(&txn, Some("metadata")) {
+    if let Some(db) = metadata_db {
         if let Ok(Some(chunk_format_hash)) = db.get(&txn, &string_to_u128("chunk-format-hash")) {
             let chunk_format_hash_str = u64::from_be_bytes(
                 chunk_format_hash
@@ -46,7 +51,7 @@ pub fn check_chunks(state: &ServerState) -> Result<(), String> {
         );
     }
 
-    let Ok(Some(db)) = env.open_database::<U128<BigEndian>, Bytes>(&txn, Some("chunks")) else {
+    let Some(db) = chunks_db else {
         warn!(
             "Chunks database not found. This likely means that the world is empty and has no chunks, so there is nothing to validate."
         );

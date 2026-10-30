@@ -2,16 +2,19 @@ use crate::errors::StorageError;
 use heed;
 use heed::byteorder::BigEndian;
 use heed::types::{Bytes, U128};
-use heed::{Database, Env, EnvOpenOptions, WithoutTls};
+use heed::{CommitOrAbort, Database, Env, EnvOpenOptions, WithoutTls};
 use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+/// A database handle that has been committed, so it can outlive the transaction that opened it.
+type Table = Database<'static, U128<BigEndian>, Bytes>;
+
 #[derive(Debug, Clone)]
 pub struct StorageBackend {
     env: Env<WithoutTls>,
-    databases: Arc<RwLock<HashMap<String, Database<U128<BigEndian>, Bytes>>>>,
+    databases: Arc<RwLock<HashMap<String, Table>>>,
 }
 
 impl From<heed::Error> for StorageError {
@@ -26,27 +29,24 @@ impl From<heed::Error> for StorageError {
 }
 
 impl StorageBackend {
-    // Helper function for handle lookup
-    fn database(
-        &self,
-        table: &str,
-    ) -> Result<Option<Database<U128<BigEndian>, Bytes>>, StorageError> {
+    /// Looks up the handle for a table, opening it from disk if it isn't cached yet.
+    pub fn database(&self, table: &str) -> Result<Option<Table>, StorageError> {
         if let Some(db) = self.databases.read().get(table) {
             return Ok(Some(*db));
         }
 
         // Not cached — it may still exist on disk from a previous run.
         let ro_txn = self.env.read_txn()?;
-        let Some(db) = self
+        let db = self
             .env
-            .open_database::<U128<BigEndian>, Bytes>(&ro_txn, Some(table))?
-        else {
+            .open_databases_and_commit(ro_txn, |dbo, ro_txn| {
+                dbo.open_database::<U128<BigEndian>, Bytes>(ro_txn, Some(table))
+                    .map(CommitOrAbort::<_, ()>::Commit)
+            })?
+            .unwrap_commit();
+        let Some(db) = db else {
             return Ok(None);
         };
-        // Must commit, not abort: a handle opened inside an aborted read
-        // transaction is rejected by LMDB on later use (EINVAL). Caught by
-        // `tables_resolve_after_reopen`.
-        ro_txn.commit()?;
 
         self.databases.write().insert(table.to_string(), db);
         Ok(Some(db))
@@ -81,14 +81,18 @@ impl StorageBackend {
     }
 
     pub fn insert(&self, table: String, key: u128, value: Vec<u8>) -> Result<(), StorageError> {
-        let mut rw_txn = self.env.write_txn()?;
-        let db: Database<U128<BigEndian>, Bytes> =
-            self.env.create_database(&mut rw_txn, Some(&table))?;
-        if db.get(&rw_txn, &key)?.is_some() {
-            return Err(StorageError::KeyExists(key as u64));
-        }
-        db.put(&mut rw_txn, &key, &value)?;
-        rw_txn.commit()?;
+        let rw_txn = self.env.write_txn()?;
+        let db = self
+            .env
+            .create_databases_and_commit(rw_txn, |dbo, rw_txn| {
+                let db = dbo.create_database::<U128<BigEndian>, Bytes>(rw_txn, Some(&table))?;
+                if db.get(rw_txn, &key)?.is_some() {
+                    return Err(StorageError::KeyExists(key as u64));
+                }
+                db.put(rw_txn, &key, &value)?;
+                Ok(CommitOrAbort::<_, ()>::Commit(db))
+            })?
+            .unwrap_commit();
         self.databases.write().insert(table, db);
         Ok(())
     }
@@ -149,10 +153,6 @@ impl StorageBackend {
         Ok(self.database(&table)?.is_some())
     }
 
-    pub fn details(&self) -> String {
-        format!("LMDB (heed 0.20.5): {:?}", self.env.info())
-    }
-
     pub fn flush(&self) -> Result<(), StorageError> {
         self.env.clear_stale_readers()?;
         self.env.force_sync()?;
@@ -160,11 +160,14 @@ impl StorageBackend {
     }
 
     pub fn create_table(&self, table: String) -> Result<(), StorageError> {
-        let mut rw_txn = self.env.write_txn()?;
+        let rw_txn = self.env.write_txn()?;
         let db = self
             .env
-            .create_database::<U128<BigEndian>, Bytes>(&mut rw_txn, Some(&table))?;
-        rw_txn.commit()?;
+            .create_databases_and_commit(rw_txn, |dbo, rw_txn| {
+                dbo.create_database::<U128<BigEndian>, Bytes>(rw_txn, Some(&table))
+                    .map(CommitOrAbort::<_, ()>::Commit)
+            })?
+            .unwrap_commit();
         self.databases.write().insert(table, db);
         Ok(())
     }
@@ -351,7 +354,7 @@ mod tests {
 
     /// Several threads racing to create and populate the *same* new table.
     /// `mdb_dbi_open` is documented as unsafe to call concurrently; heed is
-    /// supposed to guard this, and `insert` calls `create_database` every time.
+    /// supposed to guard this, and `insert` creates the database every time.
     #[test]
     fn concurrent_table_creation_is_safe() {
         let path = tempdir().unwrap().keep();
