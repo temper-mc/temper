@@ -1,5 +1,3 @@
-use heed::byteorder::BigEndian;
-use heed::types::{Bytes, U128};
 use indicatif::ProgressStyle;
 use std::process::exit;
 use temper_components::player::offline_player_data::OfflinePlayerData;
@@ -10,12 +8,19 @@ use type_hash::TypeHash;
 use uuid::Uuid;
 
 pub fn check_players(state: &ServerState) -> Result<(), String> {
-    let env = state.world.chunks.storage_backend.env();
-    let txn = env
+    let backend = &state.world.chunks.storage_backend;
+    let metadata_db = backend
+        .database("metadata")
+        .map_err(|e| format!("Failed to open metadata database: {}", e))?;
+    let player_data_db = backend
+        .database("player_data")
+        .map_err(|e| format!("Failed to open player_data database: {}", e))?;
+    let txn = backend
+        .env()
         .read_txn()
         .map_err(|e| format!("Failed to create read transaction: {}", e))?;
 
-    if let Ok(Some(db)) = env.open_database::<U128<BigEndian>, Bytes>(&txn, Some("metadata")) {
+    if let Some(db) = metadata_db {
         if let Ok(Some(player_format_hash)) = db.get(&txn, &string_to_u128("player-format-hash")) {
             let player_format_hash_u64 = u64::from_be_bytes(
                 player_format_hash
@@ -49,16 +54,7 @@ pub fn check_players(state: &ServerState) -> Result<(), String> {
         );
     }
 
-    let Ok(db_opt) = env.open_database::<U128<BigEndian>, Bytes>(&txn, Some("player_data")) else {
-        warn!(
-            "Player data database not found. This likely means that the world is empty and has no player data, so there is nothing to validate."
-        );
-        warn!(
-            "Check that the world path is correct and that the world has been generated or used by a player at least once."
-        );
-        return Ok(());
-    };
-    let Some(db) = db_opt else {
+    let Some(db) = player_data_db else {
         warn!(
             "Player data database not found. This likely means that the world has no player data to validate."
         );
