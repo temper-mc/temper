@@ -4,7 +4,7 @@ on:
     branches: [ "master", "dev" ]
     types: [ opened, synchronize, reopened, ready_for_review ]
   push:
-    branches: [ "master" ]
+    branches: [ "master", "dev" ]
   workflow_dispatch:
 
 concurrency:
@@ -39,6 +39,9 @@ jobs:
           java-version: '25'
 
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci-x86_64-unknown-linux-gnu
+          save-if: ${{ github.event_name != 'pull_request' }}
 
       - name: Run cargo fmt
         run: cargo fmt --all -- --check
@@ -84,6 +87,8 @@ jobs:
           java-version: '21'
 
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: release-${{ matrix.target }}
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
@@ -125,6 +130,9 @@ jobs:
           java-version: '25'
 
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ci-${{ matrix.target }}
+          save-if: ${{ github.event_name != 'pull_request' }}
 
       - name: Install cargo-nextest
         uses: taiki-e/install-action@v2
