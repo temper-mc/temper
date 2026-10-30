@@ -51,7 +51,10 @@ pub async fn start_telemetry_loop(tx: Sender<DashboardEvent>, state: GlobalState
     debug!("Starting server telemetry");
 
     // Initialize the system monitor
-    let mut sys = System::new_all();
+    let Ok(mut sys) = System::new_all() else {
+        error!("Failed to initialize system monitor for dashboard telemetry");
+        return;
+    };
     let pid = Pid::from(std::process::id() as usize);
 
     // Tick every second; should be configurable later
@@ -86,9 +89,17 @@ pub async fn start_telemetry_loop(tx: Sender<DashboardEvent>, state: GlobalState
             .lock()
             .expect("Failed to lock performance resource");
 
+        if perf_lock.memory.is_none() {
+            debug!("Memory usage tracker is not initialized; skipping memory metrics");
+        }
+
         let metric = ServerMetric {
             cpu_usage: process.cpu_usage() / cpu_count,
-            ram_usage: perf_lock.memory.get_memory(MemoryUnit::Bytes).0,
+            ram_usage: perf_lock
+                .memory
+                .as_mut()
+                .map(|mem| mem.get_memory(MemoryUnit::Bytes).0)
+                .unwrap_or(0),
             total_ram: sys.total_memory(),
             uptime: process.run_time(),
             storage_used,

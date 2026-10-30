@@ -194,7 +194,7 @@ tracing-tracy = { version = "0.12.0", features = ["timer-fallback", "ondemand", 
 tracy-client = "0.19.0"
 
 # Concurrency/Parallelism
-parking_lot = "0.12.5"
+parking_lot = "0.13.0"
 rayon = "1.12.0"
 crossbeam-channel = "0.5.17"
 rusty_pool = "1.0.0"
@@ -208,13 +208,13 @@ thiserror = "2.0.21"
 anyhow = "1.0.104"
 
 # Cryptography
-rand = "0.10.2"
+rand = "0.10.3"
 fnv = "1.0.7"
 wyhash = "0.6.0"
 ahash = "0.8.12"
-rsa = { version = "0.10.0-rc.17" }
-aes = { version = "0.8.4" }
-cfb8 = "0.8.1"
+rsa = { version = "0.10.0-rc.19" }
+aes = { version = "0.9.3" }
+cfb8 = "0.9.1"
 sha1 = "0.11.0"
 sha2 = "0.11.1"
 subtle = "2.6.1"
@@ -233,14 +233,14 @@ toml = "1.1.8"
 craftflow-nbt = "2.1.0"
 simdnbt = { version = "0.10.0", git = "https://github.com/MSKatKing/simdnbt", branch = "stable" }
 figment = { version = "0.10.19", features = ["toml", "env"] }
-simd-json = "0.18.1"
+simd-json = "0.19.0"
 
 # Bit manipulation
 bytemuck = { version = "1.25.2", features = ["extern_crate_alloc", "derive"] }
 
 # Data types
 dashmap = { version = "7.0.0-rc2", features = ["serde"] }
-uuid = { version = "1.28.0", features = ["v4", "v5", "serde"] }
+uuid = { version = "1.29.0", features = ["v4", "v5", "serde"] }
 indexmap = { version = "2.14.2", features = ["serde"] }
 arrayvec = "0.7.8"
 fastcache = "0.1.7"
@@ -263,7 +263,7 @@ ctor = "1.0.13"
 # Compression/Decompression
 yazi = "0.2.1"
 flate2 = "1.1.10"
-zip = { version = "9.0.5", default-features = false, features = ["deflate"] }
+zip = { version = "9.1.3", default-features = false, features = ["deflate"] }
 
 
 # Database
@@ -276,7 +276,7 @@ regex = "1.13.1"
 ctrlc = "3.5.2"
 num_cpus = "1.17.0"
 typename = "0.1.2"
-bevy_ecs = { version = "0.20.0", features = ["multi_threaded", "trace", "debug"], default-features = false }
+bevy_ecs = { version = "0.20.1", features = ["multi_threaded", "trace", "debug"], default-features = false }
 # On 0.19 because bevy managed to not enable half of glam's types in 0.20. Nice work. Check if it's been fixed for 0.21
 bevy_math = { version = "0.19.1", features = ["serialize"] }
 once_cell = "1.21.4"
@@ -291,7 +291,7 @@ indicatif = "0.18.6"
 heck = "0.5.0"
 
 # I/O
-memmap2 = "0.9.11"
+memmap2 = "0.9.12"
 tempfile = "3.27.0"
 walkdir = "2.5.0"
 include_dir = "0.7.4"
@@ -310,7 +310,7 @@ workspace_root = "0.2.0"
 axum = { version = "0.8.9", features = ["tokio", "ws"] }
 
 # Stats
-sysinfo = { version = "0.39.6", default-features = false, features = ["system"] }
+sysinfo = { version = "0.40.0", default-features = false, features = ["system"] }
 dir-size = "0.1.1"
 
 # Compression is a real bottleneck that we can do little about, so compiling it with optimizations is needed in dev mode.

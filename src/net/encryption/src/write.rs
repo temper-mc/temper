@@ -1,5 +1,5 @@
-use aes::cipher::generic_array::GenericArray;
-use aes::cipher::{BlockEncryptMut, KeyIvInit};
+use aes::cipher::consts::U1;
+use aes::cipher::{Array, BlockModeEncrypt, KeyIvInit};
 use aes::Aes128;
 use cfb8::Encryptor;
 use std::io::Error;
@@ -25,8 +25,8 @@ impl<Writer> EncryptedWriter<Writer> {
     pub fn encrypt_buf(&mut self, buf: &mut [u8]) {
         if let Some(enc) = self.cipher.as_mut() {
             for b in buf.chunks_mut(1) {
-                let block = GenericArray::from_mut_slice(b);
-                enc.encrypt_block_mut(block);
+                let block: &mut Array<u8, U1> = b.try_into().unwrap();
+                enc.encrypt_block(block);
             }
         }
     }

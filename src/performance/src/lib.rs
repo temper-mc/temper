@@ -1,5 +1,3 @@
-use tracing::warn;
-
 use crate::{memory::MemoryUsage, tps::TPSMonitor};
 
 pub mod memory;
@@ -37,20 +35,21 @@ pub const WINDOW_SECONDS: usize = 60;
 /// - Memory Usage (Current / Peak)
 pub struct ServerPerformance {
     pub tps: TPSMonitor,
-    pub memory: MemoryUsage,
+    pub memory: Option<MemoryUsage>,
 }
 
 impl ServerPerformance {
     pub fn new(tps: u32) -> Self {
-        if !sysinfo::IS_SUPPORTED_SYSTEM {
-            warn!(
-                "System does not support 'sysinfo', metrics are likely to be inaccurate or unavailable"
-            );
-        }
-
+        let Ok(memory) = MemoryUsage::new() else {
+            tracing::warn!("Failed to initialize memory usage tracker");
+            return Self {
+                tps: TPSMonitor::new(tps),
+                memory: None,
+            };
+        };
         Self {
             tps: TPSMonitor::new(tps),
-            memory: MemoryUsage::default(),
+            memory: Some(memory),
         }
     }
 }

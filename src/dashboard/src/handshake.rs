@@ -1,5 +1,6 @@
 use serde::Serialize;
 use sysinfo::System;
+use tracing::warn;
 
 /// Hardware/system information
 #[derive(Clone, Debug, Serialize)]
@@ -32,7 +33,18 @@ pub struct Handshake {
 impl Handshake {
     /// Gathers handshake data. Should be called once at startup.
     pub fn gather(max_players: u32) -> Self {
-        let sys = System::new_all();
+        let Ok(sys) = System::new_all() else {
+            warn!("Failed to initialize system monitor for handshake telemetry");
+            return Self {
+                system: SystemData {
+                    cpu_model: "Unknown".to_string(),
+                    cpu_cores: 1,
+                    cpu_threads: 1,
+                    os: "Unknown".to_string(),
+                },
+                config: ConfigData { max_players },
+            };
+        };
 
         let cpu_model = sys
             .cpus()
