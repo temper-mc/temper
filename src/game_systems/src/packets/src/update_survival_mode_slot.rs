@@ -16,14 +16,12 @@ pub fn handle(receiver: Res<ClickContainerReceiver>, mut inventories: Query<&mut
             for slot in event.changed_slots.data {
                 if let Some(new_data) = slot.data.to_option() {
                     inventory
-                        .set_item(
+                        .set_item_by_index(
                             slot.number as _,
-                            InventorySlot {
-                                count: new_data.item_count,
-                                item_id: Some(ItemID(new_data.item_id)),
-                                components_to_add: None,
-                                components_to_remove: None,
-                            },
+                            InventorySlot::builder()
+                                .count(new_data.item_count)
+                                .item_id(ItemID(new_data.item_id))
+                                .build(),
                         )
                         .expect("failed to write to inventory");
                 } else {

@@ -10,4 +10,6 @@ pub enum InventoryError {
     InvalidSlotIndex(usize),
     #[error("Outside maximum slot range of {0}: {1}")]
     OutsideMaxSlotRange(usize, usize),
+    #[error("Unique ID not found in inventory: {0}")]
+    UniqueIdNotFound(u64),
 }
