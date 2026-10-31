@@ -22,7 +22,7 @@ pub fn handle(
                     );
                 }
             } else if let Err(e) =
-                inventory.set_item_with_update(event.slot_index as usize, event.slot, entity)
+                inventory.set_item_by_index_with_update(event.slot_index as usize, event.slot, entity)
             {
                 error!(
                     "Failed to set item in slot {} for player {}: {:?}",

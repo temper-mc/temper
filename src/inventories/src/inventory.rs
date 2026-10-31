@@ -78,7 +78,7 @@ impl Inventory {
         Err(InventoryError::InventoryFull)
     }
 
-    pub fn set_item(&mut self, index: usize, item: InventorySlot) -> Result<(), InventoryError> {
+    pub fn set_item_by_index(&mut self, index: usize, item: InventorySlot) -> Result<(), InventoryError> {
         if index >= self.slots.len() {
             return Err(InventoryError::InvalidSlotIndex(index));
         }
@@ -86,7 +86,7 @@ impl Inventory {
         Ok(())
     }
 
-    pub fn set_item_with_update(
+    pub fn set_item_by_index_with_update(
         &mut self,
         index: usize,
         item: InventorySlot,
@@ -104,14 +104,14 @@ impl Inventory {
         Ok(())
     }
 
-    pub fn get_item(&self, index: usize) -> Result<Option<&InventorySlot>, InventoryError> {
+    pub fn get_item_by_index(&self, index: usize) -> Result<Option<&InventorySlot>, InventoryError> {
         if index >= self.slots.len() {
             return Err(InventoryError::InvalidSlotIndex(index));
         }
         Ok(self.slots[index].as_ref())
     }
 
-    pub fn remove_item(&mut self, index: usize) -> Result<(), InventoryError> {
+    pub fn remove_item_by_index(&mut self, index: usize) -> Result<(), InventoryError> {
         if index >= self.slots.len() {
             return Err(InventoryError::InvalidSlotIndex(index));
         }
@@ -122,7 +122,7 @@ impl Inventory {
         Ok(())
     }
 
-    pub fn remove_item_with_update(
+    pub fn remove_item_by_index_with_update(
         &mut self,
         index: usize,
         entity: Entity,
@@ -219,19 +219,103 @@ impl Inventory {
 
         Ok(())
     }
+    
+    pub fn set_item_by_unique_id(
+        &mut self,
+        unique_id: u64,
+        item: InventorySlot,
+    ) -> Result<(), InventoryError> {
+        let Some(index) = self.get_index_by_unique_id(unique_id) else {
+            return Err(InventoryError::UniqueIdNotFound(unique_id));
+        };
+        if self.slots.get(index).is_none() {
+            return Err(InventoryError::InvalidSlotIndex(index));
+        }
+        self.slots[index] = Some(item);
+        Ok(())
+    }
+
+    pub fn set_item_by_unique_id_with_update(
+        &mut self,
+        unique_id: u64,
+        item: InventorySlot,
+        entity: Entity,
+    ) -> Result<(), InventoryError> {
+        let Some(index) = self.get_index_by_unique_id(unique_id) else {
+            return Err(InventoryError::UniqueIdNotFound(unique_id));
+        };
+        if self.slots.get(index).is_none() {
+            return Err(InventoryError::InvalidSlotIndex(index));
+        }
+        self.slots[index] = Some(item.clone());
+        INVENTORY_UPDATES_QUEUE.push(InventoryUpdate {
+            slot_index: index as u8,
+            slot: item,
+            entity,
+        });
+        Ok(())
+    }
+    
+    pub fn get_item_by_unique_id(&self, unique_id: u64) -> Option<&InventorySlot> {
+        self.slots.iter().find_map(|slot| {
+            slot.as_ref().filter(|slot| slot.get_unique_id() == unique_id)
+        })
+    }
+    
+    pub fn remove_item_by_unique_id(&mut self, unique_id: u64) -> Result<(), InventoryError> {
+        let Some(index) = self.get_index_by_unique_id(unique_id) else {
+            return Err(InventoryError::UniqueIdNotFound(unique_id));
+        };
+        if self.slots.get(index).is_none() {
+            return Err(InventoryError::InvalidSlotIndex(index));
+        }
+        self.slots[index] = None;
+        Ok(())
+        
+    }
+    
+    pub fn remove_item_by_unique_id_with_update(
+        &mut self,
+        unique_id: u64,
+        entity: Entity,
+    ) -> Result<(), InventoryError> {
+        let Some(index) = self.get_index_by_unique_id(unique_id) else {
+            return Err(InventoryError::UniqueIdNotFound(unique_id));
+        };
+        if self.slots.get(index).is_none() {
+            return Err(InventoryError::InvalidSlotIndex(index));
+        }
+        self.slots[index] = None;
+        INVENTORY_UPDATES_QUEUE.push(InventoryUpdate {
+            slot_index: index as u8,
+            slot: InventorySlot::default(),
+            entity,
+        });
+        Ok(())
+    }
+    
+    fn get_index_by_unique_id(&self, unique_id: u64) -> Option<usize> {
+        self.slots.iter().position(|slot| {
+            if let Some(slot) = slot {
+                slot.get_unique_id() == unique_id
+            } else {
+                false
+            }
+        })
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use temper_codec::net_types::var_int::VarInt;
     use super::*;
     use crate::item::ItemID;
-    use temper_codec::net_types::var_int::VarInt;
 
     fn make_slot_with_id(id: i32) -> InventorySlot {
-        InventorySlot {
-            item_id: Some(ItemID(VarInt::new(id))),
-            ..Default::default()
-        }
+        InventorySlot::builder()
+            .count(VarInt::from(1))
+            .item_id(ItemID::new(id))
+            .build()
     }
 
     #[test]
@@ -246,8 +330,8 @@ mod tests {
         let mut inv = Inventory::new(2);
         let slot = make_slot_with_id(1);
         assert!(inv.add_item(slot.clone()).is_ok());
-        assert!(inv.get_item(0).unwrap().is_some());
-        assert!(inv.get_item(1).unwrap().is_none());
+        assert!(inv.get_item_by_index(0).unwrap().is_some());
+        assert!(inv.get_item_by_index(1).unwrap().is_none());
     }
 
     #[test]
@@ -266,10 +350,10 @@ mod tests {
     fn test_set_and_remove_item() {
         let mut inv = Inventory::new(1);
         let slot = make_slot_with_id(1);
-        inv.set_item(0, slot).unwrap();
-        assert!(inv.get_item(0).unwrap().is_some());
-        inv.remove_item(0).unwrap();
-        assert!(inv.get_item(0).unwrap().is_none());
+        inv.set_item_by_index(0, slot).unwrap();
+        assert!(inv.get_item_by_index(0).unwrap().is_some());
+        inv.remove_item_by_index(0).unwrap();
+        assert!(inv.get_item_by_index(0).unwrap().is_none());
     }
 
     #[test]
@@ -284,8 +368,8 @@ mod tests {
     #[test]
     fn test_clear() {
         let mut inv = Inventory::new(2);
-        inv.set_item(0, make_slot_with_id(1)).unwrap();
-        inv.set_item(1, make_slot_with_id(2)).unwrap();
+        inv.set_item_by_index(0, make_slot_with_id(1)).unwrap();
+        inv.set_item_by_index(1, make_slot_with_id(2)).unwrap();
         inv.clear();
         assert!(inv.slots.iter().all(|s| s.is_none()));
     }
@@ -294,15 +378,15 @@ mod tests {
     fn test_invalid_index() {
         let mut inv = Inventory::new(1);
         assert!(matches!(
-            inv.get_item(2),
+            inv.get_item_by_index(2),
             Err(InventoryError::InvalidSlotIndex(2))
         ));
         assert!(matches!(
-            inv.set_item(2, make_slot_with_id(1)),
+            inv.set_item_by_index(2, make_slot_with_id(1)),
             Err(InventoryError::InvalidSlotIndex(2))
         ));
         assert!(matches!(
-            inv.remove_item(2),
+            inv.remove_item_by_index(2),
             Err(InventoryError::InvalidSlotIndex(2))
         ));
     }

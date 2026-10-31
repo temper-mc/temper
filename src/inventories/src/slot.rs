@@ -1,8 +1,9 @@
 use crate::components::{ItemComponent, decode_component_value};
 use crate::item::ItemID;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::fmt::Display;
 use std::io::{Cursor, Read, Write};
+use bon::Builder;
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::encode::errors::NetEncodeError;
@@ -10,13 +11,21 @@ use temper_codec::encode::{NetEncode, NetEncodeOpts};
 use temper_codec::net_types::var_int::VarInt;
 use type_hash::TypeHash;
 
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, TypeHash)]
+fn unique_id_deser<'de, D: Deserializer<'de>>(_: D) -> Result<u64, D::Error> {
+    Ok(rand::random())
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, TypeHash, Builder)]
 pub struct InventorySlot {
     pub count: VarInt,
     pub item_id: Option<ItemID>,
     #[type_hash(foreign_type)]
     pub components_to_add: Option<Vec<ItemComponent>>,
     pub components_to_remove: Option<Vec<VarInt>>,
+    #[serde(skip_serializing)]
+    #[serde(deserialize_with = "unique_id_deser")]
+    #[builder(skip = rand::random())]
+    unique_id: u64
 }
 
 impl InventorySlot {
@@ -26,6 +35,7 @@ impl InventorySlot {
             item_id: None,
             components_to_add: None,
             components_to_remove: None,
+            unique_id: rand::random()
         }
     }
 
@@ -50,6 +60,7 @@ impl InventorySlot {
                 item_id: Some(ItemID(item_id)),
                 components_to_add: Some(components_to_add),
                 components_to_remove: Some(components_to_remove),
+                unique_id: rand::random()
             })
         }
     }
@@ -77,6 +88,7 @@ impl InventorySlot {
             item_id: Some(item_id),
             components_to_add: Some(components_to_add),
             components_to_remove: Some(components_to_remove),
+            unique_id: rand::random()
         })
     }
 
@@ -108,6 +120,10 @@ impl InventorySlot {
             },
         )
     }
+    
+    pub fn get_unique_id(&self) -> u64 {
+        self.unique_id
+    }
 }
 
 impl Display for InventorySlot {
@@ -138,6 +154,7 @@ impl NetDecode for InventorySlot {
                 item_id: Some(ItemID(item_id)),
                 components_to_add: Some(components_to_add),
                 components_to_remove: Some(components_to_remove),
+                unique_id: rand::random()
             })
         }
     }
@@ -331,6 +348,7 @@ mod tests {
             item_id: Some(ItemID::new(1)),
             components_to_add: Some(vec![]),
             components_to_remove: Some(vec![]),
+            unique_id: rand::random()
         };
 
         let decoded_simple = run_roundtrip_test(&simple_slot);
@@ -345,6 +363,7 @@ mod tests {
                 ItemComponent::MaxDamage(VarInt::new(11)),
             ]),
             components_to_remove: Some(vec![VarInt::new(20), VarInt::new(21)]),
+            unique_id: rand::random()
         };
         let decoded_complex = run_roundtrip_test(&complex_slot);
         assert_eq!(
