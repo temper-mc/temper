@@ -502,4 +502,33 @@ mod tests {
             .unwrap();
         assert!(inv.get_item_by_unique_id(unique_id).is_none());
     }
+
+    #[test]
+    fn test_get_item_by_unique_id_after_shuffle() {
+        let mut inv = Inventory::new(4);
+        let target = make_slot_with_id(2);
+        let unique_id = target.get_unique_id();
+        inv.set_item_by_index(0, make_slot_with_id(1)).unwrap();
+        inv.set_item_by_index(1, target).unwrap();
+        inv.set_item_by_index(2, make_slot_with_id(3)).unwrap();
+
+        // Shuffle slots after the unique ID was obtained.
+        inv.slots.swap(1, 3);
+        inv.slots.swap(0, 1);
+        inv.slots.swap(2, 0);
+
+        assert_eq!(
+            inv.get_item_by_unique_id(unique_id)
+                .and_then(|slot| slot.item_id),
+            Some(ItemID::new(2))
+        );
+
+        inv.set_item_by_unique_id(unique_id, make_slot_with_id(9))
+            .unwrap();
+        assert_eq!(
+            inv.get_item_by_unique_id(unique_id)
+                .and_then(|slot| slot.item_id),
+            Some(ItemID::new(9))
+        );
+    }
 }
