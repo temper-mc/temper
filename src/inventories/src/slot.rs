@@ -1,9 +1,9 @@
 use crate::components::{ItemComponent, decode_component_value};
 use crate::item::ItemID;
+use bon::Builder;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::fmt::Display;
 use std::io::{Cursor, Read, Write};
-use bon::Builder;
 use temper_codec::decode::errors::NetDecodeError;
 use temper_codec::decode::{NetDecode, NetDecodeOpts};
 use temper_codec::encode::errors::NetEncodeError;
@@ -15,6 +15,10 @@ fn unique_id_deser<'de, D: Deserializer<'de>>(_: D) -> Result<u64, D::Error> {
     Ok(rand::random())
 }
 
+/// Represents a single slot in an inventory, which can hold an item and its associated data.
+///
+/// Use the by_unique_id methods to fetch a slot by its unique_id to avoid TOC/TOU bugs regarding
+/// moving items to different slots.
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize, TypeHash, Builder)]
 pub struct InventorySlot {
     pub count: VarInt,
@@ -25,7 +29,7 @@ pub struct InventorySlot {
     #[serde(skip_serializing)]
     #[serde(deserialize_with = "unique_id_deser")]
     #[builder(skip = rand::random())]
-    unique_id: u64
+    unique_id: u64,
 }
 
 impl InventorySlot {
@@ -35,7 +39,7 @@ impl InventorySlot {
             item_id: None,
             components_to_add: None,
             components_to_remove: None,
-            unique_id: rand::random()
+            unique_id: rand::random(),
         }
     }
 
@@ -60,7 +64,7 @@ impl InventorySlot {
                 item_id: Some(ItemID(item_id)),
                 components_to_add: Some(components_to_add),
                 components_to_remove: Some(components_to_remove),
-                unique_id: rand::random()
+                unique_id: rand::random(),
             })
         }
     }
@@ -88,7 +92,7 @@ impl InventorySlot {
             item_id: Some(item_id),
             components_to_add: Some(components_to_add),
             components_to_remove: Some(components_to_remove),
-            unique_id: rand::random()
+            unique_id: rand::random(),
         })
     }
 
@@ -120,7 +124,7 @@ impl InventorySlot {
             },
         )
     }
-    
+
     pub fn get_unique_id(&self) -> u64 {
         self.unique_id
     }
@@ -154,7 +158,7 @@ impl NetDecode for InventorySlot {
                 item_id: Some(ItemID(item_id)),
                 components_to_add: Some(components_to_add),
                 components_to_remove: Some(components_to_remove),
-                unique_id: rand::random()
+                unique_id: rand::random(),
             })
         }
     }
@@ -348,10 +352,11 @@ mod tests {
             item_id: Some(ItemID::new(1)),
             components_to_add: Some(vec![]),
             components_to_remove: Some(vec![]),
-            unique_id: rand::random()
+            unique_id: 0,
         };
 
-        let decoded_simple = run_roundtrip_test(&simple_slot);
+        let mut decoded_simple = run_roundtrip_test(&simple_slot);
+        decoded_simple.unique_id = 0; // Reset unique_id for comparison
         assert_eq!(simple_slot, decoded_simple, "Simple slot roundtrip failed");
 
         // --- Test Case 2: The Full NBT/Component Slot ---
@@ -363,9 +368,10 @@ mod tests {
                 ItemComponent::MaxDamage(VarInt::new(11)),
             ]),
             components_to_remove: Some(vec![VarInt::new(20), VarInt::new(21)]),
-            unique_id: rand::random()
+            unique_id: 0,
         };
-        let decoded_complex = run_roundtrip_test(&complex_slot);
+        let mut decoded_complex = run_roundtrip_test(&complex_slot);
+        decoded_complex.unique_id = 0; // Reset unique_id for comparison
         assert_eq!(
             complex_slot, decoded_complex,
             "Complex slot roundtrip failed"

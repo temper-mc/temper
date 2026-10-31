@@ -21,7 +21,7 @@ pub fn handle(receiver: Res<ClickContainerReceiver>, mut inventories: Query<&mut
                             InventorySlot::builder()
                                 .count(new_data.item_count)
                                 .item_id(ItemID(new_data.item_id))
-                                .build()
+                                .build(),
                         )
                         .expect("failed to write to inventory");
                 } else {
