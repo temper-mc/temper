@@ -3,7 +3,6 @@
 .vscode
 /crates/lib/dummy_lib/Cargo.lock
 
-Cargo.lock
 config.toml
 .temp
 

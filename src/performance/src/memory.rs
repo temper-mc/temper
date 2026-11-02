@@ -13,17 +13,14 @@ pub struct MemoryUsage {
     max_rss_bytes: u64,
 }
 
-impl Default for MemoryUsage {
-    fn default() -> Self {
-        Self {
-            sys: System::new(),
-            process_pid: sysinfo::get_current_pid().ok().unwrap(),
-            max_rss_bytes: 0,
-        }
-    }
-}
-
 impl MemoryUsage {
+    pub fn new() -> Result<Self, sysinfo::Error> {
+        Ok(Self {
+            sys: System::new()?,
+            process_pid: sysinfo::get_current_pid()?,
+            max_rss_bytes: 0,
+        })
+    }
     fn get_usage_internal(&mut self) -> Option<u64> {
         self.sys
             .refresh_processes(ProcessesToUpdate::Some(&[self.process_pid]), true);

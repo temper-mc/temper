@@ -1,5 +1,5 @@
-use aes::cipher::generic_array::GenericArray;
-use aes::cipher::{BlockDecryptMut, KeyIvInit};
+use aes::cipher::consts::U1;
+use aes::cipher::{Array, BlockModeDecrypt, KeyIvInit};
 use aes::Aes128;
 use cfb8::Decryptor;
 use std::pin::Pin;
@@ -44,8 +44,8 @@ impl<Reader: AsyncRead + Unpin> AsyncRead for EncryptedReader<Reader> {
             // If cipher is not None, use it to decrypt incoming bytes
             if let Some(cipher) = self.cipher.as_mut() {
                 for b in buf.filled_mut()[before..].chunks_mut(1) {
-                    let block = GenericArray::from_mut_slice(b);
-                    cipher.decrypt_block_mut(block);
+                    let block: &mut Array<u8, U1> = b.try_into().expect("Chunk size should be 1");
+                    cipher.decrypt_block(block);
                 }
             }
         }
