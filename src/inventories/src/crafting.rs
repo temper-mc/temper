@@ -179,14 +179,13 @@ pub fn update_player_crafting_grid(inventory: &mut Inventory, eid: Entity) {
         let item = Item::from_registry_key(first.id)
             .unwrap_or_else(|| panic!("Failed to get item: {:?}", first.id));
 
-        let slot = InventorySlot {
-            item_id: Some(ItemID(VarInt(item.id.into()))),
-            count: VarInt(first.count.into()),
-            ..Default::default()
-        };
+        let slot = InventorySlot::builder()
+            .count(first.count.into())
+            .item_id(ItemID(VarInt::from(i32::from(item.id))))
+            .build();
 
         inventory
-            .set_item_with_update(defined_slots::player::CRAFT_SLOT_OUTPUT as _, slot, eid)
+            .set_item_by_index_with_update(defined_slots::player::CRAFT_SLOT_OUTPUT as _, slot, eid)
             .unwrap_or_else(|err| error!("Failed to set player crafting output slot: {}", err))
     } else {
         inventory
@@ -197,7 +196,7 @@ pub fn update_player_crafting_grid(inventory: &mut Inventory, eid: Entity) {
 
 fn get_inventory_slot(inventory: &Inventory, slot: u8) -> Option<&Item> {
     inventory
-        .get_item(slot as usize)
+        .get_item_by_index(slot as usize)
         .ok()
         .and_then(|slot| slot.and_then(|id| id.item_id))
         .and_then(|item_id| Item::from_id(item_id.0.0 as u16))

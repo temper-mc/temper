@@ -127,11 +127,10 @@ pub fn handle(
             // TODO: Possible bug with using creative_mode ability instead of creative Gamemode
             debug!("Item not found. Creating stack for creative player.");
 
-            let new_slot = InventorySlot {
-                item_id: Some(item_id),
-                count: VarInt::new(1),
-                ..Default::default()
-            };
+            let new_slot = InventorySlot::builder()
+                .count(VarInt::from(1))
+                .item_id(item_id)
+                .build();
 
             // TODO: Handle NBT data
             if packet.include_data {

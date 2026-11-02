@@ -40,7 +40,7 @@ impl Hotbar {
         hotbar_slot: u8,
     ) -> Result<Option<&'a InventorySlot>, InventoryError> {
         let index = self.get_inventory_index(hotbar_slot)?;
-        inventory.get_item(index)
+        inventory.get_item_by_index(index)
     }
 
     /// Gets the item from the *currently selected* hotbar slot.
@@ -49,7 +49,7 @@ impl Hotbar {
         inventory: &'a Inventory,
     ) -> Result<Option<&'a InventorySlot>, InventoryError> {
         let index = self.get_selected_inventory_index();
-        inventory.get_item(index)
+        inventory.get_item_by_index(index)
     }
 
     /// Sets an item in a specific hotbar slot (0-8).
@@ -61,7 +61,7 @@ impl Hotbar {
         entity: Entity,
     ) -> Result<(), InventoryError> {
         let index = self.get_inventory_index(hotbar_slot)?;
-        inventory.set_item_with_update(index, slot, entity)
+        inventory.set_item_by_index_with_update(index, slot, entity)
     }
 
     /// Wraps `set_item_with_update` to set the *currently selected* hotbar slot.
@@ -83,7 +83,7 @@ impl Hotbar {
         entity: Entity,
     ) -> Result<(), InventoryError> {
         let index = self.get_inventory_index(hotbar_slot)?;
-        inventory.remove_item_with_update(index, entity)
+        inventory.remove_item_by_index_with_update(index, entity)
     }
 
     /// Wraps `Inventory::swap_slots_with_update` to swap an inventory slot
@@ -129,7 +129,7 @@ impl Hotbar {
             };
 
             // Check the main inventory at that index
-            match inventory.get_item(inventory_index) {
+            match inventory.get_item_by_index(inventory_index) {
                 Ok(Some(_slot)) => {
                     // Slot is occupied, continue to the next one
                 }
