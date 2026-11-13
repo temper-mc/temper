@@ -4621,6 +4621,7 @@ version = "0.2.0"
 dependencies = [
  "temper-general-purpose",
  "temper-profiling",
+ "tempfile",
  "thiserror 2.0.21",
  "tracing",
  "tracing-appender",
