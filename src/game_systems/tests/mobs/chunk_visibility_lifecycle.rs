@@ -1,4 +1,4 @@
-use crate::{emit_load_messages_for_known_chunks, wait_for_saved_chunk};
+use crate::{clear_cached_chunks, emit_load_messages_for_known_chunks, wait_for_saved_chunk};
 use background::{chunk_unloader, entity_unloader};
 use bevy_ecs::prelude::*;
 use mobs::spawn::{
@@ -29,7 +29,10 @@ fn emit_chunk_calc_for(entity: Entity) -> impl FnMut(MessageWriter<ChunkCalc>) {
 
 fn spawn_test_player(world: &mut World, position: Position, loaded_chunk: FullChunkPos) -> Entity {
     let mut receiver = ChunkReceiver::default();
-    receiver.loaded.insert(loaded_chunk);
+    receiver
+        .chunks
+        .set_needed(&std::collections::HashSet::from([loaded_chunk]));
+    assert!(receiver.chunks.mark_loaded(loaded_chunk));
 
     world
         .spawn((
@@ -143,16 +146,13 @@ fn multiple_entities_in_one_chunk_reload_together_when_player_returns() {
             "both entities should be persisted"
         );
     }
-    state.0.world.get_cache().clear();
+    clear_cached_chunks(&state);
 
     {
         let mut receiver = world
             .get_mut::<ChunkReceiver>(player_entity)
             .expect("player chunk receiver should exist");
-        receiver.loading.clear();
-        receiver.unloading.clear();
-        receiver.dirty.clear();
-        receiver.loaded.clear();
+        receiver.chunks.reset();
     }
     {
         let mut player_pos = world
@@ -269,8 +269,7 @@ fn chunk_stays_loaded_while_a_second_player_keeps_it_visible() {
         state
             .0
             .world
-            .get_cache()
-            .contains_key(&chunk.full(Dimension::Overworld)),
+            .is_chunk_cached(chunk.full(Dimension::Overworld)),
         "chunk should stay cached while a second player still has it loaded"
     );
 }

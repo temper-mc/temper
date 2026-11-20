@@ -152,16 +152,29 @@ impl SchedulerState {
     /// forever, and wakes anything waiting on it so those callers can
     /// re-evaluate instead of sleeping indefinitely.
     pub fn fail_job(&self, key: JobKey) {
-        let Some(job) = self.jobs.get(&key) else {
-            return;
-        };
+        let mut pending = vec![key];
+        let mut visited = HashSet::new();
 
-        job.state.mark_failed();
-
-        for request_id in job.interested_requests() {
-            if let Some(request) = self.requests.get(&request_id) {
-                request.wake();
+        while let Some(key) = pending.pop() {
+            if !visited.insert(key) {
+                continue;
             }
+            let Some(job) = self.jobs.get(&key) else {
+                continue;
+            };
+
+            if job.state.load() == JobState::Complete {
+                continue;
+            }
+            if job.state.mark_failed() {
+                for request_id in job.interested_requests() {
+                    if let Some(request) = self.requests.get(&request_id) {
+                        request.fail(key);
+                    }
+                }
+            }
+
+            pending.extend(job.dependents());
         }
     }
 
@@ -221,8 +234,12 @@ impl SchedulerState {
             return;
         }
 
-        if job.state.load() == JobState::Ready {
-            request.push_ready(self.ready_job_for_request(job.key, request.target));
+        match job.state.load() {
+            JobState::Ready => {
+                request.push_ready(self.ready_job_for_request(job.key, request.target));
+            }
+            JobState::Failed => request.fail(job.key),
+            JobState::Waiting | JobState::Running | JobState::Complete => {}
         }
     }
 
@@ -374,6 +391,25 @@ mod tests {
             ready_jobs += 1;
         }
         assert_eq!(ready_jobs, 9);
+    }
+
+    #[test]
+    fn failed_dependency_is_reported_to_its_waiting_request() {
+        let scheduler = SchedulerState::new();
+        let target = JobKey::new(Dimension::Overworld, ChunkPos::new(0, 0), GenStage::SURFACE);
+        let request = scheduler
+            .register_request(&TestGenerator, target)
+            .expect("request should register");
+        let dependency = JobKey::new(Dimension::Overworld, ChunkPos::new(1, 1), GenStage::NOISE);
+
+        scheduler.fail_job(dependency);
+
+        assert_eq!(request.take_failed_job(), Some(dependency));
+
+        let retry = scheduler
+            .register_request(&TestGenerator, target)
+            .expect("retry request should register");
+        assert_eq!(retry.take_failed_job(), Some(target));
     }
 
     #[test]

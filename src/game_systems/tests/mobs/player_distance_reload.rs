@@ -1,4 +1,4 @@
-use crate::{emit_load_messages_for_known_chunks, wait_for_saved_chunk};
+use crate::{clear_cached_chunks, emit_load_messages_for_known_chunks, wait_for_saved_chunk};
 use background::{chunk_unloader, entity_unloader};
 use bevy_ecs::prelude::*;
 use mobs::spawn::{
@@ -42,7 +42,10 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
     let expected_last_synced = fox_bundle.last_synced_position;
 
     let mut receiver = ChunkReceiver::default();
-    receiver.loaded.insert(fox_chunk);
+    receiver
+        .chunks
+        .set_needed(&std::collections::HashSet::from([fox_chunk]));
+    assert!(receiver.chunks.mark_loaded(fox_chunk));
 
     let player_entity = world
         .spawn((
@@ -110,7 +113,7 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
         "fox should despawn when its chunk is unloaded"
     );
     assert!(
-        !state.0.world.get_cache().contains_key(&fox_chunk),
+        !state.0.world.is_chunk_cached(fox_chunk),
         "fox chunk should be removed from cache after unload"
     );
     {
@@ -121,16 +124,13 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
             "only the test fox should be persisted in the chunk"
         );
     }
-    state.0.world.get_cache().clear();
+    clear_cached_chunks(&state);
 
     {
         let mut receiver = world
             .get_mut::<ChunkReceiver>(player_entity)
             .expect("player chunk receiver should exist");
-        receiver.loading.clear();
-        receiver.unloading.clear();
-        receiver.dirty.clear();
-        receiver.loaded.clear();
+        receiver.chunks.reset();
     }
     {
         let mut player_pos = world
@@ -145,7 +145,12 @@ fn player_can_unload_entities_by_moving_away_and_reload_them_after_returning() {
         let receiver = world
             .get::<ChunkReceiver>(player_entity)
             .expect("player chunk receiver should exist after returning");
-        let queued_fox_chunks = receiver.loading.iter().filter(|c| **c == fox_chunk).count();
+        let queued_fox_chunks = receiver
+            .chunks
+            .queued_chunks()
+            .iter()
+            .filter(|c| **c == fox_chunk)
+            .count();
         assert_eq!(
             queued_fox_chunks, 1,
             "player return should queue the fox chunk exactly once"

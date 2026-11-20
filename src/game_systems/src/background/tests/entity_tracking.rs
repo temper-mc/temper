@@ -59,7 +59,7 @@ async fn visible_mobs_without_stream_writers_stay_tracked() {
         .id();
 
     let mut chunk_receiver = ChunkReceiver::default();
-    chunk_receiver.loaded.insert(mob_position.chunk());
+    chunk_receiver.chunks.mark_loaded(mob_position.chunk());
 
     let mut tracker = EntityTracker::default();
     tracker.tracking.insert(mob_entity);

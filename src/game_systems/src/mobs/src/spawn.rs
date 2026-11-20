@@ -290,13 +290,17 @@ fn remove_stale_mob_entries(
     uuid: uuid::Uuid,
     current_chunk: FullChunkPos,
 ) {
-    for entry in state.0.world.get_cache() {
-        let (chunk_pos, chunk) = entry.pair();
-        if *chunk_pos == current_chunk {
+    for chunk_pos in state.0.world.cached_chunk_keys() {
+        if chunk_pos == current_chunk {
             continue;
         }
 
-        if chunk.entities.remove(&uuid).is_some() {
+        if let Some(chunk) = state
+            .0
+            .world
+            .get_cached_chunk_mut(*chunk_pos, chunk_pos.dimension())
+            && chunk.entities.remove(&uuid).is_some()
+        {
             chunk.mark_dirty();
         }
     }
