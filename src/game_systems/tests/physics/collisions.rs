@@ -208,6 +208,47 @@ fn player_landing_on_ground_gets_marked_grounded_without_position_correction() {
 }
 
 #[test]
+fn player_movement_is_not_queued_for_generic_entity_sync() {
+    let mut world = World::new();
+    let (state, _temp_dir) = create_test_state();
+    world.insert_resource(state);
+    world.insert_resource(PhysicalRegistry::new());
+    MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
+
+    let mut bundle = PlayerBundle {
+        identity: Identity::new(Some("Steve".to_string())),
+        position: Position::new(0.6, 64.0, 0.5, Dimension::Overworld),
+        collision_bounds: CollisionBounds::new(
+            Vec3A::new(-0.3, 0.0, -0.3),
+            Vec3A::new(0.3, 1.8, 0.3),
+        ),
+        ..Default::default()
+    };
+    bundle.on_ground = OnGround::default();
+
+    let entity = world
+        .spawn((
+            bundle,
+            HasCollisions,
+            OldPosition::from(Position::new(0.5, 64.0, 0.5, Dimension::Overworld)),
+        ))
+        .id();
+
+    let mut schedule = Schedule::default();
+    schedule.add_systems(collisions::handle);
+    schedule.run(&mut world);
+
+    let messages = world.resource::<Messages<SendEntityUpdate>>();
+    let mut cursor = messages.get_cursor();
+    assert_eq!(
+        cursor.read(messages).count(),
+        0,
+        "player movement is broadcast by the player movement pipeline"
+    );
+    assert_eq!(world.get::<Position>(entity).unwrap().x, 0.6);
+}
+
+#[test]
 fn player_predicted_next_step_can_detect_an_upcoming_landing() {
     let mut world = World::new();
     let (state, _temp_dir) = create_test_state();

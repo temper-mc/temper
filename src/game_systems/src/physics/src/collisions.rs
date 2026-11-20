@@ -308,7 +308,12 @@ pub fn handle(
                 }
             }
 
-            entity_updates_writer.write(SendEntityUpdate(eid));
+            // Player movement is already broadcast from the client's movement
+            // packet. The generic entity sync path would send the same delta
+            // a second time and make remote clients overestimate the movement.
+            if !is_player {
+                entity_updates_writer.write(SendEntityUpdate(eid));
+            }
         }
     }
 }
