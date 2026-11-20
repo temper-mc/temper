@@ -1,12 +1,12 @@
 use bevy_ecs::prelude::{Entity, MessageReader, MessageWriter, Query};
 use temper_components::game_id::GameID;
+use temper_components::last_synced_position::LastSyncedPosition;
 use temper_components::player::old_position::OldPosition;
 use temper_components::player::position::Position;
 use temper_components::player::rotation::Rotation;
 use temper_components::player::teleport_tracker::TeleportTracker;
 use temper_components::player::velocity::Velocity;
 use temper_messages::chunk_calc::ChunkCalc;
-use temper_messages::entity_update::SendEntityUpdate;
 use temper_messages::teleport_entity::TeleportEntity;
 use temper_net_runtime::connection::StreamWriter;
 use temper_protocol::outgoing::entity_position_sync::TeleportEntityPacket;
@@ -21,12 +21,12 @@ pub fn teleport_entities(
         Option<&mut Velocity>,
         Option<&mut TeleportTracker>,
         Option<&mut OldPosition>,
+        Option<&mut LastSyncedPosition>,
     )>,
     player_query: Query<(Entity, &StreamWriter)>,
     id_query: Query<&GameID>,
     mut message_reader: MessageReader<TeleportEntity>,
     mut chunk_calc_msg: MessageWriter<ChunkCalc>,
-    mut player_update_msg: MessageWriter<SendEntityUpdate>,
 ) {
     for message in message_reader.read() {
         let message_entity = message.entity;
@@ -42,8 +42,15 @@ pub fn teleport_entities(
         };
 
         let is_player_target = {
-            let Ok((conn, mut pos, rotation, velocity, tracker, old_position)) =
-                target_query.get_mut(message_entity)
+            let Ok((
+                conn,
+                mut pos,
+                rotation,
+                velocity,
+                tracker,
+                old_position,
+                last_synced_position,
+            )) = target_query.get_mut(message_entity)
             else {
                 error!(
                     "Failed to get teleport target components for entity {:?}",
@@ -62,6 +69,10 @@ pub fn teleport_entities(
             }
 
             *pos = message.position;
+
+            if let Some(mut last_synced_position) = last_synced_position {
+                *last_synced_position = LastSyncedPosition::from_position(&message.position);
+            }
 
             if let Some(mut rotation) = rotation {
                 *rotation = message.rotation;
@@ -99,8 +110,6 @@ pub fn teleport_entities(
                 continue;
             }
 
-            // This ideally should be handled by the send entity updates system, but it seems to be
-            // a bit buggy.
             if let Err(err) = conn.send_packet(TeleportEntityPacket {
                 entity_id: id.get(),
                 x: message.position.x,
@@ -117,9 +126,6 @@ pub fn teleport_entities(
                 continue;
             }
         }
-
-        // Notify the player update system to send the new position to the client
-        player_update_msg.write(SendEntityUpdate(message_entity));
 
         // Notify the chunk calculation system to recalculate chunks for this player
         if is_player_target {
@@ -152,13 +158,18 @@ mod tests {
         let mut world = World::new();
         MessageRegistry::register_message::<TeleportEntity>(&mut world);
         MessageRegistry::register_message::<ChunkCalc>(&mut world);
-        MessageRegistry::register_message::<SendEntityUpdate>(&mut world);
 
         let entity = world
             .spawn((
                 Identity::default(),
                 GameID::new(),
                 Position::new(0.0, 64.0, 0.0, Dimension::Overworld),
+                LastSyncedPosition::from_position(&Position::new(
+                    0.0,
+                    64.0,
+                    0.0,
+                    Dimension::Overworld,
+                )),
                 Rotation::default(),
                 Velocity::new(1.0, 0.0, 0.0),
             ))
@@ -176,6 +187,10 @@ mod tests {
         assert_eq!(position.x, 10.0);
         assert_eq!(position.y, 65.0);
         assert_eq!(position.z, -3.0);
+        assert_eq!(
+            world.get::<LastSyncedPosition>(entity).unwrap().0,
+            Position::new(10.0, 65.0, -3.0, Dimension::Overworld).coords
+        );
         assert_eq!(rotation.yaw, 90.0);
         assert_eq!(rotation.pitch, 15.0);
         assert_eq!(velocity.x, 0.0);

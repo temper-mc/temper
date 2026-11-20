@@ -38,7 +38,7 @@ pub fn refresh_visible_entities(
                             return false;
                         }
 
-                        chunk_receiver.loaded.contains(&pos.chunk())
+                        chunk_receiver.chunks.is_loaded(pos.chunk())
                     },
                 )
                 .unwrap_or(false);
@@ -58,7 +58,7 @@ pub fn refresh_visible_entities(
                 continue;
             }
 
-            if !chunk_receiver.loaded.contains(&pos.chunk()) {
+            if !chunk_receiver.chunks.is_loaded(pos.chunk()) {
                 continue;
             }
 

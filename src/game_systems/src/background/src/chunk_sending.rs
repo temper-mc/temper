@@ -5,7 +5,6 @@ use std::collections::HashSet;
 use std::sync::atomic::Ordering;
 use temper_codec::encode::NetEncodeOpts;
 use temper_components::player::chunk_receiver::{ChunkReceiver, PreparedChunk, ReadyChunk};
-use temper_components::player::client_information::ClientInformationComponent;
 use temper_components::player::entity_tracker::EntityTracker;
 use temper_components::player::position::Position;
 use temper_core::pos::{ChunkPos, FullChunkPos};
@@ -27,7 +26,6 @@ pub fn handle(
         &StreamWriter,
         &mut ChunkReceiver,
         &Position,
-        &ClientInformationComponent,
         &EntityTracker,
     )>,
     state: Res<GlobalStateResource>,
@@ -43,30 +41,12 @@ pub fn handle(
     // costs memory instead of pool depth.
     let max_in_flight = state.0.thread_pool.core_count() * 6;
 
-    for (eid, conn, mut chunk_receiver, pos, client_info, entity_tracker) in query.iter_mut() {
+    for (eid, conn, mut chunk_receiver, pos, entity_tracker) in query.iter_mut() {
         if !state.0.players.is_connected(eid) {
             continue;
         }
 
         let chunk_receiver = &mut *chunk_receiver;
-
-        // Both phases need the same "is this chunk still worth working on"
-        // test, so compute it once per player.
-        let player_chunk = pos.chunk();
-        let view_distance = max(
-            u32::from(client_info.view_distance),
-            state.0.config.chunk_render_distance,
-        );
-        let max_distance_sq = (view_distance * view_distance) as i32;
-        let in_view = |chunk_pos: FullChunkPos| {
-            if chunk_pos.dimension() != player_chunk.dimension() {
-                return false;
-            }
-
-            let dx = chunk_pos.x() - player_chunk.x();
-            let dz = chunk_pos.z() - player_chunk.z();
-            dx * dx + dz * dz <= max_distance_sq
-        };
 
         // ==========================================
         // PHASE 1: HARVEST & SEND COMPLETED CHUNKS
@@ -81,7 +61,9 @@ pub fn handle(
         // Anything harvested is no longer in flight, whatever its outcome.
         // This is what stops a failure from stranding the coordinate forever.
         for prepared in &harvested {
-            chunk_receiver.in_flight.remove(&prepared.chunk_pos());
+            chunk_receiver
+                .chunks
+                .finish_preparation(prepared.chunk_pos());
         }
 
         let mut ready_to_send: Vec<ReadyChunk> = Vec::new();
@@ -93,14 +75,14 @@ pub fn handle(
                     chunk_receiver.retry_counts.remove(&ready.chunk_pos);
 
                     // The player may have flown past while this was generating.
-                    // `in_flight` is already cleared above, so `chunk_calculator`
-                    // will requeue it if they come back.
-                    if in_view(ready.chunk_pos) {
+                    // The chunk calculator owns the current view, so stale work
+                    // is discarded here and can be queued again if they return.
+                    if chunk_receiver.chunks.is_needed(ready.chunk_pos) {
                         ready_to_send.push(ready);
                     }
                 }
                 PreparedChunk::Failed { chunk_pos } => {
-                    if !in_view(chunk_pos) {
+                    if !chunk_receiver.chunks.is_needed(chunk_pos) {
                         chunk_receiver.retry_counts.remove(&chunk_pos);
                         continue;
                     }
@@ -115,7 +97,7 @@ pub fn handle(
                         );
                         chunk_receiver.retry_counts.remove(&chunk_pos);
                     } else {
-                        chunk_receiver.loading.push_back(chunk_pos);
+                        chunk_receiver.chunks.queue_loading(chunk_pos);
                     }
                 }
             }
@@ -135,7 +117,8 @@ pub fn handle(
             let packets_len = ready_to_send.len();
 
             for chunk in ready_to_send {
-                chunk_receiver.loaded.insert(chunk.chunk_pos);
+                let marked_loaded = chunk_receiver.chunks.mark_loaded(chunk.chunk_pos);
+                debug_assert!(marked_loaded, "only needed chunks should be sent");
 
                 if chunk.is_new_load {
                     mob_load_writer.write(temper_messages::load_chunk_entities::LoadChunkEntities(
@@ -160,7 +143,7 @@ pub fn handle(
         }
 
         // tell the client to unload chunks that are no longer needed
-        while let Some(chunk_pos) = chunk_receiver.unloading.pop_front() {
+        while let Some(chunk_pos) = chunk_receiver.chunks.pop_unloading() {
             let packet = temper_protocol::outgoing::unload_chunk::UnloadChunk {
                 x: chunk_pos.x(),
                 z: chunk_pos.z(),
@@ -175,27 +158,27 @@ pub fn handle(
         // ==========================================
         let chunk_per_tick = match state.0.config.performance.chunks_per_tick {
             0 => max(
-                chunk_receiver.loading.len() / 3,
+                chunk_receiver.chunks.loading_len() / 3,
                 state.0.config.performance.chunks_per_tick_min as usize,
             ),
             -1 => usize::MAX,
             hard_limit => hard_limit as usize,
         };
 
-        let dispatch_budget = max_in_flight.saturating_sub(chunk_receiver.in_flight.len());
+        let dispatch_budget = max_in_flight.saturating_sub(chunk_receiver.chunks.in_flight_len());
         if dispatch_budget == 0 {
             continue;
         }
         let chunk_per_tick = chunk_per_tick.min(dispatch_budget);
 
-        if chunk_receiver.dirty.is_empty() && chunk_receiver.loading.is_empty() {
+        if !chunk_receiver.chunks.has_pending_work() {
             continue;
         }
 
         let mut dirty_chunks = Vec::new();
         let mut sent_chunks = 0;
 
-        while let Some(coords) = chunk_receiver.dirty.pop_front() {
+        while let Some(coords) = chunk_receiver.chunks.pop_dirty() {
             dirty_chunks.push(coords);
             sent_chunks += 1;
             if sent_chunks >= chunk_per_tick {
@@ -206,7 +189,7 @@ pub fn handle(
         let mut needed_chunks: Vec<FullChunkPos> = Vec::new();
 
         if sent_chunks < chunk_receiver.chunks_per_tick as usize {
-            while let Some(coords) = chunk_receiver.loading.pop_front() {
+            while let Some(coords) = chunk_receiver.chunks.pop_loading() {
                 needed_chunks.push(coords);
                 sent_chunks += 1;
                 if sent_chunks >= chunk_per_tick {
@@ -223,15 +206,15 @@ pub fn handle(
         }
 
         // dispatch to the thread pool
-        for coordinates in needed_chunks.into_iter().filter(|c| in_view(*c)) {
+        for coordinates in needed_chunks {
+            if !chunk_receiver.chunks.begin_preparation(coordinates) {
+                continue;
+            }
             let is_new_load = loading_chunks.contains(&coordinates);
             let is_compressed = conn.compress.load(Ordering::Relaxed);
 
             let state_clone = state.clone();
             let tx = chunk_receiver.ready_tx.clone();
-
-            // Mark this chunk as in-flight to prevent duplicate generation
-            chunk_receiver.in_flight.insert(coordinates);
 
             state.0.thread_pool.oneshot(move || {
                 // Inner closure so we can use `?` on the fallible steps instead

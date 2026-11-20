@@ -11,12 +11,11 @@ pub fn handle(
 ) {
     let mut all_chunks: HashSet<FullChunkPos> = HashSet::new();
     let mut visible_chunks = HashSet::new();
-    'chunk_iter: for chunk_candidate in state.0.world.get_cache() {
-        let (k, _v) = chunk_candidate.pair();
-        all_chunks.insert(*k);
+    'chunk_iter: for pos in state.0.world.cached_chunk_keys() {
+        all_chunks.insert(pos);
         for chunk_receiver in query.iter() {
-            if chunk_receiver.loaded.contains(k) {
-                visible_chunks.insert(*k);
+            if chunk_receiver.chunks.is_loaded(pos) {
+                visible_chunks.insert(pos);
                 continue 'chunk_iter;
             }
         }

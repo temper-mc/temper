@@ -1,4 +1,5 @@
 use crossbeam_channel::RecvTimeoutError;
+use std::collections::HashSet;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -6,7 +7,7 @@ use gen_core::{
     ChunkGenerator, GenStage, GenerationError, StageInput, StageNeighbor, StageNeighborhood,
     StageSpec,
 };
-use gen_scheduler::{JobKey, SchedulerError, SchedulerState};
+use gen_scheduler::{JobKey, RequestId, SchedulerError, SchedulerState};
 use temper_core::dimension::Dimension;
 use temper_core::pos::ChunkPos;
 use temper_world_format::errors::WorldError;
@@ -18,6 +19,31 @@ use crate::ChunkStore;
 pub struct WorldChunkGenerator {
     scheduler: Arc<SchedulerState>,
     generator: Arc<dyn ChunkGenerator>,
+}
+
+struct SchedulerRequestLease<'a> {
+    scheduler: &'a SchedulerState,
+    request: RequestId,
+}
+
+struct SchedulerJobLease<'a> {
+    scheduler: &'a SchedulerState,
+    job: JobKey,
+    completed: bool,
+}
+
+impl Drop for SchedulerRequestLease<'_> {
+    fn drop(&mut self) {
+        self.scheduler.unregister_request(self.request);
+    }
+}
+
+impl Drop for SchedulerJobLease<'_> {
+    fn drop(&mut self) {
+        if !self.completed {
+            self.scheduler.fail_job(self.job);
+        }
+    }
 }
 
 impl WorldChunkGenerator {
@@ -54,6 +80,10 @@ impl WorldChunkGenerator {
         pos: ChunkPos,
         stage: GenStage,
     ) -> Result<(), WorldError> {
+        let radius = self.generation_radius(stage, &mut HashSet::new());
+        let _lifecycle = chunks
+            .chunk_lifecycle()
+            .begin_generation(dimension, pos, radius);
         if chunk_has_stage(chunks, dimension, pos, stage)? {
             return Ok(());
         }
@@ -63,14 +93,29 @@ impl WorldChunkGenerator {
             .scheduler
             .register_request(&*self.generator, target)
             .map_err(scheduler_error)?;
+        let _request_lease = SchedulerRequestLease {
+            scheduler: &self.scheduler,
+            request: request.id,
+        };
         let wake_receiver = request.wake_receiver();
 
         let result = loop {
+            if let Some(failed_job) = request.take_failed_job() {
+                break Err(WorldError::WorldGenerationError(format!(
+                    "generation dependency {failed_job:?} failed while generating {pos:?}"
+                )));
+            }
+
             if chunk_has_stage(chunks, dimension, pos, stage)? {
                 break Ok(());
             }
 
             if let Some(claimed) = self.scheduler.claim_next_for_request(&request) {
+                let mut job_lease = SchedulerJobLease {
+                    scheduler: &self.scheduler,
+                    job: claimed.key,
+                    completed: false,
+                };
                 let already = chunk_has_stage(
                     chunks,
                     claimed.key.dimension,
@@ -79,9 +124,6 @@ impl WorldChunkGenerator {
                 )?;
                 if !already {
                     if let Err(err) = self.run_stage(chunks, claimed.key) {
-                        // never leave a claimed job stuck in Running since
-                        // everything waiting on it would block forever.
-                        self.scheduler.fail_job(claimed.key);
                         break Err(err);
                     }
                 }
@@ -89,6 +131,7 @@ impl WorldChunkGenerator {
                 self.scheduler
                     .mark_complete(claimed.key)
                     .map_err(scheduler_error)?;
+                job_lease.completed = true;
                 continue;
             }
 
@@ -112,7 +155,6 @@ impl WorldChunkGenerator {
             }
         };
 
-        self.scheduler.unregister_request(request.id);
         result
     }
 
@@ -120,8 +162,37 @@ impl WorldChunkGenerator {
         self.scheduler.has_pending_jobs(dimension, pos)
     }
 
-    pub fn forget_chunk(&self, dimension: Dimension, pos: ChunkPos) {
+    pub(crate) fn forget_chunk(&self, dimension: Dimension, pos: ChunkPos) {
         self.scheduler.forget_chunk(dimension, pos);
+    }
+
+    fn generation_radius(&self, stage: GenStage, path: &mut HashSet<GenStage>) -> i32 {
+        if !path.insert(stage) {
+            return 0;
+        }
+
+        let radius = self
+            .generator
+            .stage_spec(stage)
+            .map(|spec| {
+                let dependencies = spec.dependencies;
+                let own_radius = dependencies
+                    .own_stage
+                    .map(|own_stage| self.generation_radius(own_stage, path))
+                    .unwrap_or(0);
+                let neighbor_radius = dependencies
+                    .neighbor_stage
+                    .map(|neighbor_stage| {
+                        i32::from(dependencies.neighbor_radius)
+                            .saturating_add(self.generation_radius(neighbor_stage, path))
+                    })
+                    .unwrap_or(0);
+                own_radius.max(neighbor_radius)
+            })
+            .unwrap_or(0);
+
+        path.remove(&stage);
+        radius
     }
 
     pub fn forget_all(&self) {
@@ -229,4 +300,51 @@ fn scheduler_error(err: SchedulerError) -> WorldError {
 
 fn generation_error(err: GenerationError) -> WorldError {
     WorldError::WorldGenerationError(err.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use gen_core::{
+        ChunkGenerator, GenStage, GenerationError, GeneratorId, StageDependencies, StageInput,
+        StageSpec,
+    };
+
+    use super::WorldChunkGenerator;
+
+    struct NestedNeighborGenerator;
+
+    impl ChunkGenerator for NestedNeighborGenerator {
+        fn id(&self) -> GeneratorId {
+            GeneratorId::new("nested-neighbor-test")
+        }
+
+        fn final_stage(&self) -> GenStage {
+            GenStage::new(2)
+        }
+
+        fn stage_spec(&self, stage: GenStage) -> Option<StageSpec> {
+            let dependencies = match stage.raw() {
+                0 => StageDependencies::NONE,
+                1 => StageDependencies::with_neighbors(GenStage::new(0), GenStage::new(0), 2),
+                2 => StageDependencies::with_neighbors(GenStage::new(1), GenStage::new(1), 1),
+                _ => return None,
+            };
+            Some(StageSpec::new(stage, "test", dependencies))
+        }
+
+        fn advance_stage(&self, _input: StageInput<'_>) -> Result<(), GenerationError> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn generation_lease_radius_includes_nested_neighbor_dependencies() {
+        let generator = WorldChunkGenerator::new(Arc::new(NestedNeighborGenerator));
+        assert_eq!(
+            generator.generation_radius(GenStage::new(2), &mut Default::default()),
+            3
+        );
+    }
 }

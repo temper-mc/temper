@@ -1,7 +1,9 @@
-use bevy_ecs::prelude::{Commands, MessageWriter, Res};
+use bevy_ecs::prelude::{Commands, MessageWriter, Query, Res, With};
 use bevy_math::Vec3A;
+use std::collections::HashSet;
 use std::time::Instant;
 use temper_components::bounds::CollisionBounds;
+use temper_components::entity_identity::Identity;
 use temper_components::last_synced_position::LastSyncedPosition;
 use temper_components::player::bossbar_sender::BossbarSender;
 use temper_components::player::chunk_receiver::ChunkReceiver;
@@ -21,20 +23,52 @@ use temper_entities::HasCollisions;
 use temper_inventories::hotbar::Hotbar;
 use temper_messages::chunk_calc::ChunkCalc;
 use temper_net_runtime::connection::DisconnectHandle;
+use temper_protocol::outgoing::disconnect::DisconnectPacket;
 use temper_resources::new_conn::NewConnectionRecv;
 use temper_state::GlobalStateResource;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 pub fn accept_new_connections(
     mut cmd: Commands,
     new_connections: Res<NewConnectionRecv>,
     state: Res<GlobalStateResource>,
     mut chunk_update_writer: MessageWriter<ChunkCalc>,
+    existing_players: Query<&Identity, With<PlayerMarker>>,
 ) {
     if new_connections.0.is_empty() {
         return;
     }
+    let mut connected_uuids = existing_players
+        .iter()
+        .map(|identity| identity.uuid.as_u128())
+        .collect::<HashSet<_>>();
+
     while let Ok(new_connection) = new_connections.0.try_recv() {
+        let player_uuid = new_connection.player_identity.uuid.as_u128();
+        if !connected_uuids.insert(player_uuid) {
+            let player_name = new_connection
+                .player_identity
+                .name
+                .as_deref()
+                .unwrap_or("Unknown");
+            warn!(
+                "Rejected duplicate connection for player {} ({})",
+                player_name, new_connection.player_identity.uuid
+            );
+            if let Err(err) = new_connection
+                .stream
+                .send_packet(DisconnectPacket::from_string(
+                    "This player is already connected.".to_string(),
+                ))
+            {
+                warn!("Failed to notify duplicate player connection: {:?}", err);
+            }
+            // Dropping `entity_return` tells the networking task that this
+            // connection was not registered. The disconnect packet is already
+            // queued on its writer and will be flushed as the stream closes.
+            continue;
+        }
+
         let return_sender = new_connection.entity_return;
 
         // --- 1. Load all data from cache ---

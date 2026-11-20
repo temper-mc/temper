@@ -6,7 +6,7 @@ pub fn send_save_message(
     mut writer: MessageWriter<SaveChunkEntities>,
     state: Res<GlobalStateResource>,
 ) {
-    for entry in state.0.world.get_cache() {
-        writer.write(SaveChunkEntities(*entry.key()));
+    for pos in state.0.world.cached_chunk_keys() {
+        writer.write(SaveChunkEntities(pos));
     }
 }

@@ -20,6 +20,35 @@ use temper_state::GlobalStateResource;
 use temper_world::chunks::load_chunk_internal;
 use temper_world_format::Chunk;
 
+/// Clear test cache state through the same lifecycle path production uses.
+pub fn clear_cached_chunks(state: &temper_state::GlobalStateResource) {
+    state.0.world.chunk_lifecycle().wait_for_pending_saves();
+    state
+        .0
+        .world
+        .chunk_lifecycle()
+        .replace_owners(std::collections::HashMap::new());
+
+    for pos in state.0.world.cached_chunk_keys() {
+        let eviction = state
+            .0
+            .world
+            .evict_chunk(pos)
+            .unwrap_or_else(|| panic!("test chunk {pos} could not be evicted"));
+        if eviction.needs_save() {
+            eviction
+                .save()
+                .expect("test chunk should save before cache is cleared");
+        } else {
+            eviction
+                .finish_clean()
+                .expect("clean test chunk should finish eviction");
+        }
+    }
+
+    assert!(state.0.world.cached_chunk_keys().is_empty());
+}
+
 /// `chunk_unloader` dispatches storage writes to the thread pool, so a chunk
 /// evicted from the cache is not immediately readable from storage. Poll the
 /// storage backend directly — going through `get_chunk` would hit the cache
@@ -50,8 +79,8 @@ pub fn emit_load_messages_for_known_chunks(
     mut writer: MessageWriter<LoadChunkEntities>,
 ) {
     for mut receiver in query.iter_mut() {
-        while let Some(chunk) = receiver.loading.pop_front() {
-            receiver.loaded.insert(chunk);
+        while let Some(chunk) = receiver.chunks.pop_loading() {
+            receiver.chunks.mark_loaded(chunk);
 
             if state
                 .0

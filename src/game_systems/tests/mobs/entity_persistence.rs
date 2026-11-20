@@ -1,3 +1,4 @@
+use crate::clear_cached_chunks;
 use bevy_ecs::prelude::*;
 use mobs::spawn::{
     handle_spawn_mob_bundle, load_mob_bundles, queue_live_mob_chunk_saves, save_mob_bundles,
@@ -92,7 +93,7 @@ fn sync_and_clear_cache(state: &GlobalStateResource) {
         .world
         .sync()
         .expect("saved mobs should be flushed to storage before restart-style load");
-    state.0.world.get_cache().clear();
+    clear_cached_chunks(state);
 }
 
 fn load_pigs_into_replacement_ecs(
@@ -380,8 +381,8 @@ fn spawn_command_cow_survives_registered_shutdown_reload() {
         cows[0].0.clone()
     };
 
-    state.0.world.get_cache().clear();
-    let loaded = load_cows_into_replacement_ecs(state.clone(), chunk.full(Dimension::Overworld));
+    clear_cached_chunks(&state);
+    let loaded = load_cows_into_replacement_ecs(state.clone(), chunk);
 
     assert_eq!(loaded.len(), 1, "spawned cow should reload after restart");
     assert_eq!(loaded[0].0.uuid, expected_identity.uuid);
@@ -675,7 +676,7 @@ fn registered_shutdown_schedule_saves_pig_into_replacement_ecs_world() {
         run_registered_shutdown_schedule(&mut first_world);
     }
 
-    state.0.world.get_cache().clear();
+    clear_cached_chunks(&state);
     let loaded = load_pigs_into_replacement_ecs(state.clone(), chunk);
 
     assert_eq!(
@@ -797,7 +798,7 @@ fn fox_loads_in_a_separate_ecs_world_after_save() {
         .world
         .sync()
         .expect("saved fox should be flushed to storage before restart-style load");
-    state.0.world.get_cache().clear();
+    clear_cached_chunks(&state);
 
     let loaded = {
         let mut second_world = World::new();

@@ -94,8 +94,21 @@ impl AtomicJobState {
         self.state.swap(JobState::Complete as u8, AcqRel) != JobState::Complete as u8
     }
 
-    pub fn mark_failed(&self) {
-        self.state.store(JobState::Failed as u8, Release);
+    pub fn mark_failed(&self) -> bool {
+        loop {
+            let current = self.load();
+            if matches!(current, JobState::Complete | JobState::Failed) {
+                return false;
+            }
+
+            if self
+                .state
+                .compare_exchange(current as u8, JobState::Failed as u8, AcqRel, Acquire)
+                .is_ok()
+            {
+                return true;
+            }
+        }
     }
 }
 
